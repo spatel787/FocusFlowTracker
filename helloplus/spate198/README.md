@@ -1,1 +1,2 @@
-
+This is a React web application that displays a visually appealing "Hello World" with changing text and interactive backgrounds. To run the program, navigate to the my-react-app directory and run npm install in the terminal to install the required packages. Once that is complete, run npm start to launch the development server. This will open a localhost window in your browser displaying the website.
+This project will help us build our GUI and front-end more efficiently now that we are familiar with these technologies.
