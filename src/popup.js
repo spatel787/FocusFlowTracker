@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
-function main_App() {
+function Main_App() {
     const [notes, setNotes] = useState(['Buy groceries', 'Finish homework']);
     const [newNote, setNewNote] = useState('');
 
@@ -24,4 +24,4 @@ function main_App() {
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<main_App />);
+root.render(<Main_App />);
