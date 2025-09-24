@@ -1,7 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
-// ---------------- Site Blocker feature (new) ----------------
+// Focus Flow Tracker component
+function FocusTracker() {
+    const [isExtensionActive, setIsExtensionActive] = useState(false);
+    const [tabSwitches, setTabSwitches] = useState(0);
+    const [currentTab, setCurrentTab] = useState('Loading...');
+
+    useEffect(() => {
+        // Get current tab
+        if (typeof chrome !== 'undefined' && chrome.tabs) {
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                if (tabs[0]) {
+                    setCurrentTab(tabs[0].url);
+                }
+            });
+        }
+
+        // Get status from background script
+        chrome.runtime.sendMessage({type: 'GET_STATUS'}, (response) => {
+            if (response) {
+                setIsExtensionActive(response.isTracking || false);
+                setTabSwitches(response.tabSwitches || 0);
+            }
+        });
+    }, []);
+
+    const toggleTracking = () => {
+        if (!isExtensionActive) {
+            chrome.runtime.sendMessage({type: 'START_TRACKING'}, (response) => {
+                if (response && response.success) {
+                    setIsExtensionActive(true);
+                    setTabSwitches(0);
+                }
+            });
+        } else {
+            chrome.runtime.sendMessage({type: 'STOP_TRACKING'}, (response) => {
+                if (response && response.success) {
+                    setIsExtensionActive(false);
+                }
+            });
+        }
+    };
+
+    const getDomain = (url) => {
+        try {
+            return new URL(url).hostname;
+        } catch {
+            return 'Loading...';
+        }
+    };
+
+    return (
+        <div style={{background: '#f0f8ff', padding: '15px', borderRadius: '5px', marginBottom: '20px'}}>
+            <h2>Focus Flow Tracker</h2>
+            <div style={{background: isExtensionActive ? '#e8f5e8' : '#ffebee', padding: '10px', borderRadius: '5px', marginBottom: '10px'}}>
+                <p>Status: {isExtensionActive ? '🟢 TRACKING' : '🔴 INACTIVE'}</p>
+                {isExtensionActive && <p>Tab Switches: {tabSwitches}</p>}
+                <p><strong>Current Site:</strong> {getDomain(currentTab)}</p>
+                <button 
+                    onClick={toggleTracking}
+                    style={{
+                        padding: '8px 15px', 
+                        background: isExtensionActive ? '#f44336' : '#4CAF50', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '3px'
+                    }}
+                >
+                    {isExtensionActive ? 'Stop' : 'Start'} Tracking
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// Site Blocker component
 function SiteBlocker() {
     const [blockedSites, setBlockedSites] = useState([]);
     const [newSite, setNewSite] = useState('');
@@ -23,25 +97,24 @@ function SiteBlocker() {
     }, []);
 
     const generateRules = (sites) => {
-    let rules = [];
-    let idCounter = 1;
-    sites.forEach(site => {
-        rules.push({
-        id: idCounter++,
-        priority: 1,
-        action: { type: "block" },
-        condition: {
-            urlFilter: site,  // <-- no "*://", just domain pattern
-            resourceTypes: ["main_frame"]
-        }
+        let rules = [];
+        let idCounter = 1;
+        sites.forEach(site => {
+            rules.push({
+                id: idCounter++,
+                priority: 1,
+                action: { type: "block" },
+                condition: {
+                    urlFilter: site,
+                    resourceTypes: ["main_frame"]
+                }
+            });
         });
-    });
-    return rules;
+        return rules;
     };
 
     const updateRules = (sites) => {
         if (typeof chrome !== 'undefined' && chrome.declarativeNetRequest) {
-            // Remove all existing dynamic rules
             chrome.declarativeNetRequest.getDynamicRules(rules => {
                 const removeIds = rules.map(r => r.id);
                 const addRules = generateRules(sites);
@@ -95,7 +168,6 @@ function SiteBlocker() {
 }
 
 function Main_App() {
-    // ---------------- Notes feature (existing) ----------------
     const [notes, setNotes] = useState(['Buy groceries', 'Finish homework']);
     const [newNote, setNewNote] = useState('');
 
@@ -106,7 +178,9 @@ function Main_App() {
     };
 
     return (
-        <div>
+        <div style={{padding: '20px'}}>
+            <FocusTracker />
+            
             <h1>Take a Quick Note</h1>
             <input
                 value={newNote}
@@ -117,7 +191,6 @@ function Main_App() {
 
             <hr />
 
-            {/* Site Blocker Section */}
             <SiteBlocker />
         </div>
     );
