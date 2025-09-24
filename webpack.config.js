@@ -3,11 +3,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: './src/popup.js',
+  entry: {
+    popup: './src/popup.js',
+    background: './src/background.js'
+  },
   
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'popup.js'
+    filename: '[name].js'
   },
   
   module: {
