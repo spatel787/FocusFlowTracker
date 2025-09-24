@@ -98,7 +98,7 @@ function SiteBlocker() {
 
     const generateRules = (sites) => {
         let rules = [];
-        let idCounter = 1;
+        let idCounter = 10000;
         sites.forEach(site => {
             rules.push({
                 id: idCounter++,
