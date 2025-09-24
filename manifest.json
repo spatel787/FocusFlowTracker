@@ -3,12 +3,17 @@
   "name": "Focus Flow Tracker",
   "version": "1.0.0",
   "description": "A productivity tool to help users track their time and minimize distractions",
-  
+
   "permissions": [
-    "activeTab",
-    "storage"
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
   ],
-  
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
   "action": {
     "default_popup": "popup.html",
     "default_title": "Focus Flow Tracker"
