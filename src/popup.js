@@ -198,10 +198,6 @@ function Main_App() {
     );
 }
 
-import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
-import './popup.css';
-
 function Popup() {
   const [theme, setTheme] = useState('light');
 
