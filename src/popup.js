@@ -176,6 +176,27 @@ function SiteBlocker() {
 function NotesSection() {
     const [notes, setNotes] = useState(['Buy groceries', 'Finish homework']);
     const [newNote, setNewNote] = useState('');
+    const [completedNotes, setCompletedNotes] = useState([]);
+
+    // Load notes from storage on component mount
+    useEffect(() => {
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.local.get(['activeNotes', 'completedNotes'], (result) => {
+                if (result.activeNotes) setNotes(result.activeNotes);
+                if (result.completedNotes) setCompletedNotes(result.completedNotes);
+            });
+        }
+    }, []);
+
+    // Save notes to storage whenever they change
+    useEffect(() => {
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.local.set({
+                activeNotes: notes,
+                completedNotes: completedNotes
+            });
+        }
+    }, [notes, completedNotes]);
 
     const addNote = () => {
         if (!newNote.trim()) return;
@@ -183,19 +204,124 @@ function NotesSection() {
         setNewNote('');
     };
 
+    const completeNote = (index) => {
+        const noteToComplete = notes[index];
+        const newNotes = notes.filter((_, i) => i !== index);
+        setNotes(newNotes);
+        setCompletedNotes([...completedNotes, {
+            text: noteToComplete,
+            completedAt: new Date().toLocaleString()
+        }]);
+    };
+
+    const uncompleteNote = (index) => {
+        const noteToUncomplete = completedNotes[index];
+        setCompletedNotes(completedNotes.filter((_, i) => i !== index));
+        setNotes([...notes, noteToUncomplete.text]);
+    };
+
+    const deleteNote = (index) => {
+        setNotes(notes.filter((_, i) => i !== index));
+    };
+
+    const deleteCompletedNote = (index) => {
+        setCompletedNotes(completedNotes.filter((_, i) => i !== index));
+    };
+
+    const clearAllCompleted = () => {
+        setCompletedNotes([]);
+    };
+
     return (
         <div className="card">
-            <h2>Take a Quick Note</h2>
-            <div style={{display: 'flex', gap: '10px', marginBottom: '10px'}}>
+            <h2>Quick Notes</h2>
+            <div className="input-group">
                 <input
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
                     placeholder="Add a new note..."
-                    style={{flex: 1, padding: '5px'}}
+                    onKeyPress={(e) => e.key === 'Enter' && addNote()}
                 />
                 <button onClick={addNote} className="green">Add</button>
             </div>
-            <p>{notes.join(', ')}</p>
+            
+            {/* Active Notes */}
+            {notes.length > 0 && (
+                <div className="notes-section">
+                    <h3 style={{margin: '15px 0 10px 0', fontSize: '0.95rem', color: 'var(--text-color)'}}>
+                        📝 Active Notes ({notes.length})
+                    </h3>
+                    <ul className="notes-list">
+                        {notes.map((note, index) => (
+                            <li key={index} className="note-item">
+                                <div style={{display: 'flex', alignItems: 'center', gap: '10px', flex: 1}}>
+                                    <input
+                                        type="checkbox"
+                                        onChange={() => completeNote(index)}
+                                        className="note-checkbox"
+                                    />
+                                    <span className="note-text">{note}</span>
+                                </div>
+                                <button 
+                                    onClick={() => deleteNote(index)} 
+                                    className="delete-btn"
+                                    title="Delete note"
+                                >
+                                    ×
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+            
+            {/* Completed Notes */}
+            {completedNotes.length > 0 && (
+                <div className="notes-section completed-notes">
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '15px 0 10px 0'}}>
+                        <h3 style={{fontSize: '0.95rem', color: 'var(--text-color)'}}>
+                            ✅ Completed ({completedNotes.length})
+                        </h3>
+                        <button 
+                            onClick={clearAllCompleted} 
+                            className="gray"
+                            style={{fontSize: '0.8rem', padding: '3px 8px'}}
+                        >
+                            Clear All
+                        </button>
+                    </div>
+                    <ul className="notes-list">
+                        {completedNotes.map((note, index) => (
+                            <li key={index} className="note-item completed">
+                                <div style={{display: 'flex', alignItems: 'center', gap: '10px', flex: 1}}>
+                                    <input
+                                        type="checkbox"
+                                        checked
+                                        onChange={() => uncompleteNote(index)}
+                                        className="note-checkbox"
+                                    />
+                                    <span className="note-text completed">{note.text}</span>
+                                </div>
+                                <button 
+                                    onClick={() => deleteCompletedNote(index)} 
+                                    className="delete-btn"
+                                    title="Delete note"
+                                >
+                                    ×
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+            
+            {notes.length === 0 && completedNotes.length === 0 && (
+                <div className="empty-state">
+                    <p style={{textAlign: 'center', color: '#666', fontStyle: 'italic', margin: '20px 0'}}>
+                        No notes yet. Add a note to get started!
+                    </p>
+                </div>
+            )}
         </div>
     );
 }
