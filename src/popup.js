@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import "./storage.js";
+import "./popup.css";
 
 // Focus Flow Tracker component
 function FocusTracker() {
