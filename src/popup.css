@@ -1,10 +1,39 @@
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+}
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --text-color: #ffffff;
+}
+
 body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.toggle-btn {
+  padding: 8px 12px;
+  margin: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: var(--text-color);
+  color: var(--bg-color);
+}
+
+
+/*body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 1rem;
     width: 320px;
     background: #f9fafb;
-  }
+  }*/
   
   h1 {
     font-size: 1.2rem;
@@ -47,4 +76,3 @@ body {
   button.gray {
     background: #e5e7eb;
   }
-  

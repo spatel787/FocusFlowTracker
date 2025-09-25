@@ -198,6 +198,43 @@ function Main_App() {
     );
 }
 
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
+import './popup.css';
+
+function Popup() {
+  const [theme, setTheme] = useState('light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    chrome.storage.local.set({ theme });
+  }, [theme]);
+
+  useEffect(() => {
+    // load saved preference
+    chrome.storage.local.get('theme', (result) => {
+      if (result.theme) {
+        setTheme(result.theme);
+      }
+    });
+  }, []);
+
+  return (
+    <div>
+      <h1>FocusFlow Tracker</h1>
+      <button
+        className="toggle-btn"
+        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      >
+        Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
+      </button>
+    </div>
+  );
+}
+
+ReactDOM.render(<Popup />, document.getElementById('root'));
+
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<Main_App />);
 
