@@ -334,7 +334,18 @@ function TimeTracker() {
     // state to check stopwatch running or not
     const [isRunning, setIsRunning] = useState(false);
 
+    chrome.runtime.sendMessage({type: 'CHECK_TIME_STATE'}, (response) => {
+        if (response && response.isRunning !== undefined) {
+            setIsRunning(response.isRunning);
+        }
+    });
+
     useEffect(() => {
+        chrome.runtime.sendMessage({type: 'GET_TIME'}, (response) => {
+                if (response && response.elapsedTime) {
+                    setTime(response.elapsedTime);
+                }
+            });
         let intervalId;
         if (isRunning) {
             // setting time from 0 to 1 every 10 milisecond using javascript setInterval method
@@ -353,8 +364,22 @@ function TimeTracker() {
     const seconds = Math.floor((time % 6000) / 100);
 
     // Method to start and stop timer
-    const startAndStop = () => {
-        setIsRunning(!isRunning);
+    const startAndStop = () => { //Broken functionality here
+        /*if (!isRunning) {
+            chrome.runtime.sendMessage({type: 'START_TIME'}, (response) => {
+                if (response && response.success) {
+                    setIsRunning(true);
+                }
+            });
+        }
+        else {
+            chrome.runtime.sendMessage({type: 'STOP_TIME'}, (response) => {
+                if (response && response.success) {
+                    setIsRunning(false);
+                }
+            });
+        }*/
+       setIsRunning(!isRunning);
     };
 
     // Method to reset timer back to 0
