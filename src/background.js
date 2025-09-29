@@ -1,8 +1,14 @@
+import React, { useState } from "react";
+
 // MY CODE - Background tracking that never stops
 let isTracking = false;
 let sessionStart = null;
 let tabSwitches = 0;
 let currentTabId = null;
+
+let timerStart = null;
+let timerStopped = null;
+let elapsedTime = 0;
 
 // CLAUDE'S ADDITION - Keep service worker alive
 let keepAliveInterval;
@@ -51,6 +57,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       timeElapsed: sessionStart ? Date.now() - sessionStart : 0
     });
   }
+
+  if (message.type === 'START_TIME') {
+    timerStart = Date.now();
+
+    startKeepAlive(); // Ensure keep alive is running
+    console.log('Timer started at', new Date(timerStart).toLocaleTimeString());
+    sendResponse({success: true});
+    
+  }
+
+  if (message.type === 'STOP_TIME') {
+    if (timerStart) {
+      timerStopped = Date.now();
+      elapsedTime += timerStopped - timerStart;
+      timerStart = null;
+    }
+    
+    // Optionally stop keep alive if not tracking
+    if (!isTracking) {
+      stopKeepAlive();
+    }
+
+    console.log('Timer stopped at', new Date(timerStopped).toLocaleTimeString(), 'Total elapsed:', elapsedTime);
+
+    sendResponse({success: true});
+  }
+
+  if (message.type === 'GET_TIME') {
+
+    console.log('GET_TIME requested. Elapsed:', elapsedTime, 'Timer running:', !!timerStart);
+    if (timerStart) {
+      // If timer is running, calculate elapsed time up to now
+      sendResponse({elapsedTime: elapsedTime + (Date.now() - timerStart)});
+    } 
+    else {
+      sendResponse({elapsedTime});
+    }
+  }
+
+  if (message.type === 'CHECK_TIME_STATE') {
+    console.log('CHECK_TIME_STATE requested. Timer running:', !!timerStart);
+    sendResponse({isRunning: !!timerStart});
+  }
+
 });
 
 // MY CODE - Track tab switches (runs even when popup closed!)
