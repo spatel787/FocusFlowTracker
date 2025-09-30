@@ -1,0 +1,91 @@
+src/background.js
+  line 31: console.log('Received message:', message);
+  line 32: console.log('sender:', sender);
+
+  line 40: console.log('Tracking started at', new Date(sessionStart).toLocaleTimeString());
+
+  line 50: console.log('Tracking stopped at', new Date().toLocaleTimeString());
+
+  line 55: console.log('GET_STATUS requested. Tracking:', isTracking, 'Tab switches:', tabSwitches);
+
+src/popup.css
+  line 309: }
+  line 310:
+  line 311: .stopwatch-time {
+  line 312:    text-align: center;
+  line 313:    color: #000000;
+  line 314:    font-size: 30px;
+  line 315:}
+  line 316:
+  line 317:[data-theme="dark"] .stopwatch-time {
+  line 318:  color: #ffffff;
+  line 319:}
+  line 320:
+  line 321:.stopwatch-buttons {
+  line 322:   display: flex;
+  line 323:   justify-content: center;
+  line 324:}
+  line 325:
+  line 326:.stopwatch-buttons button {
+  line 327:    margin: 20px;
+  line 328:    border: none;
+  line 329:    padding: 10px 30px;
+  line 330:    cursor: pointer;
+  line 331:    color: #fff;
+  line 332:}
+  line 333:
+  line 334:.stopwatch-buttons button:first-child {
+  line 335:    background-color: #22c55e;
+  line 336:}
+  line 337:
+  line 338:.stopwatch-buttons button:last-child {
+  line 339:    background-color: #ef4444;
+
+src/popup.html
+  line 30:     <small>Created by The Distractables | 2025</small>
+
+src/popup.js
+  line 338: useEffect(() => {//Get saved state from storage
+  line 339:      chrome.storage.session.get(['isRunning'], (result) => {
+  line 340:          if (result.isRunning !== undefined) {
+  line 341:              setIsRunning(result.isRunning);
+  line 342:          }
+  line 343:          else {
+  line 344:              setIsRunning(false);
+  line 345:          }
+  line 346:      });
+  line 347:      chrome.storage.session.get(['StartTime', 'StopTime'], (result) => {
+  line 348:          if (result.StartTime && !result.StopTime) {
+  line 349:              const startTime = result.StartTime;
+  line 350:              const elapsed = Date.now() - startTime;
+  line 351:              setTime(elapsed);
+  line 352:          }
+  line 353:          else if (result.StartTime && result.StopTime) {
+  line 354:              const elapsed = result.StopTime - result.StartTime;
+  line 355:              setTime(elapsed);
+  line 356:          }
+  line 357:      });
+  line 358:  }, []);
+    
+  line 362: useEffect(() => {// update time every 10 milliseconds if running
+
+  line 381:     const startAndStop = () => {
+  line 382:      if (!isRunning) {
+  line 383:          chrome.storage.session.set({StartTime: Date.now() });
+  line 384:         chrome.storage.session.set({isRunning: true });
+  line 385:         setIsRunning(true);
+
+  line 388:          chrome.storage.session.set({StopTime: Date.now() });
+  line 389:          chrome.storage.session.set({isRunning: false });
+  line 390:          setIsRunning(false);
+  line 391:      }
+
+  line 396:      if (isRunning) {
+  line 397:          chrome.storage.session.set({StartTime: Date.now()});
+  line 398:      }
+  line 399:      else {
+  line 400:          chrome.storage.session.set({StartTime: null});
+  line 401:      }
+  line 402:      chrome.storage.session.set({StopTime: null});
+
+
