@@ -30,9 +30,9 @@
 ---
 
 ## Issues you worked on
-* HTML for Chrome extension setup: React Environment: src/popup.html: [#9]
-* Background service worker implementation: Update background.js: [#8]
-* Tab switching detection feature in popup.js: Update popup.js: [#10]
+* HTML for Chrome extension setup: React Environment: src/popup.html: [#9](https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/9)
+* Background service worker implementation: Update background.js: [#8](https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/8)
+* Tab switching detection feature in popup.js: Update popup.js: [#10](https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/10)
 
 ---
 
