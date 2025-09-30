@@ -25,6 +25,7 @@ my code to work with it.
 1. FocusFlowTracker/src/background.js
 2. FocusFlowTracker/src/popup.css
 3. FocusFlowTracker/src/popup.js
+4. FocusFlowTracker/src/popup.html
 
 ### Use of AI and/or 3rd party software
 I used copilot extensively, mostly for it's auto complete functionality. I asked both copilot and  
