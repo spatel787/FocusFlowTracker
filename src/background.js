@@ -1,4 +1,4 @@
-// MY CODE - Background tracking that never stops
+// Siddh's CODE - Background tracking that never stops
 let isTracking = false;
 let sessionStart = null;
 let tabSwitches = 0;
@@ -25,7 +25,7 @@ const stopKeepAlive = () => {
   }
 };
 
-// MY CODE - Listen for messages from popup
+// Siddh's CODE - Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   console.log('Received message:', message);
@@ -61,7 +61,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// MY CODE - Track tab switches (runs even when popup closed!)
+// Siddh's CODE - Track tab switches (runs even when popup closed!)
 chrome.tabs.onActivated.addListener((activeInfo) => {
   if (isTracking) {
     tabSwitches++;
