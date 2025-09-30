@@ -305,12 +305,11 @@ function MainApp() {
     return (
         <div className="app-container">
             <div className="header">
-                <h1>FocusFlow</h1>
                 <button
                     className="toggle-btn"
                     onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                 >
-                    {theme === 'light' ? '🌙' : '☀️'}
+                    {theme === 'light' ? '☼' : '☼'}
                 </button>
             </div>
             
