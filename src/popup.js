@@ -53,8 +53,8 @@ function FocusTracker() {
         <div className="card">
             <h2>Focus Flow Tracker</h2>
             <div className={`status ${isExtensionActive ? 'active' : 'inactive'}`}>
-                <p>Status: {isExtensionActive ? '🟢 TRACKING' : '🔴 INACTIVE'}</p>
-                {isExtensionActive && <p>Tab Switches: {tabSwitches}</p>}
+                <p>Status: {isExtensionActive ? 'TRACKING' : 'INACTIVE'}</p>
+                <p>Tab Switches: {tabSwitches}</p>
                 <p><strong>Current Site:</strong> {getDomain(currentTab)}</p>
                 <button onClick={toggleTracking} className={isExtensionActive ? 'red' : 'green'}>
                     {isExtensionActive ? 'Stop' : 'Start'} Tracking
@@ -144,8 +144,8 @@ function SiteBlocker() {
             <ul style={{listStyle: 'none', padding: 0}}>
                 {blockedSites.map(site => (
                     <li key={site} className="list-item">
-                        <span>{site}</span>
                         <button onClick={() => removeSite(site)} className="gray">Remove</button>
+                        <span>    {site}</span>
                     </li>
                 ))}
             </ul>
