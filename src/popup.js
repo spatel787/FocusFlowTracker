@@ -333,19 +333,33 @@ function TimeTracker() {
     
     // state to check stopwatch running or not
     const [isRunning, setIsRunning] = useState(false);
+    
 
-    chrome.runtime.sendMessage({type: 'CHECK_TIME_STATE'}, (response) => {
-        if (response && response.isRunning !== undefined) {
-            setIsRunning(response.isRunning);
-        }
-    });
+    useEffect(() => {//Get saved state from storage
+        chrome.storage.session.get(['isRunning'], (result) => {
+            if (result.isRunning !== undefined) {
+                setIsRunning(result.isRunning);
+            }
+            else {
+                setIsRunning(false);
+            }
+        });
+        chrome.storage.session.get(['StartTime', 'StopTime'], (result) => {
+            if (result.StartTime && !result.StopTime) {
+                const startTime = result.StartTime;
+                const elapsed = Date.now() - startTime;
+                setTime(elapsed);
+            }
+            else if (result.StartTime && result.StopTime) {
+                const elapsed = result.StopTime - result.StartTime;
+                setTime(elapsed);
+            }
+        });
+    }, []);
 
-    useEffect(() => {
-        chrome.runtime.sendMessage({type: 'GET_TIME'}, (response) => {
-                if (response && response.elapsedTime) {
-                    setTime(response.elapsedTime);
-                }
-            });
+
+    
+    useEffect(() => {// update time every 10 milliseconds if running
         let intervalId;
         if (isRunning) {
             // setting time from 0 to 1 every 10 milisecond using javascript setInterval method
@@ -364,26 +378,28 @@ function TimeTracker() {
     const seconds = Math.floor((time % 6000) / 100);
 
     // Method to start and stop timer
-    const startAndStop = () => { //Broken functionality here
-        /*if (!isRunning) {
-            chrome.runtime.sendMessage({type: 'START_TIME'}, (response) => {
-                if (response && response.success) {
-                    setIsRunning(true);
-                }
-            });
+    const startAndStop = () => {
+        if (!isRunning) {
+            chrome.storage.session.set({StartTime: Date.now() });
+            chrome.storage.session.set({isRunning: true });
+            setIsRunning(true);
         }
         else {
-            chrome.runtime.sendMessage({type: 'STOP_TIME'}, (response) => {
-                if (response && response.success) {
-                    setIsRunning(false);
-                }
-            });
-        }*/
-       setIsRunning(!isRunning);
+            chrome.storage.session.set({StopTime: Date.now() });
+            chrome.storage.session.set({isRunning: false });
+            setIsRunning(false);
+        }
     };
 
     // Method to reset timer back to 0
     const reset = () => {
+        if (isRunning) {
+            chrome.storage.session.set({StartTime: Date.now()});
+        }
+        else {
+            chrome.storage.session.set({StartTime: null});
+        }
+        chrome.storage.session.set({StopTime: null});
         setTime(0);
     };
     return (
