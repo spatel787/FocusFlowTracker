@@ -1,9 +1,11 @@
-# Sprint n (1, 2, 3, or 4)
+# Sprint 1
 
-(include your name, github id, and group name here)
+Name: Davyn Mengeling
+GitHub Handle: DMengeli04
+Group Name: FocusFlowTracker
 
 ### What you planned to do
-(Give a short bulleted list of the items you planned to do for this sprint. Include the github issue number and link to the issue)
+
 
 ### What you did not do
 (Give a short bulleted list of the items that you planned to do, but did not accomplish)
