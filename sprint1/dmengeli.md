@@ -2,7 +2,7 @@
 
 Name: Davyn Mengeling\
 GitHub Handle: DMengeli04\
-Group Name: FocusFlowTracker\
+Group Name: FocusFlowTracker
 
 ### What you planned to do
 My goal was to add working functionality for the Site Blocker feature which would allow the user to block specific websites that distract them.
