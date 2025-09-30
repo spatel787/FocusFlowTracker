@@ -1,6 +1,8 @@
+//Debugged and reviewed with the assistance of Claude.
+
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-// Import the functions from your storage.js file
+// Import the functions from storage.js file
 import { 
     blocked_get, 
     blocked_add, 
@@ -11,7 +13,7 @@ import {
 } from "./storage.js";
 import "./popup.css";
 
-// Focus Flow Tracker component (Unchanged)
+// Focus Flow Tracker component
 function FocusTracker() {
     const [isExtensionActive, setIsExtensionActive] = useState(false);
     const [tabSwitches, setTabSwitches] = useState(0);
@@ -216,7 +218,7 @@ function NotesSection() {
 }
 
 
-// TimeTracker component (Unchanged)
+// TimeTracker component
 function TimeTracker() {
     const [time, setTime] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
@@ -283,7 +285,7 @@ function TimeTracker() {
     );
 }
 
-// MainApp component (Unchanged)
+// MainApp component
 function MainApp() {
     const [theme, setTheme] = useState('light');
 
