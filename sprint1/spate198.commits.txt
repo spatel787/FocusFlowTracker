@@ -90,7 +90,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 
 
-popup.js (The site blocker feature was not written by me!):
+src/popup.js (The site blocker feature was not written by me!):
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
