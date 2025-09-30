@@ -6,7 +6,7 @@
  * @param {string} url The URL to parse.
  * @returns {string} The root domain, or an empty string if invalid.
  */
-function getRootDomain(url) {
+function root_domain_get(url) {
   try {
     // A new URL object will throw an error if the URL is invalid.
     return new URL(url).hostname;
@@ -79,7 +79,7 @@ export function blocked_get() {
  */
 export function history_add(tabId, url) {
   return new Promise((resolve) => {
-    const rootDomain = getRootDomain(url); // This call now works
+    const rootDomain = root_domain_get(url);
     if (!rootDomain) {
       resolve(); // Don't track invalid URLs
       return;

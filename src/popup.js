@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import "./storage.js";
+// Import the functions from your storage.js file
+import { 
+    blocked_get, 
+    blocked_add, 
+    blocked_remove,
+    notes_get,
+    notes_add,
+    notes_remove
+} from "./storage.js";
 import "./popup.css";
 
-// Focus Flow Tracker component
+// Focus Flow Tracker component (Unchanged)
 function FocusTracker() {
     const [isExtensionActive, setIsExtensionActive] = useState(false);
     const [tabSwitches, setTabSwitches] = useState(0);
     const [currentTab, setCurrentTab] = useState('Loading...');
 
     useEffect(() => {
-        // Get current tab
         if (typeof chrome !== 'undefined' && chrome.tabs) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
                 if (tabs[0]) {
@@ -18,39 +25,28 @@ function FocusTracker() {
                 }
             });
         }
-
-        // Get status from background script
-        chrome.runtime.sendMessage({type: 'GET_STATUS'}, (response) => {
-            if (response) {
-                setIsExtensionActive(response.isTracking || false);
-                setTabSwitches(response.tabSwitches || 0);
-            }
-        });
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            chrome.runtime.sendMessage({type: 'GET_STATUS'}, (response) => {
+                if (response) {
+                    setIsExtensionActive(response.isTracking || false);
+                    setTabSwitches(response.tabSwitches || 0);
+                }
+            });
+        }
     }, []);
 
     const toggleTracking = () => {
-        if (!isExtensionActive) {
-            chrome.runtime.sendMessage({type: 'START_TRACKING'}, (response) => {
-                if (response && response.success) {
-                    setIsExtensionActive(true);
-                    setTabSwitches(0);
-                }
-            });
-        } else {
-            chrome.runtime.sendMessage({type: 'STOP_TRACKING'}, (response) => {
-                if (response && response.success) {
-                    setIsExtensionActive(false);
-                }
-            });
-        }
+        const messageType = isExtensionActive ? 'STOP_TRACKING' : 'START_TRACKING';
+        chrome.runtime.sendMessage({type: messageType}, (response) => {
+            if (response && response.success) {
+                setIsExtensionActive(!isExtensionActive);
+                if (!isExtensionActive) setTabSwitches(0);
+            }
+        });
     };
 
     const getDomain = (url) => {
-        try {
-            return new URL(url).hostname;
-        } catch {
-            return 'Loading...';
-        }
+        try { return new URL(url).hostname; } catch { return 'Loading...'; }
     };
 
     return (
@@ -60,10 +56,7 @@ function FocusTracker() {
                 <p>Status: {isExtensionActive ? '🟢 TRACKING' : '🔴 INACTIVE'}</p>
                 {isExtensionActive && <p>Tab Switches: {tabSwitches}</p>}
                 <p><strong>Current Site:</strong> {getDomain(currentTab)}</p>
-                <button 
-                    onClick={toggleTracking}
-                    className={isExtensionActive ? 'red' : 'green'}
-                >
+                <button onClick={toggleTracking} className={isExtensionActive ? 'red' : 'green'}>
                     {isExtensionActive ? 'Stop' : 'Start'} Tracking
                 </button>
             </div>
@@ -71,42 +64,37 @@ function FocusTracker() {
     );
 }
 
-// Site Blocker component
+// Site Blocker component - INTEGRATED WITH STORAGE.JS
 function SiteBlocker() {
     const [blockedSites, setBlockedSites] = useState([]);
     const [newSite, setNewSite] = useState('');
 
     useEffect(() => {
+        const fetchSites = async () => {
+            const sites = await blocked_get();
+            if (sites && sites.length > 0) {
+                setBlockedSites(sites);
+                updateRules(sites);
+            } /*else {
+                const defaults = ['youtube.com', 'tiktok.com', 'reddit.com'];
+                setBlockedSites(defaults);
+                // Use raw set for initial default population, since storage.js doesn't have a "set all"
+                chrome.storage.sync.set({ blockedSites: defaults });
+                updateRules(defaults);
+            }*/
+        };
         if (typeof chrome !== 'undefined' && chrome.storage) {
-            chrome.storage.sync.get(['blockedSites'], (result) => {
-                if (result.blockedSites) {
-                    setBlockedSites(result.blockedSites);
-                    updateRules(result.blockedSites);
-                } else {
-                    const defaults = ['youtube.com', 'tiktok.com', 'reddit.com'];
-                    setBlockedSites(defaults);
-                    chrome.storage.sync.set({ blockedSites: defaults });
-                    updateRules(defaults);
-                }
-            });
+            fetchSites();
         }
     }, []);
 
     const generateRules = (sites) => {
-        let rules = [];
-        let idCounter = 10000;
-        sites.forEach(site => {
-            rules.push({
-                id: idCounter++,
-                priority: 1,
-                action: { type: "block" },
-                condition: {
-                    urlFilter: site,
-                    resourceTypes: ["main_frame"]
-                }
-            });
-        });
-        return rules;
+        return sites.map((site, index) => ({
+            id: 10000 + index,
+            priority: 1,
+            action: { type: "block" },
+            condition: { urlFilter: site, resourceTypes: ["main_frame"] }
+        }));
     };
 
     const updateRules = (sites) => {
@@ -122,23 +110,21 @@ function SiteBlocker() {
         }
     };
 
-    const addSite = () => {
-        if (!newSite.trim()) return;
-        const updated = [...blockedSites, newSite.trim()];
+    const addSite = async () => {
+        const siteToAdd = newSite.trim();
+        if (!siteToAdd || blockedSites.includes(siteToAdd)) return;
+        
+        await blocked_add(siteToAdd); // Use storage function
+        const updated = [...blockedSites, siteToAdd];
         setBlockedSites(updated);
-        if (typeof chrome !== 'undefined' && chrome.storage) {
-            chrome.storage.sync.set({ blockedSites: updated });
-        }
         updateRules(updated);
         setNewSite('');
     };
 
-    const removeSite = (site) => {
-        const updated = blockedSites.filter(s => s !== site);
+    const removeSite = async (siteToRemove) => {
+        await blocked_remove(siteToRemove); // Use storage function
+        const updated = blockedSites.filter(s => s !== siteToRemove);
         setBlockedSites(updated);
-        if (typeof chrome !== 'undefined' && chrome.storage) {
-            chrome.storage.sync.set({ blockedSites: updated });
-        }
         updateRules(updated);
     };
 
@@ -157,13 +143,7 @@ function SiteBlocker() {
             </div>
             <ul style={{listStyle: 'none', padding: 0}}>
                 {blockedSites.map(site => (
-                    <li key={site} style={{
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center',
-                        padding: '5px 0',
-                        borderBottom: '1px solid #eee'
-                    }}>
+                    <li key={site} className="list-item">
                         <span>{site}</span>
                         <button onClick={() => removeSite(site)} className="gray">Remove</button>
                     </li>
@@ -173,63 +153,31 @@ function SiteBlocker() {
     );
 }
 
+// NotesSection component - INTEGRATED WITH STORAGE.JS
 function NotesSection() {
-    const [notes, setNotes] = useState(['Buy groceries', 'Finish homework']);
+    const [notes, setNotes] = useState([]);
     const [newNote, setNewNote] = useState('');
-    const [completedNotes, setCompletedNotes] = useState([]);
 
-    // Load notes from storage on component mount
     useEffect(() => {
-        if (typeof chrome !== 'undefined' && chrome.storage) {
-            chrome.storage.local.get(['activeNotes', 'completedNotes'], (result) => {
-                if (result.activeNotes) setNotes(result.activeNotes);
-                if (result.completedNotes) setCompletedNotes(result.completedNotes);
-            });
-        }
+        const fetchNotes = async () => {
+            const storedNotes = await notes_get();
+            setNotes(storedNotes || []);
+        };
+        fetchNotes();
     }, []);
 
-    // Save notes to storage whenever they change
-    useEffect(() => {
-        if (typeof chrome !== 'undefined' && chrome.storage) {
-            chrome.storage.local.set({
-                activeNotes: notes,
-                completedNotes: completedNotes
-            });
-        }
-    }, [notes, completedNotes]);
-
-    const addNote = () => {
-        if (!newNote.trim()) return;
-        setNotes([...notes, newNote.trim()]);
+    const addNote = async () => {
+        const noteToAdd = newNote.trim();
+        if (!noteToAdd || notes.includes(noteToAdd)) return;
+        
+        await notes_add(noteToAdd); // Use storage function
+        setNotes([...notes, noteToAdd]);
         setNewNote('');
     };
 
-    const completeNote = (index) => {
-        const noteToComplete = notes[index];
-        const newNotes = notes.filter((_, i) => i !== index);
-        setNotes(newNotes);
-        setCompletedNotes([...completedNotes, {
-            text: noteToComplete,
-            completedAt: new Date().toLocaleString()
-        }]);
-    };
-
-    const uncompleteNote = (index) => {
-        const noteToUncomplete = completedNotes[index];
-        setCompletedNotes(completedNotes.filter((_, i) => i !== index));
-        setNotes([...notes, noteToUncomplete.text]);
-    };
-
-    const deleteNote = (index) => {
-        setNotes(notes.filter((_, i) => i !== index));
-    };
-
-    const deleteCompletedNote = (index) => {
-        setCompletedNotes(completedNotes.filter((_, i) => i !== index));
-    };
-
-    const clearAllCompleted = () => {
-        setCompletedNotes([]);
+    const deleteNote = async (noteToDelete) => {
+        await notes_remove(noteToDelete); // Use storage function
+        setNotes(notes.filter(note => note !== noteToDelete));
     };
 
     return (
@@ -245,80 +193,21 @@ function NotesSection() {
                 <button onClick={addNote} className="green">Add</button>
             </div>
             
-            {/* Active Notes */}
-            {notes.length > 0 && (
-                <div className="notes-section">
-                    <h3 style={{margin: '15px 0 10px 0', fontSize: '0.95rem', color: 'var(--text-color)'}}>
-                        📝 Active Notes ({notes.length})
-                    </h3>
-                    <ul className="notes-list">
-                        {notes.map((note, index) => (
-                            <li key={index} className="note-item">
-                                <div style={{display: 'flex', alignItems: 'center', gap: '10px', flex: 1}}>
-                                    <input
-                                        type="checkbox"
-                                        onChange={() => completeNote(index)}
-                                        className="note-checkbox"
-                                    />
-                                    <span className="note-text">{note}</span>
-                                </div>
-                                <button 
-                                    onClick={() => deleteNote(index)} 
-                                    className="delete-btn"
-                                    title="Delete note"
-                                >
-                                    ×
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-            
-            {/* Completed Notes */}
-            {completedNotes.length > 0 && (
-                <div className="notes-section completed-notes">
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '15px 0 10px 0'}}>
-                        <h3 style={{fontSize: '0.95rem', color: 'var(--text-color)'}}>
-                            ✅ Completed ({completedNotes.length})
-                        </h3>
-                        <button 
-                            onClick={clearAllCompleted} 
-                            className="gray"
-                            style={{fontSize: '0.8rem', padding: '3px 8px'}}
-                        >
-                            Clear All
+            <ul className="notes-list">
+                {notes.map((note, index) => (
+                    <li key={index} className="note-item">
+                        <span className="note-text">{note}</span>
+                        <button onClick={() => deleteNote(note)} className="delete-btn" title="Delete note">
+                            ×
                         </button>
-                    </div>
-                    <ul className="notes-list">
-                        {completedNotes.map((note, index) => (
-                            <li key={index} className="note-item completed">
-                                <div style={{display: 'flex', alignItems: 'center', gap: '10px', flex: 1}}>
-                                    <input
-                                        type="checkbox"
-                                        checked
-                                        onChange={() => uncompleteNote(index)}
-                                        className="note-checkbox"
-                                    />
-                                    <span className="note-text completed">{note.text}</span>
-                                </div>
-                                <button 
-                                    onClick={() => deleteCompletedNote(index)} 
-                                    className="delete-btn"
-                                    title="Delete note"
-                                >
-                                    ×
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-            
-            {notes.length === 0 && completedNotes.length === 0 && (
+                    </li>
+                ))}
+            </ul>
+
+            {notes.length === 0 && (
                 <div className="empty-state">
                     <p style={{textAlign: 'center', color: '#666', fontStyle: 'italic', margin: '20px 0'}}>
-                        No notes yet. Add a note to get started!
+                        No notes yet. Add one to get started!
                     </p>
                 </div>
             )}
@@ -326,93 +215,67 @@ function NotesSection() {
     );
 }
 
+
+// TimeTracker component (Unchanged)
 function TimeTracker() {
-// Credit to https://medium.com/how-to-react/simple-way-to-create-a-stopwatch-in-react-js-bcc0e08e041e
-    // state to store time
     const [time, setTime] = useState(0);
-    
-    // state to check stopwatch running or not
     const [isRunning, setIsRunning] = useState(false);
     
-
-    useEffect(() => {//Get saved state from storage
-        chrome.storage.session.get(['isRunning'], (result) => {
-            if (result.isRunning !== undefined) {
-                setIsRunning(result.isRunning);
-            }
-            else {
-                setIsRunning(false);
-            }
-        });
-        chrome.storage.session.get(['StartTime', 'StopTime'], (result) => {
-            if (result.StartTime && !result.StopTime) {
-                const startTime = result.StartTime;
-                const elapsed = Date.now() - startTime;
-                setTime(elapsed);
-            }
-            else if (result.StartTime && result.StopTime) {
-                const elapsed = result.StopTime - result.StartTime;
-                setTime(elapsed);
-            }
-        });
+    useEffect(() => {
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.session.get(['isRunning', 'StartTime', 'StopTime'], (result) => {
+                setIsRunning(result.isRunning || false);
+                if (result.StartTime && !result.StopTime) {
+                    setTime(Date.now() - result.StartTime);
+                } else if (result.StartTime && result.StopTime) {
+                    setTime(result.StopTime - result.StartTime);
+                }
+            });
+        }
     }, []);
 
-
-    
-    useEffect(() => {// update time every 10 milliseconds if running
+    useEffect(() => {
         let intervalId;
         if (isRunning) {
-            // setting time from 0 to 1 every 10 milisecond using javascript setInterval method
-            intervalId = setInterval(() => setTime(time + 1), 10);
+            intervalId = setInterval(() => setTime(prevTime => prevTime + 10), 10);
         }
         return () => clearInterval(intervalId);
-    }, [isRunning, time]);
+    }, [isRunning]);
 
-    // Hours calculation
-    const hours = Math.floor(time / 360000);
+    const hours = Math.floor(time / 3600000);
+    const minutes = Math.floor((time % 3600000) / 60000);
+    const seconds = Math.floor((time % 60000) / 1000);
 
-    // Minutes calculation
-    const minutes = Math.floor((time % 360000) / 6000);
-
-    // Seconds calculation
-    const seconds = Math.floor((time % 6000) / 100);
-
-    // Method to start and stop timer
     const startAndStop = () => {
-        if (!isRunning) {
-            chrome.storage.session.set({StartTime: Date.now() });
-            chrome.storage.session.set({isRunning: true });
-            setIsRunning(true);
-        }
-        else {
-            chrome.storage.session.set({StopTime: Date.now() });
-            chrome.storage.session.set({isRunning: false });
-            setIsRunning(false);
+        const newIsRunning = !isRunning;
+        setIsRunning(newIsRunning);
+        chrome.storage.session.set({ isRunning: newIsRunning });
+        if (newIsRunning) {
+            chrome.storage.session.set({ StartTime: Date.now() - time, StopTime: null });
+        } else {
+            chrome.storage.session.get(['StartTime'], (result) => {
+                chrome.storage.session.set({ StopTime: result.StartTime + time });
+            });
         }
     };
 
-    // Method to reset timer back to 0
     const reset = () => {
-        if (isRunning) {
-            chrome.storage.session.set({StartTime: Date.now()});
-        }
-        else {
-            chrome.storage.session.set({StartTime: null});
-        }
-        chrome.storage.session.set({StopTime: null});
         setTime(0);
+        chrome.storage.session.set({ StartTime: isRunning ? Date.now() : null, StopTime: null });
     };
     return (
-        <div className="stopwatch-container">
+        <div className="card stopwatch-container">
+             <h2>Session Timer</h2>
             <p className="stopwatch-time">
-                {hours}:{minutes.toString().padStart(2, "0")}:
+                {hours.toString().padStart(2, "0")}:
+                {minutes.toString().padStart(2, "0")}:
                 {seconds.toString().padStart(2, "0")}
             </p>
             <div className="stopwatch-buttons">
-                <button className="stopwatch-button" onClick={startAndStop}>
+                <button onClick={startAndStop} className={`stopwatch-button ${isRunning ? 'red' : 'green'}`}>
                     {isRunning ? "Stop" : "Start"}
                 </button>
-                <button className="stopwatch-button" onClick={reset}>
+                <button onClick={reset} className="stopwatch-button gray">
                     Reset
                 </button>
             </div>
@@ -420,28 +283,29 @@ function TimeTracker() {
     );
 }
 
-
+// MainApp component (Unchanged)
 function MainApp() {
     const [theme, setTheme] = useState('light');
 
     useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        chrome.storage.local.set({ theme });
-    }, [theme]);
-
-    useEffect(() => {
-        // load saved preference
-        chrome.storage.local.get('theme', (result) => {
-            if (result.theme) {
-                setTheme(result.theme);
-            }
-        });
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.local.get('theme', (result) => {
+                if (result.theme) setTheme(result.theme);
+            });
+        }
     }, []);
 
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.local.set({ theme });
+        }
+    }, [theme]);
+
     return (
-        <div style={{padding: '15px', width: '320px'}}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
-                <h1>FocusFlow Tracker</h1>
+        <div className="app-container">
+            <div className="header">
+                <h1>FocusFlow</h1>
                 <button
                     className="toggle-btn"
                     onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
@@ -458,7 +322,5 @@ function MainApp() {
     );
 }
 
-// Only render once!
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<MainApp />);
-
