@@ -25,8 +25,8 @@ body {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  background-color: var(--text-color);
-  color: var(--bg-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-size: 1.2rem;
 }
 
