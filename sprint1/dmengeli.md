@@ -1,26 +1,33 @@
 # Sprint 1
 
-Name: Davyn Mengeling
-GitHub Handle: DMengeli04
-Group Name: FocusFlowTracker
+Name: Davyn Mengeling\
+GitHub Handle: DMengeli04\
+Group Name: FocusFlowTracker\
 
 ### What you planned to do
-
+My goal was to add working functionality for the Site Blocker feature which would allow the user to block specific websites that distract them.
 
 ### What you did not do
-(Give a short bulleted list of the items that you planned to do, but did not accomplish)
+I was fortunately able to complete everything I set out to accomplish by the expected deadline. 
 
 ### What problems you encountered
-(List the problems you encountered)
+There was one minor bug that I came across initially where one site in particular would remain accessible even after being blocked by our extension, however, this problem hasn't occurred on subsequent tests so I would consider it resolved.
 
 ### Issues you worked on
-(List the specific github issues that you worked on with a link to the issue (ex: [#1](https://github.com/utk-cs340-fall22/ClassInfo/issues/1) Sample Issue)
+- Site Blocker Functionality part 1: Update popup.js https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/1
+- Site Blocker Functinoality part 2: Update popup.html https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/2
+- Site Blocker Functionality part 3: Update manifest.json https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/3
 
 ### Files you worked on
-(Give a bulleted list of the files in your github repo that you worked on. Give the full pathname.)
+- https://github.com/utk-cs340-fall25/FocusFlowTracker/blob/main/src/popup.js
+- https://github.com/utk-cs340-fall25/FocusFlowTracker/blob/main/src/popup.html
+- https://github.com/utk-cs340-fall25/FocusFlowTracker/blob/main/manifest.json
+- https://github.com/utk-cs340-fall25/FocusFlowTracker/blob/main/package.json
+- https://github.com/utk-cs340-fall25/FocusFlowTracker/blob/main/package-lock.json
 
 ### Use of AI and/or 3rd party software
-(Explain how you used AI (if at all) in this sprint. Also list any 3rd party code or tools used in this sprint)
+AI was used to assist in the editing of all three files. GitHub Copilot and ChatGPT in particular were used.
 
 ### What you accomplished
-(Give a description of the features you added or tasks you accomplished. Provide some detail here. This section will be a little longer than the bulleted lists above) 
+I added a Site Blocker feature to the extension by creating a new React component that lets users manage a list of distracting sites (with some defaults like YouTube, TikTok and Reddit). This list is stored in Chrome's sync storage so it persists across sessions. Whenever the list changes, the extension uses Chrome's declarativeNetRequest API to update dynamic blocking rules, which prevent the browser from loading those sites in the main frame. To make this work, I also updated the manifest.json to include the correct permissions (storage, declarativeNetRequest, declarativeNetRequestFeedback, and <all_urls> host access). Finally, I adjusted the popup UI so users can add and remove sites interactively, and ensured the rules are actually applied by logging them in the popup console. In total, 157 lines of code were committed.
+https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/7f13a31ed666447bd3736eb4b7924f40117cb4b1
