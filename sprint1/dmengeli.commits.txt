@@ -1,0 +1,165 @@
+https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/7f13a31ed666447bd3736eb4b7924f40117cb4b1
+
+Changes in src/popup.js:
+
+import React, { useState, useEffect } from 'react';
+...
+  // ---------------- Site Blocker feature (new) ----------------
+function SiteBlocker() {
+    const [blockedSites, setBlockedSites] = useState([]);
+    const [newSite, setNewSite] = useState('');
+
+    useEffect(() => {
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.sync.get(['blockedSites'], (result) => {
+                if (result.blockedSites) {
+                    setBlockedSites(result.blockedSites);
+                    updateRules(result.blockedSites);
+                } else {
+                    const defaults = ['youtube.com', 'tiktok.com', 'reddit.com'];
+                    setBlockedSites(defaults);
+                    chrome.storage.sync.set({ blockedSites: defaults });
+                    updateRules(defaults);
+                }
+            });
+        }
+    }, []);
+
+    const generateRules = (sites) => {
+    let rules = [];
+    let idCounter = 1;
+    sites.forEach(site => {
+        rules.push({
+        id: idCounter++,
+        priority: 1,
+        action: { type: "block" },
+        condition: {
+            urlFilter: site,  // <-- no "*://", just domain pattern
+            resourceTypes: ["main_frame"]
+        }
+        });
+    });
+    return rules;
+    };
+
+    const updateRules = (sites) => {
+        if (typeof chrome !== 'undefined' && chrome.declarativeNetRequest) {
+            // Remove all existing dynamic rules
+            chrome.declarativeNetRequest.getDynamicRules(rules => {
+                const removeIds = rules.map(r => r.id);
+                const addRules = generateRules(sites);
+                chrome.declarativeNetRequest.updateDynamicRules({
+                    removeRuleIds: removeIds,
+                    addRules: addRules
+                });
+            });
+        }
+    };
+
+    const addSite = () => {
+        if (!newSite.trim()) return;
+        const updated = [...blockedSites, newSite.trim()];
+        setBlockedSites(updated);
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.sync.set({ blockedSites: updated });
+        }
+        updateRules(updated);
+        setNewSite('');
+    };
+
+    const removeSite = (site) => {
+        const updated = blockedSites.filter(s => s !== site);
+        setBlockedSites(updated);
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.sync.set({ blockedSites: updated });
+        }
+        updateRules(updated);
+    };
+
+    return (
+        <div style={{ marginTop: '20px' }}>
+            <h2>Site Blocker</h2>
+            <input
+                type="text"
+                value={newSite}
+                placeholder="example.com"
+                onChange={(e) => setNewSite(e.target.value)}
+            />
+            <button onClick={addSite}>Block</button>
+            <ul>
+                {blockedSites.map(site => (
+                    <li key={site}>
+                        {site} <button onClick={() => removeSite(site)}>Remove</button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+...
+  // ---------------- Notes feature (existing) ----------------
+...
+ if (!newNote.trim()) return;
+        setNotes([...notes, newNote.trim()]);
+...
+
+            <hr />
+
+            {/* Site Blocker Section */}
+            <SiteBlocker />
+
+Changes in src/popup.html:
+
+...
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Flow Tracker - A Magical Time Manager</title>
+  <meta
+    name="description"
+    content="This is a Chrome extension to help people log their time spent on their browser and avoid distractive websites."
+  />
+...
+  <header>
+    <h1>Focus Flow Tracker</h1>
+    <p>A magical productivity chrome extension.</p>
+  </header>
+...
+  <!-- Main content area where React will load -->
+  <main id="root">
+    <!-- if React doesn't load -->
+    <section>
+      <h2>Loading...</h2>
+      <p>Please wait while the extension loads your focus flow data.</p>
+    </section>
+  </main>
+...
+  <footer>
+    <small>Version 1.0.0 | It's Built for Focus & Productivity</small>
+    <br />
+    <small>Created by [My Name] | 2025</small>
+  </footer>
+
+  <!-- ✅ Ensure React bundle gets loaded -->
+  <script type="module" src="popup.js"></script>
+...
+</html>
+
+Changes in package.json:
+...
+   "webpack-cli": "^5.1.4"
+...
+    }
+
+Changes in manifest.json:
+
+...
+  "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
+...
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+...
+  }
