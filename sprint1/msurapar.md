@@ -26,11 +26,11 @@ What problems I encountered
 
 Issues I worked on
 
-* Implement React popup (popup.js) with Focus Tracker, Site Blocker, Notes components
+* Implement React popup (popup.js) with Focus Tracker, Site Blocker, Notes components #Popup UI
 
-* Create styling file (popup.css) and connect it into the build system
+* Create styling file (popup.css) and connect it into the build system #Popup CSS
 
-* Minor edits to background.js and popup.html to support new popup features
+* Minor edits to background.js and popup.html to support new popup features #Extension build folder missing required assets
 
 Files I worked on:
 
