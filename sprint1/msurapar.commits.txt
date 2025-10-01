@@ -1,1 +1,404 @@
+Popup.css:
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --card-bg: #ffffff;
+}
 
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --text-color: #ffffff;
+  --card-bg: #1e1e1e;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+  width: 350px;
+  min-height: 400px;
+}
+
+.toggle-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  font-size: 1.2rem;
+}
+
+h1 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+h3 {
+  font-size: 0.95rem;
+  margin: 15px 0 10px 0;
+  color: var(--text-color);
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .card {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.status {
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.status.active {
+  background: #e8f5e8;
+  border: 1px solid #4CAF50;
+}
+
+.status.inactive {
+  background: #ffebee;
+  border: 1px solid #f44336;
+}
+
+[data-theme="dark"] .status.active {
+  background: #1b5e20;
+  border-color: #4CAF50;
+}
+
+[data-theme="dark"] .status.inactive {
+  background: #b71c1c;
+  border-color: #f44336;
+}
+
+button {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button.green {
+  background: #22c55e;
+  color: white;
+}
+
+button.red {
+  background: #ef4444;
+  color: white;
+}
+
+button.gray {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+[data-theme="dark"] button.gray {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] input {
+  border-color: #555;
+  background: #2d2d2d;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+/* Notes Section Styles */
+.notes-section {
+  margin-top: 15px;
+}
+
+.notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  transition: background-color 0.2s;
+}
+
+[data-theme="dark"] .note-item {
+  border-bottom-color: rgba(255,255,255,0.1);
+}
+
+.note-item:hover {
+  background-color: rgba(0,0,0,0.02);
+}
+
+[data-theme="dark"] .note-item:hover {
+  background-color: rgba(255,255,255,0.05);
+}
+
+.note-item.completed {
+  opacity: 0.7;
+}
+
+.note-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.note-text {
+  flex: 1;
+  word-break: break-word;
+  padding: 2px 0;
+  margin-left: 8px;
+}
+
+.note-text.completed {
+  text-decoration: line-through;
+  color: #666;
+}
+
+[data-theme="dark"] .note-text.completed {
+  color: #aaa;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.completed-notes {
+  border-top: 2px solid #22c55e;
+  padding-top: 10px;
+  margin-top: 20px;
+}
+
+[data-theme="dark"] .completed-notes {
+  border-top-color: #22c55e;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px 0;
+  color: #666;
+  font-style: italic;
+}
+
+[data-theme="dark"] .empty-state {
+  color: #aaa;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  flex: 1;
+}
+
+.site-list {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.site-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+[data-theme="dark"] .site-list li {
+  border-bottom-color: #444;
+}
+
+.status-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.status-info p {
+  margin: 5px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+  .note-item {
+    padding: 10px 0;
+  }
+  
+  .note-text {
+    font-size: 0.9rem;
+  }
+  
+  .status-info {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}
+
+/* Checkbox styling */
+.note-checkbox {
+  accent-color: #22c55e;
+}
+
+[data-theme="dark"] .note-checkbox {
+  accent-color: #22c55e;
+}
+
+/* Note item layout */
+.note-item > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.stopwatch-time {
+    text-align: center;
+    color: #000000;
+    font-size: 30px;
+}
+
+[data-theme="dark"] .stopwatch-time {
+    color: #ffffff;
+}
+
+.stopwatch-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.stopwatch-buttons button {
+    margin: 20px;
+    border: none;
+    padding: 10px 30px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.stopwatch-buttons button:first-child {
+    background-color: #22c55e;
+}
+
+.stopwatch-buttons button:last-child {
+    background-color: #ef4444;
+}
+
+popup.js:
+// NotesSection component - INTEGRATED WITH STORAGE.JS
+function NotesSection() {
+    const [notes, setNotes] = useState([]);
+    const [newNote, setNewNote] = useState('');
+
+    useEffect(() => {
+        const fetchNotes = async () => {
+            const storedNotes = await notes_get();
+            setNotes(storedNotes || []);
+        };
+        fetchNotes();
+    }, []);
+
+    const addNote = async () => {
+        const noteToAdd = newNote.trim();
+        if (!noteToAdd || notes.includes(noteToAdd)) return;
+        
+        await notes_add(noteToAdd); // Use storage function
+        setNotes([...notes, noteToAdd]);
+        setNewNote('');
+    };
+
+    const deleteNote = async (noteToDelete) => {
+        await notes_remove(noteToDelete); // Use storage function
+        setNotes(notes.filter(note => note !== noteToDelete));
+    };
+
+    return (
+        <div className="card">
+            <h2>Quick Notes</h2>
+            <div className="input-group">
+                <input
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                    placeholder="Add a new note..."
+                    onKeyPress={(e) => e.key === 'Enter' && addNote()}
+                />
+                <button onClick={addNote} className="green">Add</button>
+            </div>
+            
+            <ul className="notes-list">
+                {notes.map((note, index) => (
+                    <li key={index} className="note-item">
+                        <span className="note-text">{note}</span>
+                        <button onClick={() => deleteNote(note)} className="delete-btn" title="Delete note">
+                            ×
+                        </button>
+                    </li>
+                ))}
+            </ul>
+
+            {notes.length === 0 && (
+                <div className="empty-state">
+                    <p style={{textAlign: 'center', color: '#666', fontStyle: 'italic', margin: '20px 0'}}>
+                        No notes yet. Add one to get started!
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}
