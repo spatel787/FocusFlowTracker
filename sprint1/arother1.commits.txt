@@ -1,0 +1,314 @@
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400   1) // Wrapper functions for chrome.storage.sync to make API calls easier and more centralized.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400   2) // Written and commented with assistance from GPT model Gemini 2.5 Pro 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400   3) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400   4) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400   5)  * Extracts the root domain from a given URL.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400   6)  * @param {string} url The URL to parse.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400   7)  * @returns {string} The root domain, or an empty string if invalid.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400   8)  */
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400   9) function root_domain_get(url) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  10)   try {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  11)     // A new URL object will throw an error if the URL is invalid.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  12)     return new URL(url).hostname;
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  13)   } catch (e) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  14)     console.error("Invalid URL:", url, e);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  15)     return "";
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  16)   }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  17) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  18) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  19) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  20)  * Adds a URL to the list of blocked sites in chrome.storage.sync.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  21)  * @param {string} url The URL to block.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  22)  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  23)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  24) export function blocked_add(url) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  25)   return new Promise((resolve) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  26)     chrome.storage.sync.get({ blockedSites: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  27)       const blockedSites = data.blockedSites;
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  28)       if (!blockedSites.includes(url)) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  29)         blockedSites.push(url);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  30)         chrome.storage.sync.set({ blockedSites }, resolve);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  31)       } else {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  32)         resolve(); // Resolve even if the URL is already there
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  33)       }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  34)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  35)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  36) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  37) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  38) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  39)  * Removes a URL from the list of blocked sites in chrome.storage.sync.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  40)  * @param {string} url The URL to unblock.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  41)  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  42)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  43) export function blocked_remove(url) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  44)   return new Promise((resolve) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  45)     chrome.storage.sync.get({ blockedSites: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  46)       const blockedSites = data.blockedSites.filter((site) => site !== url);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  47)       chrome.storage.sync.set({ blockedSites }, resolve);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  48)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  49)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  50) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  51) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  52) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  53)  * Retrieves the list of all blocked sites from chrome.storage.sync.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  54)  * @returns {Promise<string[]>} A promise that resolves with an array of blocked site URLs.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  55)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  56) export function blocked_get() {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  57)   return new Promise((resolve) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  58)     chrome.storage.sync.get({ blockedSites: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  59)       resolve(data.blockedSites);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  60)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  61)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  62) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  63) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  64) /*
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  65)   Schema for a history item:
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  66)   const exampleHistoryItem = {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  67)     "tab-id": 1471247,         // unique id from chrome.tabs API
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  68)     "root-domain": "google.com", // root domain of the URL
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  69)     "time-start": 1672531200, // Unix timestamp (seconds)
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  70)     "time-end": 1672531260,   // Unix timestamp (seconds), null if still active
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  71)   };
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  72) */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  73) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  74) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  75)  * Adds a new website visit record to the history.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  76)  * @param {number} tabId The ID of the tab where the visit occurred.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  77)  * @param {string} url The URL of the website being visited.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  78)  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  79)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  80) export function history_add(tabId, url) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  81)   return new Promise((resolve) => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  82)     const rootDomain = root_domain_get(url);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  83)     if (!rootDomain) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  84)       resolve(); // Don't track invalid URLs
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  85)       return;
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  86)     }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  87) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  88)     const newHistoryItem = {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  89)       "tab-id": tabId,
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  90)       "root-domain": rootDomain,
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  91)       "time-start": Math.floor(Date.now() / 1000),
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  92)       "time-end": null, // Initially null, set when tab is closed or URL changes
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  93)     };
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  94) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  95)     chrome.storage.sync.get({ siteHistory: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  96)       const siteHistory = data.siteHistory;
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  97)       siteHistory.push(newHistoryItem);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  98)       chrome.storage.sync.set({ siteHistory }, resolve);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400  99)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 100)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 101) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 102) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 103) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 104)  * Sets the end time for the latest history entry of a specific tab.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 105)  * This marks the end of a visit.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 106)  * @param {number} tabId The ID of the tab to update.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 107)  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 108)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 109) export function history_set_endtime(tabId) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 110)   return new Promise((resolve) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 111)     chrome.storage.sync.get({ siteHistory: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 112)       const siteHistory = data.siteHistory;
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 113)       // Find the last active entry for this tabId
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 114)       const index = siteHistory.findLastIndex(
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 115)         (item) => item["tab-id"] === tabId && item["time-end"] === null
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 116)       );
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 117) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 118)       if (index !== -1) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 119)         siteHistory[index]["time-end"] = Math.floor(Date.now() / 1000);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 120)         chrome.storage.sync.set({ siteHistory }, resolve);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 121)       } else {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 122)         resolve(); // No active session found for this tab
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 123)       }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 124)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 125)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 126) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 127) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 128) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 129)  * Retrieves the entire website visit history from chrome.storage.sync.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 130)  * @returns {Promise<object[]>} A promise that resolves with the site history array.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 131)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 132) export function history_get() {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 133)   return new Promise((resolve) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 134)     chrome.storage.sync.get({ siteHistory: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 135)       resolve(data.siteHistory);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 136)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 137)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 138) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 139) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 140) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 141)  * Adds a new note to the list in chrome.storage.sync.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 142)  * @param {string} note The text content of the note to add.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 143)  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 144)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 145) export function notes_add(note) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 146)   return new Promise((resolve) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 147)     chrome.storage.sync.get({ notes: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 148)       const notes = data.notes;
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 149)       notes.push(note);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 150)       chrome.storage.sync.set({ notes }, resolve);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 151)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 152)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 153) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 154) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 155) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 156)  * Removes a specific note from the list in chrome.storage.sync.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 157)  * @param {string} note The text content of the note to remove.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 158)  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 159)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 160) export function notes_remove(note) {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 161)   return new Promise((resolve) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 162)     chrome.storage.sync.get({ notes: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 163)       const notes = data.notes.filter((n) => n !== note);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 164)       chrome.storage.sync.set({ notes }, resolve);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 165)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 166)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 167) }
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 168) 
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 169) /**
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 170)  * Retrieves all stored notes from chrome.storage.sync.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 171)  * @returns {Promise<string[]>} A promise that resolves with an array of notes.
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 172)  */
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 173) export function notes_get() {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 174)   return new Promise((resolve) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 175)     chrome.storage.sync.get({ notes: [] }, (data) => {
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 176)       resolve(data.notes);
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 177)     });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 178)   });
+176624ee (Alexander Rother 2025-09-30 01:38:04 -0400 179) }
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400   6) import { 
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400   7)     blocked_get, 
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400   8)     blocked_add, 
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400   9)     blocked_remove,
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  10)     notes_get,
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  11)     notes_add,
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  12)     notes_remove
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  13) } from "./storage.js";
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  30)         if (typeof chrome !== 'undefined' && chrome.runtime) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  31)             chrome.runtime.sendMessage({type: 'GET_STATUS'}, (response) => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  32)                 if (response) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  33)                     setIsExtensionActive(response.isTracking || false);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  34)                     setTabSwitches(response.tabSwitches || 0);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  38)     }, []);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  39) 
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  40)     const toggleTracking = () => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  41)         const messageType = isExtensionActive ? 'STOP_TRACKING' : 'START_TRACKING';
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  42)         chrome.runtime.sendMessage({type: messageType}, (response) => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  43)             if (response && response.success) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  44)                 setIsExtensionActive(!isExtensionActive);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  45)                 if (!isExtensionActive) setTabSwitches(0);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  46)             }
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  47)         });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  51)         try { return new URL(url).hostname; } catch { return 'Loading...'; }
+8cdf1b4d (Alexander Rother 2025-09-30 09:00:52 -0400  58)                 <p>Status: {isExtensionActive ? 'TRACKING' : 'INACTIVE'}</p>
+8cdf1b4d (Alexander Rother 2025-09-30 09:00:52 -0400  59)                 <p>Tab Switches: {tabSwitches}</p>
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  61)                 <button onClick={toggleTracking} className={isExtensionActive ? 'red' : 'green'}>
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  69) // Site Blocker component - INTEGRATED WITH STORAGE.JS
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  75)         const fetchSites = async () => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  76)             const sites = await blocked_get();
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  77)             if (sites && sites.length > 0) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  78)                 setBlockedSites(sites);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  79)                 updateRules(sites);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  80)             } /*else {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  81)                 const defaults = ['youtube.com', 'tiktok.com', 'reddit.com'];
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  82)                 setBlockedSites(defaults);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  83)                 // Use raw set for initial default population, since storage.js doesn't have a "set all"
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  84)                 chrome.storage.sync.set({ blockedSites: defaults });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  85)                 updateRules(defaults);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  86)             }*/
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  87)         };
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  89)             fetchSites();
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  94)         return sites.map((site, index) => ({
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  95)             id: 10000 + index,
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  96)             priority: 1,
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  97)             action: { type: "block" },
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  98)             condition: { urlFilter: site, resourceTypes: ["main_frame"] }
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400  99)         }));
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 115)     const addSite = async () => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 116)         const siteToAdd = newSite.trim();
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 117)         if (!siteToAdd || blockedSites.includes(siteToAdd)) return;
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 118)         
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 119)         await blocked_add(siteToAdd); // Use storage function
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 120)         const updated = [...blockedSites, siteToAdd];
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 126)     const removeSite = async (siteToRemove) => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 127)         await blocked_remove(siteToRemove); // Use storage function
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 128)         const updated = blockedSites.filter(s => s !== siteToRemove);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 148)                     <li key={site} className="list-item">
+8cdf1b4d (Alexander Rother 2025-09-30 09:00:52 -0400 150)                         <span>    {site}</span>
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 158) // NotesSection component - INTEGRATED WITH STORAGE.JS
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 160)     const [notes, setNotes] = useState([]);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 164)         const fetchNotes = async () => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 165)             const storedNotes = await notes_get();
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 166)             setNotes(storedNotes || []);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 167)         };
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 168)         fetchNotes();
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 171)     const addNote = async () => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 172)         const noteToAdd = newNote.trim();
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 173)         if (!noteToAdd || notes.includes(noteToAdd)) return;
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 174)         
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 175)         await notes_add(noteToAdd); // Use storage function
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 176)         setNotes([...notes, noteToAdd]);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 180)     const deleteNote = async (noteToDelete) => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 181)         await notes_remove(noteToDelete); // Use storage function
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 182)         setNotes(notes.filter(note => note !== noteToDelete));
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 198)             <ul className="notes-list">
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 199)                 {notes.map((note, index) => (
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 200)                     <li key={index} className="note-item">
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 201)                         <span className="note-text">{note}</span>
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 202)                         <button onClick={() => deleteNote(note)} className="delete-btn" title="Delete note">
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 203)                             ×
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 205)                     </li>
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 206)                 ))}
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 207)             </ul>
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 208) 
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 209)             {notes.length === 0 && (
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 212)                         No notes yet. Add one to get started!
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 220) 
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 226)     useEffect(() => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 227)         if (typeof chrome !== 'undefined' && chrome.storage) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 228)             chrome.storage.session.get(['isRunning', 'StartTime', 'StopTime'], (result) => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 229)                 setIsRunning(result.isRunning || false);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 230)                 if (result.StartTime && !result.StopTime) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 231)                     setTime(Date.now() - result.StartTime);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 232)                 } else if (result.StartTime && result.StopTime) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 233)                     setTime(result.StopTime - result.StartTime);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 234)                 }
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 235)             });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 236)         }
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 239)     useEffect(() => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 242)             intervalId = setInterval(() => setTime(prevTime => prevTime + 10), 10);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 245)     }, [isRunning]);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 247)     const hours = Math.floor(time / 3600000);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 248)     const minutes = Math.floor((time % 3600000) / 60000);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 249)     const seconds = Math.floor((time % 60000) / 1000);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 252)         const newIsRunning = !isRunning;
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 253)         setIsRunning(newIsRunning);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 254)         chrome.storage.session.set({ isRunning: newIsRunning });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 255)         if (newIsRunning) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 256)             chrome.storage.session.set({ StartTime: Date.now() - time, StopTime: null });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 257)         } else {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 258)             chrome.storage.session.get(['StartTime'], (result) => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 259)                 chrome.storage.session.set({ StopTime: result.StartTime + time });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 260)             });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 266)         chrome.storage.session.set({ StartTime: isRunning ? Date.now() : null, StopTime: null });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 269)         <div className="card stopwatch-container">
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 270)              <h2>Session Timer</h2>
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 272)                 {hours.toString().padStart(2, "0")}:
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 273)                 {minutes.toString().padStart(2, "0")}:
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 277)                 <button onClick={startAndStop} className={`stopwatch-button ${isRunning ? 'red' : 'green'}`}>
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 280)                 <button onClick={reset} className="stopwatch-button gray">
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 293)         if (typeof chrome !== 'undefined' && chrome.storage) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 294)             chrome.storage.local.get('theme', (result) => {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 295)                 if (result.theme) setTheme(result.theme);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 296)             });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 297)         }
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 298)     }, []);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 301)         document.documentElement.setAttribute('data-theme', theme);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 302)         if (typeof chrome !== 'undefined' && chrome.storage) {
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 303)             chrome.storage.local.set({ theme });
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 304)         }
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 305)     }, [theme]);
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 308)         <div className="app-container">
+7f84c22a (Alexander Rother 2025-09-30 01:58:42 -0400 309)             <div className="header">
+ee5910de (Alexander Rother 2025-09-30 09:15:24 -0400 314)                     {theme === 'light' ? '☼' : '☼'}
