@@ -1,23 +1,35 @@
 {
   "manifest_version": 3,
-  "name": "Focus Flow Tracker", 
+  "name": "Focus Flow Tracker",
   "version": "1.0.0",
   "description": "A productivity tool to help users track their time and minimize distractions",
+
   "permissions": [
     "storage",
-    "declarativeNetRequest", 
+    "declarativeNetRequest",
     "declarativeNetRequestFeedback",
     "tabs",
     "activeTab"
   ],
+
   "host_permissions": [
     "<all_urls>"
   ],
+
   "background": {
     "service_worker": "background.js"
   },
+
   "action": {
     "default_popup": "popup.html",
     "default_title": "Focus Flow Tracker"
-  }
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["notes.html", "notes.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
+

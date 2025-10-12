@@ -3,22 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Focus Flow Tracker - A Magical Time Manager</title>
+  <title>Focus Flow Tracker</title>
   <meta
     name="description"
-    content="This is a Chrome extension to help people log their time spent on their browser and avoid distractive websites."
+    content="A Chrome extension to help people log their time spent on their browser and avoid distractive websites."
   />
+  <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <!-- Main content area where React will load -->
-  <main id="root">
-    <!-- if React doesn't load -->
-    <section>
-      <h2>Loading...</h2>
-      <p>Please wait while the extension loads your focus flow data.</p>
-    </section>
-  </main>
+  <!-- Root element for React -->
+  <div id="root"></div>
 
-  <script type="module" src="popup.js"></script>
+  <!-- NO SCRIPT TAG HERE: bundle injected by HtmlWebpackPlugin -->
 </body>
 </html>
+
+
+
+
