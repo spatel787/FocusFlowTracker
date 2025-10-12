@@ -9,6 +9,8 @@ function FocusTracker() {
   const [tabSwitches, setTabSwitches] = useState(0);
   const [currentTab, setCurrentTab] = useState("Loading...");
 
+  const [distractionWarnings, setDistractionWarnings] = useState(0);
+
   useEffect(() => {
     if (typeof chrome !== "undefined" && chrome.tabs) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -21,6 +23,7 @@ function FocusTracker() {
         if (response) {
           setIsExtensionActive(response.isTracking || false);
           setTabSwitches(response.tabSwitches || 0);
+          setDistractionWarnings(response.distractionWarnings || 0); 
         }
       });
     }
@@ -50,6 +53,7 @@ function FocusTracker() {
       <div className={`status ${isExtensionActive ? "active" : "inactive"}`}>
         <p>Status: {isExtensionActive ? "TRACKING" : "INACTIVE"}</p>
         <p>Tab Switches: {tabSwitches}</p>
+         <p>Distraction Warnings: {distractionWarnings}</p> 
         <p>
           <strong>Current Site:</strong> {getDomain(currentTab)}
         </p>
