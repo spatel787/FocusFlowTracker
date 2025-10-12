@@ -46,7 +46,8 @@ plugins: [
   }),
   new CopyWebpackPlugin({
     patterns: [
-      { from: 'manifest.json', to: 'manifest.json' }
+      { from: 'manifest.json', to: 'manifest.json' },
+      { from: 'icon.png', to: 'icon.png' }
     ]
   })
 ]
