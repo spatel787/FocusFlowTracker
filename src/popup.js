@@ -221,6 +221,49 @@ function NotesButton({ theme }) {
   );
 }
 
+// ---------------- Page Buttons ----------------
+function PageButtons({ theme }) {
+  const openPage = (page) => {
+    const url = chrome.runtime.getURL(`${page}.html`);
+    window.open(url, "_blank");
+  };
+
+  const buttonStyle = {
+    padding: "12px 20px",
+    fontSize: "15px",
+    backgroundColor: theme === "dark" ? "#1e293b" : "#f8fafc",
+    color: theme === "dark" ? "#fff" : "#000",
+    border: "2px solid",
+    borderColor: theme === "dark" ? "#334155" : "#e2e8f0",
+    borderRadius: "10px",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    fontWeight: "600",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    justifyContent: "center"
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "20px" }}>
+      <button onClick={() => openPage("blocker")} style={buttonStyle}>
+        🚫 Manage Blocked Sites
+      </button>
+      <button onClick={() => openPage("notes")} style={buttonStyle}>
+        📝 Open Notes
+      </button>
+      {/* Statistics button - coming soon */}
+      <button 
+        style={{...buttonStyle, opacity: 0.5, cursor: "not-allowed"}} 
+        disabled
+      >
+        📊 Statistics (Coming Soon)
+      </button>
+    </div>
+  );
+}
+
 // ---------------- Main App ----------------
 function MainApp() {
   const [theme, setTheme] = React.useState(null); // start as null to wait for storage
@@ -260,6 +303,7 @@ function MainApp() {
         <SiteBlocker />
         <TimeTracker />
         <NotesButton theme={theme} />
+        <PageButtons theme={theme} />
       </div>
     </div>
   );

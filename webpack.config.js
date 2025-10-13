@@ -6,7 +6,8 @@ module.exports = {
   entry: {
     popup: './src/popup.js',
     background: './src/background.js',
-    notes: './src/notes.js' // Added notes entry
+    notes: './src/notes.js', // Added notes entry
+    blocker: './src/blocker.js'
   },
 
   output: {
@@ -44,6 +45,11 @@ plugins: [
     filename: 'notes.html',
     chunks: ['notes'], // injects only notes.js
   }),
+  new HtmlWebpackPlugin({  // ADD THIS!
+      template: './src/blocker.html',
+      filename: 'blocker.html',
+      chunks: ['blocker']
+    }),
   new CopyWebpackPlugin({
     patterns: [
       { from: 'manifest.json', to: 'manifest.json' },
