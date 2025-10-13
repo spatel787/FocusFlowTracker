@@ -309,32 +309,11 @@ ul {
 }
 
 .stopwatch-time {
-    text-align: center;
+    text-align: left;
     color: #000000;
-    font-size: 30px;
+    font-size: 10px;
 }
 
 [data-theme="dark"] .stopwatch-time {
     color: #ffffff;
-}
-
-.stopwatch-buttons {
-    display: flex;
-    justify-content: center;
-}
-
-.stopwatch-buttons button {
-    margin: 20px;
-    border: none;
-    padding: 10px 30px;
-    cursor: pointer;
-    color: #fff;
-}
-
-.stopwatch-buttons button:first-child {
-    background-color: #22c55e;
-}
-
-.stopwatch-buttons button:last-child {
-    background-color: #ef4444;
 }
