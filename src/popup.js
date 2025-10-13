@@ -169,66 +169,6 @@ function SiteBlocker() {
   );
 }
 
-/*/ ---------------- Time Tracker ----------------
-function TimeTracker() {
-  const [time, setTime] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
-
-  useEffect(() => {
-    if (typeof chrome !== "undefined" && chrome.storage) {
-      chrome.storage.session.get(["isRunning", "StartTime", "StopTime"], (res) => {
-        setIsRunning(res.isRunning || false);
-        if (res.StartTime && !res.StopTime) setTime(Date.now() - res.StartTime);
-        else if (res.StartTime && res.StopTime) setTime(res.StopTime - res.StartTime);
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    let intervalId;
-    if (isRunning) intervalId = setInterval(() => setTime((t) => t + 10), 10);
-    return () => clearInterval(intervalId);
-  }, [isRunning]);
-
-  const startAndStop = () => {
-    const newIsRunning = !isRunning;
-    setIsRunning(newIsRunning);
-    chrome.storage.session.set({ isRunning: newIsRunning });
-    if (newIsRunning) chrome.storage.session.set({ StartTime: Date.now() - time, StopTime: null });
-    else chrome.storage.session.get(["StartTime"], (res) => {
-      chrome.storage.session.set({ StopTime: res.StartTime + time });
-    });
-  };
-
-  const reset = () => {
-    setTime(0);
-    chrome.storage.session.set({ StartTime: isRunning ? Date.now() : null, StopTime: null });
-  };
-
-  const hours = Math.floor(time / 3600000);
-  const minutes = Math.floor((time % 3600000) / 60000);
-  const seconds = Math.floor((time % 60000) / 1000);
-
-  return (
-    <div className="card stopwatch-container">
-      <h2>Session Timer</h2>
-      <p className="stopwatch-time">
-        {hours.toString().padStart(2, "0")}:
-        {minutes.toString().padStart(2, "0")}:
-        {seconds.toString().padStart(2, "0")}
-      </p>
-      <div className="stopwatch-buttons">
-        <button onClick={startAndStop} className={`stopwatch-button ${isRunning ? "red" : "green"}`}>
-          {isRunning ? "Stop" : "Start"}
-        </button>
-        <button onClick={reset} className="stopwatch-button gray">
-          Reset
-        </button>
-      </div>
-    </div>
-  );
-}*/
-
 // ---------------- Theme Toggle ----------------
 function ThemeToggle({ theme, setTheme }) {
   return (
@@ -322,11 +262,6 @@ function MainApp() {
       <div className="content">
         <FocusTracker />
         <SiteBlocker />
-<<<<<<< HEAD
-        <NotesButton theme={theme} />
-=======
-        <TimeTracker />
->>>>>>> d8962f768673b5f9fc629011cd809d50c0e924c8
         <PageButtons theme={theme} />
       </div>
     </div>
