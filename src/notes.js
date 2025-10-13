@@ -28,6 +28,28 @@ function NotesApp() {
     chrome.storage.local.set({ notesContent: newValue });
   };
 
+  // Download notes as .txt file
+  const handleDownload = () => {
+    if (!notes.trim()) {
+      alert("No notes to download!");
+      return;
+    }
+
+    const filename = `notes-${new Date()
+      .toISOString()
+      .slice(0, 10)}.txt`; // e.g., notes-2025-10-13.txt
+
+    const blob = new Blob([notes], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className={`notes-container ${theme}`}>
       <textarea
@@ -36,6 +58,11 @@ function NotesApp() {
         placeholder="Write your notes here..."
         className={`notes-textarea ${theme}`}
       />
+      <div className="notes-buttons">
+        <button className="download-btn" onClick={handleDownload}>
+          💾 Download Notes
+        </button>
+      </div>
     </div>
   );
 }
@@ -43,6 +70,7 @@ function NotesApp() {
 // ---------------- Render ----------------
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<NotesApp />);
+
 
 
 
