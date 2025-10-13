@@ -242,33 +242,6 @@ function ThemeToggle({ theme, setTheme }) {
   );
 }
 
-// ---------------- Notes Button ----------------
-function NotesButton({ theme }) {
-  const openNotes = () => {
-    const url = chrome.runtime.getURL("notes.html");
-    window.open(url, "_blank");
-  };
-
-  const buttonStyle = {
-    marginTop: "20px",
-    padding: "10px 15px",
-    fontSize: "16px",
-    backgroundColor: theme === "dark" ? "#333" : "#fff",
-    color: theme === "dark" ? "#fff" : "#000",
-    border: "1px solid",
-    borderColor: theme === "dark" ? "#555" : "#ccc",
-    borderRadius: "5px",
-    cursor: "pointer",
-    transition: "all 0.2s ease"
-  };
-
-  return (
-    <button onClick={openNotes} className="notes-btn" style={buttonStyle}>
-      📝 Open Notes
-    </button>
-  );
-}
-
 // ---------------- Page Buttons ----------------
 function PageButtons({ theme }) {
   const openPage = (page) => {
@@ -349,7 +322,11 @@ function MainApp() {
       <div className="content">
         <FocusTracker />
         <SiteBlocker />
+<<<<<<< HEAD
         <NotesButton theme={theme} />
+=======
+        <TimeTracker />
+>>>>>>> d8962f768673b5f9fc629011cd809d50c0e924c8
         <PageButtons theme={theme} />
       </div>
     </div>
@@ -359,6 +336,7 @@ function MainApp() {
 // ---------------- Render ----------------
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<MainApp />);
+
 
 
 
