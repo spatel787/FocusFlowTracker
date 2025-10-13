@@ -153,3 +153,4 @@ chrome.runtime.onStartup.addListener(() => {
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed/updated');
 });
+

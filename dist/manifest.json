@@ -9,7 +9,8 @@
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
     "tabs",
-    "activeTab"
+    "activeTab",
+    "notifications"
   ],
 
   "host_permissions": [
@@ -32,4 +33,5 @@
     }
   ]
 }
+
 
