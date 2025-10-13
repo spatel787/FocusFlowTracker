@@ -8,6 +8,9 @@ function FocusTracker() {
   const [isExtensionActive, setIsExtensionActive] = useState(false);
   const [tabSwitches, setTabSwitches] = useState(0);
   const [currentTab, setCurrentTab] = useState("Loading...");
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  
 
   const [distractionWarnings, setDistractionWarnings] = useState(0);
 
@@ -26,8 +29,20 @@ function FocusTracker() {
           setDistractionWarnings(response.distractionWarnings || 0); 
         }
       });
+      chrome.storage.session.get(["isRunning", "StartTime", "StopTime"], (res) => {
+        setIsRunning(res.isRunning || false);
+        if (res.StartTime && !res.StopTime) setTime(Date.now() - res.StartTime);
+        else if (res.StartTime && res.StopTime) setTime(res.StopTime - res.StartTime);
+      });
     }
   }, []);
+
+  useEffect(() => {
+    let intervalId;
+    if (isRunning) intervalId = setInterval(() => setTime((t) => t + 10), 10);
+    return () => clearInterval(intervalId);
+  }, [isRunning]);
+
 
   const toggleTracking = () => {
     const messageType = isExtensionActive ? "STOP_TRACKING" : "START_TRACKING";
@@ -47,6 +62,25 @@ function FocusTracker() {
     }
   };
 
+  const startAndStop = () => {
+    const newIsRunning = !isRunning;
+    setIsRunning(newIsRunning);
+    chrome.storage.session.set({ isRunning: newIsRunning });
+    if (newIsRunning) chrome.storage.session.set({ StartTime: Date.now() - time, StopTime: null });
+    else chrome.storage.session.get(["StartTime"], (res) => {
+      chrome.storage.session.set({ StopTime: res.StartTime + time });
+    });
+  };
+
+  const reset = () => {
+    setTime(0);
+    chrome.storage.session.set({ StartTime: isRunning ? Date.now() : null, StopTime: null });
+  };
+
+  const hours = Math.floor(time / 3600000);
+  const minutes = Math.floor((time % 3600000) / 60000);
+  const seconds = Math.floor((time % 60000) / 1000);
+
   return (
     <div className="card">
       <h2>Focus Flow Tracker</h2>
@@ -60,6 +94,20 @@ function FocusTracker() {
         <button onClick={toggleTracking} className={isExtensionActive ? "red" : "green"}>
           {isExtensionActive ? "Stop" : "Start"} Tracking
         </button>
+        <h2>Session Timer</h2>
+        <p className="stopwatch-time">
+          {hours.toString().padStart(2, "0")}:
+          {minutes.toString().padStart(2, "0")}:
+          {seconds.toString().padStart(2, "0")}
+        </p>
+        <div className="stopwatch-buttons">
+          <button onClick={startAndStop} className={`stopwatch-button ${isRunning ? "red" : "green"}`}>
+            {isRunning ? "Stop" : "Start"}
+          </button>
+          <button onClick={reset} className="stopwatch-button gray">
+            Reset
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -121,7 +169,7 @@ function SiteBlocker() {
   );
 }
 
-// ---------------- Time Tracker ----------------
+/*/ ---------------- Time Tracker ----------------
 function TimeTracker() {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -179,7 +227,7 @@ function TimeTracker() {
       </div>
     </div>
   );
-}
+}*/
 
 // ---------------- Theme Toggle ----------------
 function ThemeToggle({ theme, setTheme }) {
@@ -301,7 +349,6 @@ function MainApp() {
       <div className="content">
         <FocusTracker />
         <SiteBlocker />
-        <TimeTracker />
         <NotesButton theme={theme} />
         <PageButtons theme={theme} />
       </div>
