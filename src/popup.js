@@ -9,10 +9,13 @@ function FocusTracker() {
   const [tabSwitches, setTabSwitches] = useState(0);
   const [currentTab, setCurrentTab] = useState("Loading...");
   const [time, setTime] = useState(0);
-  const [isRunning, setIsRunning] = useState(true);
+  const [tabTime, setTabTime] = useState(0);
   const [distractionWarnings, setDistractionWarnings] = useState(0);
 
-  useEffect(() => {
+  let tabStartTimes = {};
+  let tabStopTimes = {}
+
+  useEffect(() => {//On load, get current tab and status
     if (typeof chrome !== "undefined" && chrome.tabs) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]) setCurrentTab(tabs[0].url);
@@ -27,20 +30,30 @@ function FocusTracker() {
           setDistractionWarnings(response.distractionWarnings || 0); 
         }
       });
-      chrome.storage.session.get(["isRunning", "StartTime", "StopTime"], (res) => {
-        setIsRunning(res.isRunning || false);
+      chrome.storage.session.get(["isExtensionActive", "StartTime", "StopTime", "tabStartTimes", "tabStopTimes"], (res) => {
+        setIsExtensionActive(res.isExtensionActive || false);
         if (res.StartTime && !res.StopTime) setTime(Date.now() - res.StartTime);
         else if (res.StartTime && res.StopTime) setTime(res.StopTime - res.StartTime);
+        tabStartTimes = res.tabStartTimes || {};
+        tabStopTimes = res.tabStopTimes || {};
+        if (tabStartTimes[currentTab] && !tabStopTimes[currentTab]) {
+          setTabTime(Date.now() - tabStartTimes[currentTab]);
+        }
+        else if (tabStartTimes[currentTab] && tabStopTimes[currentTab]) {
+          setTabTime(tabStopTimes[currentTab] - tabStartTimes[currentTab]);
+        }
       });
     }
   }, []);
 
   useEffect(() => {
     let intervalId;
-    if (isRunning) intervalId = setInterval(() => setTime((t) => t + 10), 10);
+    if (isExtensionActive) {
+      intervalId = setInterval(() => setTime((t) => t + 10), 10);
+      intervalId = setInterval(() => setTabTime((t) => t + 10), 10);
+    }
     return () => clearInterval(intervalId);
-  }, [isRunning]);
-
+  }, [isExtensionActive]);
 
   const toggleTracking = () => {
     const messageType = isExtensionActive ? "STOP_TRACKING" : "START_TRACKING";
@@ -50,13 +63,23 @@ function FocusTracker() {
         if (!isExtensionActive) setTabSwitches(0);
       }
     });
-    const newIsRunning = !isRunning;
-    setIsRunning(newIsRunning);
-    chrome.storage.session.set({ isRunning: newIsRunning });
-    if (newIsRunning) chrome.storage.session.set({ StartTime: Date.now() - time, StopTime: null });
-    else chrome.storage.session.get(["StartTime"], (res) => {
-      chrome.storage.session.set({ StopTime: res.StartTime + time });
-    });
+    const newIsExtensionActive = !isExtensionActive;
+    setIsExtensionActive(newIsExtensionActive);
+    chrome.storage.session.set({ isExtensionActive: newIsExtensionActive });
+    if (newIsExtensionActive) {
+      chrome.storage.session.set({ StartTime: Date.now() - time, StopTime: null });
+      tabStartTimes[currentTab] = Date.now() - tabTime;
+      tabStopTimes[currentTab] = null;
+      chrome.storage.session.set({ tabStartTimes: tabStartTimes, tabStopTimes: tabStopTimes});
+    }
+    else {
+      chrome.storage.session.get(["StartTime"], (res) => {
+        chrome.storage.session.set({ StopTime: res.StartTime + time });
+        tabStartTimes[currentTab] = null;
+        tabStopTimes[currentTab] = Date.now();
+        chrome.storage.session.set({ tabStartTimes: tabStartTimes, tabStopTimes: tabStopTimes});
+      });
+    }
   };
 
   const getDomain = (url) => {
@@ -71,20 +94,29 @@ function FocusTracker() {
   const minutes = Math.floor((time % 3600000) / 60000);
   const seconds = Math.floor((time % 60000) / 1000);
 
+  const tabHours = Math.floor(tabTime / 3600000);
+  const tabMinutes = Math.floor((tabTime % 3600000) / 60000);
+  const tabSeconds = Math.floor((tabTime % 60000) / 1000);
+
   return (
     <div className="card">
       <h2>Focus Flow Tracker</h2>
       <div className={`status ${isExtensionActive ? "active" : "inactive"}`}>
         <p>Status: {isExtensionActive ? "TRACKING" : "INACTIVE"}</p>
+        <p className="stopwatch-time">
+          {hours.toString().padStart(2, "0")}:
+          {minutes.toString().padStart(2, "0")}:
+          {seconds.toString().padStart(2, "0")}
+        </p>
         <p>Tab Switches: {tabSwitches}</p>
         <p>Distraction Warnings: {distractionWarnings}</p> 
         <p>
           <strong>Current Site:</strong> {getDomain(currentTab)}
         </p>
         <p className="stopwatch-time">
-          {hours.toString().padStart(2, "0")}:
-          {minutes.toString().padStart(2, "0")}:
-          {seconds.toString().padStart(2, "0")}
+          {tabHours.toString().padStart(2, "0")}:
+          {tabMinutes.toString().padStart(2, "0")}:
+          {tabSeconds.toString().padStart(2, "0")}
         </p>
         <button onClick={toggleTracking} className={isExtensionActive ? "red" : "green"}>
           {isExtensionActive ? "Stop" : "Start"} Tracking
