@@ -7,7 +7,8 @@ module.exports = {
     popup: './src/popup.js',
     background: './src/background.js',
     notes: './src/notes.js', // Added notes entry
-    blocker: './src/blocker.js'
+    blocker: './src/blocker.js',
+    stats: './src/stats.js' // Added stats entry
   },
 
   output: {
@@ -49,6 +50,11 @@ plugins: [
       template: './src/blocker.html',
       filename: 'blocker.html',
       chunks: ['blocker']
+    }),
+  new HtmlWebpackPlugin({  // ADD THIS!
+      template: './src/stats.html',
+      filename: 'stats.html',
+      chunks: ['stats']
     }),
   new CopyWebpackPlugin({
     patterns: [
