@@ -215,11 +215,8 @@ function PageButtons({ theme }) {
         📝 Open Notes
       </button>
       {/* Statistics button - coming soon */}
-      <button 
-        style={{...buttonStyle, opacity: 0.5, cursor: "not-allowed"}} 
-        disabled
-      >
-        📊 Statistics (Coming Soon)
+      <button onClick={() => openPage("stats")} style={buttonStyle}>
+        📊 View Statistics
       </button>
     </div>
   );
