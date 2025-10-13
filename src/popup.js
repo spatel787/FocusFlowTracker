@@ -9,9 +9,7 @@ function FocusTracker() {
   const [tabSwitches, setTabSwitches] = useState(0);
   const [currentTab, setCurrentTab] = useState("Loading...");
   const [time, setTime] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
-  
-
+  const [isRunning, setIsRunning] = useState(true);
   const [distractionWarnings, setDistractionWarnings] = useState(0);
 
   useEffect(() => {
@@ -52,17 +50,6 @@ function FocusTracker() {
         if (!isExtensionActive) setTabSwitches(0);
       }
     });
-  };
-
-  const getDomain = (url) => {
-    try {
-      return new URL(url).hostname;
-    } catch {
-      return "Loading...";
-    }
-  };
-
-  const startAndStop = () => {
     const newIsRunning = !isRunning;
     setIsRunning(newIsRunning);
     chrome.storage.session.set({ isRunning: newIsRunning });
@@ -72,9 +59,12 @@ function FocusTracker() {
     });
   };
 
-  const reset = () => {
-    setTime(0);
-    chrome.storage.session.set({ StartTime: isRunning ? Date.now() : null, StopTime: null });
+  const getDomain = (url) => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return "Loading...";
+    }
   };
 
   const hours = Math.floor(time / 3600000);
@@ -87,27 +77,18 @@ function FocusTracker() {
       <div className={`status ${isExtensionActive ? "active" : "inactive"}`}>
         <p>Status: {isExtensionActive ? "TRACKING" : "INACTIVE"}</p>
         <p>Tab Switches: {tabSwitches}</p>
-         <p>Distraction Warnings: {distractionWarnings}</p> 
+        <p>Distraction Warnings: {distractionWarnings}</p> 
         <p>
           <strong>Current Site:</strong> {getDomain(currentTab)}
         </p>
-        <button onClick={toggleTracking} className={isExtensionActive ? "red" : "green"}>
-          {isExtensionActive ? "Stop" : "Start"} Tracking
-        </button>
-        <h2>Session Timer</h2>
         <p className="stopwatch-time">
           {hours.toString().padStart(2, "0")}:
           {minutes.toString().padStart(2, "0")}:
           {seconds.toString().padStart(2, "0")}
         </p>
-        <div className="stopwatch-buttons">
-          <button onClick={startAndStop} className={`stopwatch-button ${isRunning ? "red" : "green"}`}>
-            {isRunning ? "Stop" : "Start"}
-          </button>
-          <button onClick={reset} className="stopwatch-button gray">
-            Reset
-          </button>
-        </div>
+        <button onClick={toggleTracking} className={isExtensionActive ? "red" : "green"}>
+          {isExtensionActive ? "Stop" : "Start"} Tracking
+        </button>
       </div>
     </div>
   );
@@ -255,7 +236,6 @@ function MainApp() {
   return (
     <div className="app-container">
       <div className="header" style={{ display: "flex", alignItems: "center" }}>
-        <h2 style={{ margin: 0, marginRight: "10px" }}>Focus Flow Tracker</h2>
         <ThemeToggle theme={theme} setTheme={setTheme} />
       </div>
 
