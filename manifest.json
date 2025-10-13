@@ -10,7 +10,8 @@
     "declarativeNetRequestFeedback",
     "tabs",
     "activeTab",
-    "notifications"
+    "notifications",
+    "history"
   ],
 
   "host_permissions": [
@@ -28,7 +29,7 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["notes.html", "notes.js"],
+      "resources": ["notes.html", "notes.js", "stats.html", "stats.js", "styles.css"],
       "matches": ["<all_urls>"]
     }
   ]
