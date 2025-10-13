@@ -152,5 +152,22 @@ chrome.runtime.onStartup.addListener(() => {
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed/updated');
+
+  // CLEAR OLD BLOCKING RULES (from previous version that used declarativeNetRequest)
+  if (chrome.declarativeNetRequest) {
+    chrome.declarativeNetRequest.getDynamicRules((rules) => {
+      const ruleIds = rules.map(rule => rule.id);
+      if (ruleIds.length > 0) {
+        chrome.declarativeNetRequest.updateDynamicRules({
+          removeRuleIds: ruleIds
+        }, () => {
+          console.log('✅ Cleared', ruleIds.length, 'old blocking rules');
+        });
+      } else {
+        console.log('✅ No old blocking rules to clear');
+      }
+    });
+  }
+
 });
 
