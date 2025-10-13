@@ -195,7 +195,7 @@ function PageButtons({ theme }) {
       <button onClick={() => openPage("notes")} style={buttonStyle}>
         📝 Open Notes
       </button>
-      {/* Statistics button - coming soon */}
+      {/* Statistics button*/}
       <button onClick={() => openPage("stats")} style={buttonStyle}>
         📊 View Statistics
       </button>
