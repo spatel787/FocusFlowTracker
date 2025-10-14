@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import ReactDOM from "react-dom/client";
 import { blocked_get, blocked_add, blocked_remove } from "./storage.js";
 import "./popup.css";
@@ -11,9 +11,6 @@ function FocusTracker() {
   const [time, setTime] = useState(0);
   const [tabTime, setTabTime] = useState(0);
   const [distractionWarnings, setDistractionWarnings] = useState(0);
-
-  let tabStartTimes = {};
-  let tabStopTimes = {}
 
   useEffect(() => {//On load, get current tab and status
     if (typeof chrome !== "undefined" && chrome.tabs) {
@@ -34,14 +31,15 @@ function FocusTracker() {
         setIsExtensionActive(res.isExtensionActive || false);
         if (res.StartTime && !res.StopTime) setTime(Date.now() - res.StartTime);
         else if (res.StartTime && res.StopTime) setTime(res.StopTime - res.StartTime);
-        tabStartTimes = res.tabStartTimes || {};
-        tabStopTimes = res.tabStopTimes || {};
-        if (tabStartTimes[currentTab] && !tabStopTimes[currentTab]) {
-          setTabTime(Date.now() - tabStartTimes[currentTab]);
-        }
-        else if (tabStartTimes[currentTab] && tabStopTimes[currentTab]) {
-          setTabTime(tabStopTimes[currentTab] - tabStartTimes[currentTab]);
-        }
+
+        // Per-tab timers
+        const starts = res.tabStartTimes || {};
+        const stops = res.tabStopTimes || {};
+        const start = starts[currentTab];
+        const stop = stops[currentTab];
+        if (start && !stop) setTabTime(Date.now() - start);
+        else if (start && stop) setTabTime(stop - start);
+        else setTabTime(0);
       });
     }
   }, []);
@@ -49,8 +47,18 @@ function FocusTracker() {
   useEffect(() => {
     let intervalId;
     if (isExtensionActive) {
-      intervalId = setInterval(() => setTime((t) => t + 10), 10);
-      intervalId = setInterval(() => setTabTime((t) => t + 10), 10);
+      intervalId = setInterval(() =>  {
+        setTime((t) => t + 10);
+
+        // Update current tab timer
+        chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
+          const starts = res.tabStartTimes || {};
+          const stops = res.tabStopTimes || {};
+          const start = starts[currentTab];
+          const stop = stops[currentTab];
+          if (start && !stop) setTabTime(Date.now() - start);
+      });
+      }, 10);
     }
     return () => clearInterval(intervalId);
   }, [isExtensionActive]);
@@ -68,16 +76,23 @@ function FocusTracker() {
     chrome.storage.session.set({ isExtensionActive: newIsExtensionActive });
     if (newIsExtensionActive) {
       chrome.storage.session.set({ StartTime: Date.now() - time, StopTime: null });
-      tabStartTimes[currentTab] = Date.now() - tabTime;
-      tabStopTimes[currentTab] = null;
-      chrome.storage.session.set({ tabStartTimes: tabStartTimes, tabStopTimes: tabStopTimes});
+      chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
+        const starts = res.tabStartTimes || {};
+        const stops = res.tabStopTimes || {};
+        starts[currentTab] = Date.now() - tabTime;
+        stops[currentTab] = null;
+        chrome.storage.session.set({ tabStartTimes: starts, tabStopTimes: stops });
+      });
     }
     else {
       chrome.storage.session.get(["StartTime"], (res) => {
         chrome.storage.session.set({ StopTime: res.StartTime + time });
-        tabStartTimes[currentTab] = null;
-        tabStopTimes[currentTab] = Date.now();
-        chrome.storage.session.set({ tabStartTimes: tabStartTimes, tabStopTimes: tabStopTimes});
+      });
+      // Stop current tab timer
+      chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
+        const stops = res.tabStopTimes || {};
+        stops[currentTab] = Date.now();
+        chrome.storage.session.set({ tabStopTimes: stops });
       });
     }
   };
@@ -109,6 +124,13 @@ function FocusTracker() {
           <strong>Distraction Warnings:</strong> {distractionWarnings}
         </p> 
         <p className="stopwatch-time">
+          <>Total time: </>
+          {hours.toString().padStart(2, "0")}:
+          {minutes.toString().padStart(2, "0")}:
+          {seconds.toString().padStart(2, "0")}
+          </p>
+          <p className="stopwatch-time">
+          <>Time in tab: </>
           {tabHours.toString().padStart(2, "0")}:
           {tabMinutes.toString().padStart(2, "0")}:
           {tabSeconds.toString().padStart(2, "0")}
