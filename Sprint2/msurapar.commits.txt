@@ -227,9 +227,11 @@ f25af264 (Manihams         2025-09-25 18:17:55 -0400 200)
 f25af264 (Manihams         2025-09-25 18:17:55 -0400 211) 
 cf30bbb4 (Manihams         2025-09-25 18:35:57 -0400 237) }
 cf30bbb4 (Manihams         2025-09-25 18:35:57 -0400 241) root.render(<MainApp />);
+manifest.json
 c90cf65f (Manihams    2025-10-13 13:34:03 -0400 13)     "notifications",
 c90cf65f (Manihams    2025-10-13 13:34:03 -0400 14)     "history"
 c90cf65f (Manihams    2025-10-13 13:34:03 -0400 32)       "resources": ["notes.html", "notes.js", "stats.html", "stats.js", "styles.css"],
+webpack.config.js
 b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 10)     blocker: './src/blocker.js',
 b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 11)     stats: './src/stats.js' // Added stats entry
 457f4141 (Manihams    2025-09-25 18:09:06 -0400 30)       },
