@@ -1,4 +1,3 @@
-```markdown
 # Sprint 2 Reflection
 
 **Name:** Siddh Patel  
