@@ -19,7 +19,7 @@ Issues you worked on
   
 * (https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/30)
   
-* https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/31)
+* (https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/Visualize history data with chart.js)
 
 
 
