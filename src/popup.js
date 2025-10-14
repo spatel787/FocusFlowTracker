@@ -93,30 +93,15 @@ function FocusTracker() {
   const hours = Math.floor(time / 3600000);
   const minutes = Math.floor((time % 3600000) / 60000);
   const seconds = Math.floor((time % 60000) / 1000);
-
-<<<<<<< HEAD
+  
   const tabHours = Math.floor(tabTime / 3600000);
   const tabMinutes = Math.floor((tabTime % 3600000) / 60000);
   const tabSeconds = Math.floor((tabTime % 60000) / 1000);
-
-=======
   /*Focus Flow Tracker Info*/
->>>>>>> 7a26c68 (UI/UX improvements to FocusTracker popup, Blocked sites, and Statistics)
   return (
     <div className="card">
       <h2>{getDomain(currentTab)}</h2>
       <div className={`status ${isExtensionActive ? "active" : "inactive"}`}>
-<<<<<<< HEAD
-        <p>Status: {isExtensionActive ? "TRACKING" : "INACTIVE"}</p>
-        <p className="stopwatch-time">
-          {hours.toString().padStart(2, "0")}:
-          {minutes.toString().padStart(2, "0")}:
-          {seconds.toString().padStart(2, "0")}
-        </p>
-        <p>Tab Switches: {tabSwitches}</p>
-        <p>Distraction Warnings: {distractionWarnings}</p> 
-=======
->>>>>>> 7a26c68 (UI/UX improvements to FocusTracker popup, Blocked sites, and Statistics)
         <p>
           <strong>Tab Switches:</strong> {tabSwitches}
         </p>
