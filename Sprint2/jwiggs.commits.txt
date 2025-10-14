@@ -1,1 +1,120 @@
+popup.js line 1: import React, { useState, useEffect, use } from "react";
+popup.js line 11:   const [time, setTime] = useState(0);
+popup.js line 12:   const [tabTime, setTabTime] = useState(0);
+popup.js line 15:  useEffect(() => {//On load, get current tab and status
+popup.js line 30:       chrome.storage.session.get(["isExtensionActive", "StartTime", "StopTime", "tabStartTimes", "tabStopTimes"], (res) => {
+popup.js line 31:         setIsExtensionActive(res.isExtensionActive || false);
+popup.js line 32:         if (res.StartTime && !res.StopTime) setTime(Date.now() - res.StartTime);
+popup.js line 33:         else if (res.StartTime && res.StopTime) setTime(res.StopTime - res.StartTime);
+popup.js line 34:
+popup.js line 35:         // Per-tab timers
+popup.js line 36:         const starts = res.tabStartTimes || {};
+popup.js line 37:         const stops = res.tabStopTimes || {};
+popup.js line 38:         const start = starts[currentTab];
+popup.js line 39:         const stop = stops[currentTab];
+popup.js line 40:         if (start && !stop) setTabTime(Date.now() - start);
+popup.js line 41:         else if (start && stop) setTabTime(stop - start);
+popup.js line 42:         else setTabTime(0);
+popup.js line 43:       });
+popup.js line 47:   useEffect(() => {
+popup.js line 48:     let intervalId;
+popup.js line 49:     if (isExtensionActive) {
+popup.js line 50:       intervalId = setInterval(() =>  {
+popup.js line 51:         setTime((t) => t + 10);
+popup.js line 52:
+popup.js line 53:         // Update current tab timer
+popup.js line 54:         chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
+popup.js line 55:           const starts = res.tabStartTimes || {};
+popup.js line 56:           const stops = res.tabStopTimes || {};
+popup.js line 57:           const start = starts[currentTab];
+popup.js line 58:           const stop = stops[currentTab];
+popup.js line 59:           if (start && !stop) setTabTime(Date.now() - start);
+popup.js line 60:       });
+popup.js line 61:       }, 10);
+popup.js line 62:     }
+popup.js line 63:     return () => clearInterval(intervalId);
+popup.js line 64:   }, [isExtensionActive]);
+popup.js line 65:
+popup.js line 74:     const newIsExtensionActive = !isExtensionActive;
+popup.js line 75:     setIsExtensionActive(newIsExtensionActive);
+popup.js line 76:     chrome.storage.session.set({ isExtensionActive: newIsExtensionActive });
+popup.js line 77:     if (newIsExtensionActive) {
+popup.js line 78:       chrome.storage.session.set({ StartTime: Date.now() - time, StopTime: null });
+popup.js line 79:       chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
+popup.js line 80:         const starts = res.tabStartTimes || {};
+popup.js line 81:         const stops = res.tabStopTimes || {};
+popup.js line 82:         starts[currentTab] = Date.now() - tabTime;
+popup.js line 83:         stops[currentTab] = null;
+popup.js line 84:         chrome.storage.session.set({ tabStartTimes: starts, tabStopTimes: stops });
+popup.js line 85:       });
+popup.js line 86:     }
+popup.js line 87:     else {
+popup.js line 88:       chrome.storage.session.get(["StartTime"], (res) => {
+popup.js line 89:         chrome.storage.session.set({ StopTime: res.StartTime + time });
+popup.js line 90:       });
+popup.js line 91:       // Stop current tab timer
+popup.js line 92:       chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
+popup.js line 93:         const stops = res.tabStopTimes || {};
+popup.js line 94:         stops[currentTab] = Date.now();
+popup.js line 95:         chrome.storage.session.set({ tabStopTimes: stops });
+popup.js line 96:       });
+popup.js line 97:     }
+popup.js line 98:   };
+popup.js line 99:
+popup.js line 100:   const getDomain = (url) => {
+popup.js line 101:     try {
+popup.js line 102:       return new URL(url).hostname;
+popup.js line 103:     } catch {
+popup.js line 104:       return "Loading...";
+popup.js line 105:     }
+popup.js line 106:   };
+popup.js line 107:
+popup.js line 108:   const hours = Math.floor(time / 3600000);
+popup.js line 109:   const minutes = Math.floor((time % 3600000) / 60000);
+popup.js line 110:   const seconds = Math.floor((time % 60000) / 1000);
+popup.js line 112:   const tabHours = Math.floor(tabTime / 3600000);
+popup.js line 113:   const tabMinutes = Math.floor((tabTime % 3600000) / 60000);
+popup.js line 114:   const tabSeconds = Math.floor((tabTime % 60000) / 1000);
+popup.js line 126:         <p className="stopwatch-time">
+popup.js line 128:           {hours.toString().padStart(2, "0")}:
+popup.js line 129:           {minutes.toString().padStart(2, "0")}:
+popup.js line 130:           {seconds.toString().padStart(2, "0")}
+popup.js line 131:           </p>
+popup.js line 109:   const minutes = Math.floor((time % 3600000) / 60000);
+popup.js line 110:   const seconds = Math.floor((time % 60000) / 1000);
+popup.js line 112:   const tabHours = Math.floor(tabTime / 3600000);
+popup.js line 113:   const tabMinutes = Math.floor((tabTime % 3600000) / 60000);
+popup.js line 114:   const tabSeconds = Math.floor((tabTime % 60000) / 1000);
+popup.js line 126:         <p className="stopwatch-time">
+popup.js line 128:           {hours.toString().padStart(2, "0")}:
+popup.js line 129:           {minutes.toString().padStart(2, "0")}:
+popup.js line 130:           {seconds.toString().padStart(2, "0")}
+popup.js line 131:           </p>
+popup.js line 114:   const tabSeconds = Math.floor((tabTime % 60000) / 1000);
+popup.js line 126:         <p className="stopwatch-time">
+popup.js line 128:           {hours.toString().padStart(2, "0")}:
+popup.js line 129:           {minutes.toString().padStart(2, "0")}:
+popup.js line 130:           {seconds.toString().padStart(2, "0")}
+popup.js line 131:           </p>
+popup.js line 129:           {minutes.toString().padStart(2, "0")}:
+popup.js line 130:           {seconds.toString().padStart(2, "0")}
+popup.js line 131:           </p>
+popup.js line 130:           {seconds.toString().padStart(2, "0")}
+popup.js line 131:           </p>
+popup.js line 131:           </p>
+popup.js line 132:           <p className="stopwatch-time">
+popup.js line 134:           {tabHours.toString().padStart(2, "0")}:
+popup.js line 135:           {tabMinutes.toString().padStart(2, "0")}:
+popup.js line 136:           {tabSeconds.toString().padStart(2, "0")}
+popup.js line 137:         </p>
+popup.js line 138:         <button onClick={toggleTracking} className={isExtensionActive ? "red" : "green"}>
+popup.js line 139:           {isExtensionActive ? "Stop" : "Start"} Tracking
+popup.js line 140:         </button>
 
+popup.css line 134:           {tabHours.toString().padStart(2, "0")}:
+popup.css line 135:           {tabMinutes.toString().padStart(2, "0")}:
+popup.css line 136:           {tabSeconds.toString().padStart(2, "0")}
+popup.css line 137:         </p>
+popup.css line 138:         <button onClick={toggleTracking} className={isExtensionActive ? "red" : "green"}>
+popup.css line 139:           {isExtensionActive ? "Stop" : "Start"} Tracking
+popup.css line 140:         </button>
