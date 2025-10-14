@@ -1,1 +1,239 @@
-
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  1) <!doctype html>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  2) <html>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  3)   <head>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  4)     <meta charset="utf-8" />
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  6)   </head>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  7)   <body>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  8)     <div id="stats-root"></div>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  9)     <script src="stats.js"></script>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 10)   </body>
+c90cf65f (Manihams         2025-10-13 13:34:03 -0400 11) </html>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   1) /* src/stats.css */
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   9) .stats-container {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  10)     padding: 16px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  12)     box-sizing: border-box;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  13)     background: #f7fafc;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  14)     color: #111827;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  15)   }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  16)   
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  17)   h1 { margin: 0 0 12px; font-size: 1.2rem; }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  18)   .card {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  19)     background: #fff;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  20)     padding: 12px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  21)     border-radius: 8px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  22)     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  23)     margin-bottom: 12px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  24)   }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  25)   
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  26)   .summary {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  27)     display: flex;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  28)     gap: 12px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  29)     margin-bottom: 12px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  30)   }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  57)   
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  58)   .summary .card { flex: 1; }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  59)   
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  60)   .chart-card { height: 260px; }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  61)   .chart-wrapper { height: 200px; position: relative; }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  62)   
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  63)   .domain-table {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  64)     width: 100%;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  65)     border-collapse: collapse;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  66)     font-size: 0.9rem;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  67)   }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  68)   .domain-table th, .domain-table td {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  69)     text-align: left;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  70)     padding: 6px 8px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  71)     border-bottom: 1px solid #eee;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  72)   }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  73)   .domain-table th { font-weight: 600; background: #f3f4f6; }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   1) import React, { useEffect, useState, useRef } from 'react';
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   2) import ReactDOM from 'react-dom/client';
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   3) import Chart from 'chart.js/auto';
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   4) import './stats.css';
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   5) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   6) const CATEGORY_MAP = [
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   7)   { name: 'Entertainment', tokens: ['youtube.com', 'netflix.com', 'twitch.tv'] },
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   8)   { name: 'Games', tokens: ['roblox.com', 'coolmathgames.com'] },
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   9)   { name: 'Social Networking', tokens: ['instagram.com', 'twitter.com', 'discord.com', 'x.com'] },
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  10)   { name: 'Shopping', tokens: ['amazon.com', 'ebay.com', 'walmart.com', 'temu.com'] },
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  11)   { name: 'Productivity', tokens: ['wikipedia.org', 'github.com', 'gitlab.com', 'docs.google.com', 'drive.google.com', 'bank'] },
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  12)   { name: 'Generative AI', tokens: ['openai.com', 'perplexity.ai', 'gemini.google.com'] },
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  13)   { name: 'Other', tokens: [] }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  14) ];
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  15) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  16) function categorizeDomain(domain) {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  17)   const d = domain.toLowerCase();
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  18)   for (const c of CATEGORY_MAP) {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  19)     for (const token of c.tokens) {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  20)       if (d.includes(token)) return c.name;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  21)     }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  22)   }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  23)   return 'Other';
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  24) }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  25) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  26) function extractDomain(url) {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  27)   try {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  28)     const u = new URL(url);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  29)     return u.hostname.replace(/^www\./, '');
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  30)   } catch (e) {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  31)     return null;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  32)   }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  33) }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  34) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  35) function StatsPage() {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  36)   const [loading, setLoading] = useState(true);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  37)   const [topSites, setTopSites] = useState([]); // [{domain, visits}]
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  38)   const [uniqueCount, setUniqueCount] = useState(0);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  39)   const [categoryCounts, setCategoryCounts] = useState({}); // {category: visits}
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  40)   const [domainCategoryList, setDomainCategoryList] = useState([]); // [{domain, category, visits}]
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  42)   const chartRef = useRef(null);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  43)   const chartInstanceRef = useRef(null);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  44) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  45)   useEffect(() => {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  51)     // Use last 90 days of history (adjust as needed)
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  52)     const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  53) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  54)     if (!chrome || !chrome.history) {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  55)       console.error('chrome.history not available.');
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  56)       setLoading(false);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  57)       return;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  58)     }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  59) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  60)     chrome.history.search({ text: '', startTime, maxResults: 5000 }, (results) => {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  61)       // results is an array of HistoryItem { id, url, title, lastVisitTime, visitCount }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  62)       const domainMap = new Map(); // domain -> visits (sum of visitCount)
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  63)       results.forEach(item => {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  64)         if (!item.url) return;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  65)         const domain = extractDomain(item.url);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  66)         if (!domain) return;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  67)         const visits = item.visitCount || 1;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  68)         domainMap.set(domain, (domainMap.get(domain) || 0) + visits);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  69)       });
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  70) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  71)       // Build domain -> category list
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  72)       const domainCategoryArr = [];
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  73)       const categoryTotals = {};
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  74)       domainMap.forEach((visits, domain) => {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  75)         const category = categorizeDomain(domain);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  76)         domainCategoryArr.push({ domain, category, visits });
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  77)         categoryTotals[category] = (categoryTotals[category] || 0) + visits;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  78)       });
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  79) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  80)       // Sort top sites by visits
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  81)       const sortedDomains = Array.from(domainMap.entries())
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  82)         .map(([domain, visits]) => ({ domain, visits }))
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  83)         .sort((a, b) => b.visits - a.visits);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  84) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  85)       const top5 = sortedDomains.slice(0, 5);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  86)       setTopSites(top5);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  87)       setUniqueCount(domainMap.size);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  88)       setCategoryCounts(categoryTotals);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  89)       setDomainCategoryList(domainCategoryArr);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  90)       setLoading(false);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  91)     });
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  92)   }, []);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  93) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  94)   // Draw chart whenever categoryCounts changes
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  95)   useEffect(() => {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  96)     if (!chartRef.current) return;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  97)     const labels = Object.keys(categoryCounts);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  98)     const data = labels.map(l => categoryCounts[l]);
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  99) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 100)     // Destroy previous chart
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 101)     if (chartInstanceRef.current) {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 102)       chartInstanceRef.current.destroy();
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 103)       chartInstanceRef.current = null;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 104)     }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 105) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 109)     chartInstanceRef.current = new Chart(chartRef.current, {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 110)       type: 'pie',
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 111)       data: {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 112)         labels,
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 113)         datasets: [{
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 114)           label: 'Visits by category',
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 115)           data,
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 119)         }]
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 120)       },
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 121)       options: {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 122)         responsive: true,
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 123)         maintainAspectRatio: false,
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 124)         plugins: {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 131)         }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 132)       }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 133)     });
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 134) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 135)     return () => {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 136)       if (chartInstanceRef.current) chartInstanceRef.current.destroy();
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 137)     };
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 139) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 140)   return (
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 143)       {loading ? <p>Loading history…</p> : (
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 144)         <>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 145)           <div className="summary">
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 146)             <div className="card">
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 148)               <ol>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 149)                 {topSites.map(s => <li key={s.domain}>{s.domain} — {s.visits} visits</li>)}
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 150)               </ol>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 151)             </div>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 152) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 155)               <h3>Unique sites</h3>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 159)             </div>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 160)           </div>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 161) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 162)           <div className="chart-card card">
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 163)             <h3>Visits by Category</h3>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 164)             <div className="chart-wrapper">
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 165)               <canvas ref={chartRef} />
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 166)             </div>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 167)           </div>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 168) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 169)           <div className="card">
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 170)             <h3>All Domains & Categories</h3>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 171)             <table className="domain-table">
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 172)               <thead>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 173)                 <tr><th>Domain</th><th>Category</th><th>Visits</th></tr>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 174)               </thead>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 175)               <tbody>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 176)                 {domainCategoryList
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 177)                   .sort((a, b) => b.visits - a.visits)
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 178)                   .map(row => (
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 179)                     <tr key={row.domain}>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 180)                       <td>{row.domain}</td>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 181)                       <td>{row.category}</td>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 182)                       <td>{row.visits}</td>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 183)                     </tr>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 184)                   ))}
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 185)               </tbody>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 186)             </table>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 187)           </div>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 188)         </>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 189)       )}
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 190)     </div>
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 191)   );
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 192) }
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 193) 
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 194) // Mount the component
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 195) const root = ReactDOM.createRoot(document.getElementById('stats-root'));
+c52877f5 (Manihams         2025-09-25 18:00:31 -0400   4) import "./popup.css";
+4313bebe (Manihams         2025-10-13 13:24:44 -0400 189)       {/* Statistics button*/}
+27013107 (Manihams         2025-10-13 13:13:11 -0400 190)       <button onClick={() => openPage("stats")} style={buttonStyle}>
+cf30bbb4 (Manihams         2025-09-25 18:35:57 -0400 198) function MainApp() {
+f25af264 (Manihams         2025-09-25 18:17:55 -0400 200) 
+f25af264 (Manihams         2025-09-25 18:17:55 -0400 211) 
+cf30bbb4 (Manihams         2025-09-25 18:35:57 -0400 237) }
+cf30bbb4 (Manihams         2025-09-25 18:35:57 -0400 241) root.render(<MainApp />);
+c90cf65f (Manihams    2025-10-13 13:34:03 -0400 13)     "notifications",
+c90cf65f (Manihams    2025-10-13 13:34:03 -0400 14)     "history"
+c90cf65f (Manihams    2025-10-13 13:34:03 -0400 32)       "resources": ["notes.html", "notes.js", "stats.html", "stats.js", "styles.css"],
+b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 10)     blocker: './src/blocker.js',
+b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 11)     stats: './src/stats.js' // Added stats entry
+457f4141 (Manihams    2025-09-25 18:09:06 -0400 30)       },
+457f4141 (Manihams    2025-09-25 18:09:06 -0400 31)       {
+457f4141 (Manihams    2025-09-25 18:09:06 -0400 32)         test: /\.css$/,
+457f4141 (Manihams    2025-09-25 18:09:06 -0400 33)         use: ['style-loader', 'css-loader']
+b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 54)   new HtmlWebpackPlugin({  // ADD THIS!
+b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 55)       template: './src/stats.html',
+b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 56)       filename: 'stats.html',
+b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 57)       chunks: ['stats']
+b2e6b8cc (Manihams    2025-10-13 13:10:07 -0400 58)     }),
