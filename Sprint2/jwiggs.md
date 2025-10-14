@@ -22,8 +22,8 @@ get done.
 2. [Connect stopwatches to tab tracker](https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/6)
 
 ### Files you worked on
-2. FocusFlowTracker/src/popup.css
-3. FocusFlowTracker/src/popup.js
+1. FocusFlowTracker/src/popup.css
+2. FocusFlowTracker/src/popup.js
 
 ### Use of AI and/or 3rd party software
 I used copilot extensively, exclusively for it's auto complete functionality. I asked chatgpt to help me fix a  
