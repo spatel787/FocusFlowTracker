@@ -8,7 +8,7 @@ What you planned to do
 
 * Fetch and Categorize chrome history data
 
-* Visualize history data with chart.js
+* Visualize history data with chart.js(https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/31)
 
 
 
