@@ -122,7 +122,7 @@ function StatsPage() {
 
   return (
     <div className="stats-container">
-      <h1>History Stats</h1>
+      <h1>Statistics</h1>
       {loading ? <p>Loading history…</p> : (
         <>
           <div className="summary">
