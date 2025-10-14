@@ -15,11 +15,23 @@ What problems you encountered
 
 Issues you worked on
 
-* (https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/29)
+* Create Stats Page UI(https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/29)
   
-* (https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/30)
+* Fetch and Categorize chrome history data(https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/30)
   
-* (https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/31)
+* Visualize history data with chart.js(https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/31)
+
+Files you worked on
+
+* FocusFlowTracker/src/stats.css
+  
+* FocusFlowTracker/src/stats.html
+  
+* FocusFlowTracker/src/stats.js
+  
+* FocusFlowTracker/manifest.json
+  
+* FocusFlowTracker/webpack.config.js
 
 
 
