@@ -32,11 +32,11 @@ To overcome these challenges, I:
 
 ## Issues You Worked On
 
-1. Create a button for Site Blocker (#22)
+1. Create a button for Site Blocker [#22](https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/0a8aff05f458bf44533f80de2ec383403ec31ca1)
    
-2. Fix and implement warning system in background.js (#27)
+2. Fix and implement warning system in background.js [#27](https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/2cf94fd6a25052a42b3c06930a6080aa17fc636f)
    
-3. Modify popup.js to work for distraction warning (#28)
+3. Modify popup.js to work for distraction warning [#28](https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/044f8b3c6973b53322e75931fee95091f1236663)
 
 ---
 
