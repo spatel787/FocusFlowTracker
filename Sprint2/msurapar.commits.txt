@@ -1,3 +1,4 @@
+stats.html
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  1) <!doctype html>
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  2) <html>
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  3)   <head>
@@ -8,6 +9,7 @@ b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  8)     <div id="stats-root
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  9)     <script src="stats.js"></script>
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 10)   </body>
 c90cf65f (Manihams         2025-10-13 13:34:03 -0400 11) </html>
+stats.css
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   1) /* src/stats.css */
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   9) .stats-container {
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  10)     padding: 16px;
@@ -47,6 +49,7 @@ b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  70)     padding: 6px 8px;
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  71)     border-bottom: 1px solid #eee;
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  72)   }
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  73)   .domain-table th { font-weight: 600; background: #f3f4f6; }
+stats.js
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   1) import React, { useEffect, useState, useRef } from 'react';
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   2) import ReactDOM from 'react-dom/client';
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   3) import Chart from 'chart.js/auto';
@@ -215,6 +218,7 @@ b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 192) }
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 193) 
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 194) // Mount the component
 b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 195) const root = ReactDOM.createRoot(document.getElementById('stats-root'));
+popup.js
 c52877f5 (Manihams         2025-09-25 18:00:31 -0400   4) import "./popup.css";
 4313bebe (Manihams         2025-10-13 13:24:44 -0400 189)       {/* Statistics button*/}
 27013107 (Manihams         2025-10-13 13:13:11 -0400 190)       <button onClick={() => openPage("stats")} style={buttonStyle}>
