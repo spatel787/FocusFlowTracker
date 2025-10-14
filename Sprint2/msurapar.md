@@ -50,7 +50,45 @@ You had to add a working button that opened stats.html using chrome.runtime.getU
 
 # Use of AI
 
+I used github copilot for css and js files to auto complete. I used chatgpt to assist me with fixing errors and organizing the stats page.
+
 # What you accomplished
+
+* Added a Working Stats Page
+
+  - Successfully created a new stats.html page that loads and runs inside the extension.
+
+  - The page can be opened directly from the extension popup using the new 📊 Stats button.
+
+* Used the Chrome History API
+
+  - Implemented logic in stats.js to fetch the user’s recent browsing history using chrome.history.search().
+
+  - Retrieved and processed URLs, titles, and visit counts to analyze the user’s browsing patterns.
+
+* Categorized Websites Automatically
+
+  - Built a simple categorization system that organizes sites into Entertainment, Games, Social Networking, Shopping, Productivity, Generative AI, and Other based on their domain names.
+
+  - This made the data easy to understand and visually meaningful.
+
+* Integrated Chart.js for Visualization
+
+  - Used Chart.js to display a pie chart of site categories by the number of visits.
+
+  - The chart dynamically updates based on the user’s Chrome history.
+
+* Added Browsing Summary Stats
+
+  - Displayed additional stats, such as the top 5 most visited sites and the total number of sites in the browsing history.
+
+  - This gives users a quick overview of their browsing habits.
+
+* Improved User Interface
+
+  - Styled the Stats Page (stats.css) to match the design of the rest of the extension.
+
+  - Ensured that it loads cleanly and is easy to navigate.
   
 
 
