@@ -4,11 +4,11 @@ Manihams Suraparaju  msurapar
 
 What you planned to do
 
-* (https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/29)
+* Create Stats Page UI(https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/29)
 
-* (https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/30)
+* Fetch and Categorize chrome history data(https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/30)
 
-* (https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/31)
+* Visualize history data with chart.js(https://github.com/utk-cs340-fall25/FocusFlowTracker/issues/31)
 
 What problems you encountered
 
