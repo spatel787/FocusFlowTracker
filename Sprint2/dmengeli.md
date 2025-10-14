@@ -31,6 +31,7 @@ N/A
 AI was used to assist in the editing of all files. GitHub Copilot and ChatGPT in particular were used.
 
 ### What you accomplished
-I created a dedicated Notes page for the Focus Flow Tracker extension by moving the notes feature into its own notes.html and notes.js files. The page includes a large editable text box that automatically saves content to Chrome’s local storage, ensuring notes persist even after closing the extension. The Notes page also syncs with the extension’s light and dark mode settings for consistent theming. Additionally, I added a “Download Notes” button that allows users to export their notes as a .txt file directly to their computer. The Notes page is accessible from the main popup through a dedicated button, making it easy for users to take, save, and download notes while staying within the extension’s workflow.
-https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/33c548dbbbb90d64488b89dfe87ffb6c4ba5f5cf
-https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/822e1fae27a0a3369414cc51d7bc053bd5e8b43f
+I created a dedicated Notes page for the Focus Flow Tracker extension by moving the notes feature into its own notes.html and notes.js files. The page includes a large editable text box that automatically saves content to Chrome’s local storage, ensuring notes persist even after closing the extension. The Notes page also syncs with the extension’s light and dark mode settings for consistent theming. Additionally, I added a “Download Notes” button that allows users to export their notes as a .txt file directly to their computer. The Notes page is accessible from the main popup through a dedicated button, making it easy for users to take, save, and download notes while staying within the extension’s workflow. 
+
+- https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/33c548dbbbb90d64488b89dfe87ffb6c4ba5f5cf
+- https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/822e1fae27a0a3369414cc51d7bc053bd5e8b43f
