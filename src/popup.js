@@ -124,13 +124,13 @@ function FocusTracker() {
           <strong>Distraction Warnings:</strong> {distractionWarnings}
         </p> 
         <p className="stopwatch-time">
-          <>Total time: </>
+          <strong>Total Time: </strong>
           {hours.toString().padStart(2, "0")}:
           {minutes.toString().padStart(2, "0")}:
           {seconds.toString().padStart(2, "0")}
           </p>
           <p className="stopwatch-time">
-          <>Time in tab: </>
+          <strong>Tab Time: </strong>
           {tabHours.toString().padStart(2, "0")}:
           {tabMinutes.toString().padStart(2, "0")}:
           {tabSeconds.toString().padStart(2, "0")}
@@ -149,7 +149,6 @@ function ThemeToggle({ theme, setTheme }) {
     <button
       className="toggle-btn"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      style={{ marginLeft: "auto" }}
     >
       {"☼"}
     </button>
@@ -224,7 +223,8 @@ function MainApp() {
 
   return (
     <div className="app-container">
-      <div className="header" style={{ display: "flex", alignItems: "center" }}>
+      <div className="header">
+        <h1 className="header-title">Focus Flow Tracker</h1>
         <ThemeToggle theme={theme} setTheme={setTheme} />
       </div>
 
@@ -239,4 +239,3 @@ function MainApp() {
 // ---------------- Render ----------------
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<MainApp />);
-
