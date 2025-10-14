@@ -1,0 +1,526 @@
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  28) let lastTimeWarned = {};     // Track cooldown per site
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  29) let distractionWarnings = 0; // Count total warnings
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  30) 
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  31) //This function extracts url name from the full url
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  32) function urlShortener(url) { 
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  33)   try {  
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  34)     return new URL(url).hostname.replace('www.', '');
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  35)   } catch(e) {  
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  36)     return null;
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  37)   }
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  38) }
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  39) 
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  40) // This function checks if a site is a distraction
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  41) function checkDistraction(url) {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  42)   if (!isTracking) return; // Only check when tracking
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  43)   
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  44)   const domain = urlShortener(url);
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  45)   if (!domain) return; // Exit if invalid URL
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  46)   
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  47)   // Fetch the distraction list from storage
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  48)   chrome.storage.sync.get({ blockedSites: [] }, (data) => {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  49)     const isDistraction = data.blockedSites.some(site =>
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  50)       domain.includes(site) || site.includes(domain)
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  51)     );
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  52)     
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  53)     if (isDistraction) {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  54)       displayWarning(domain);
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  55)     }
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  56)   }); 
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  57) }
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  58) 
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  59) //Show warning if on a distraction site
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  60) function displayWarning(domain) {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  61)   const now = Date.now();
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  62)   
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  63)   // Check cooldown: Has this site been warned about in the last minute?
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  64)   if (lastTimeWarned[domain] && (now - lastTimeWarned[domain] < 60000)) {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  65)     console.log(`Cooldown active for ${domain}`);
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  66)     return;
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  67)   }
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  68) 
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  69)   // Show the warning notification
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  70)   chrome.notifications.create({
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  71)     type: 'basic',
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  72)     iconUrl: 'icon.png',
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  73)     title: '⚠️ Distraction Alert!',
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  74)     message: `You're visiting ${domain}. Stay focused!`,
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  75)     priority: 2,
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  76)     requireInteraction: false
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  77)   });
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  78)   
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  79)   // Update tracking
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  80)   lastTimeWarned[domain] = now;
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  81)   distractionWarnings++;
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  82)   console.log(`Distraction warning #${distractionWarnings} for ${domain}`);
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  83) }
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  84) 
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  95)     distractionWarnings = 0;      // Reset warning count
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  96)     lastTimeWarned = {};          // Clear cooldown timers
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400  97)   
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 119)       distractionWarnings,
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 131)     
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 132)     chrome.tabs.get(activeInfo.tabId, (tab) => {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 133)       if (tab.url) {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 134)         checkDistraction(tab.url);
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 135)       }
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 136)     });
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 137)   }
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 138) });
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 139) 
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 140) // This function monitor when URL changes in current tab
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 141) chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 142)   if (changeInfo.url && isTracking) {
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 143)     console.log(`URL changed to: ${changeInfo.url}`);
+2cf94fd6 (Siddh Patel     2025-10-12 18:55:56 -0400 144)     checkDistraction(changeInfo.url);
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 155) 
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 156)   // CLEAR OLD BLOCKING RULES (from previous version that used declarativeNetRequest)
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 157)   if (chrome.declarativeNetRequest) {
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 158)     chrome.declarativeNetRequest.getDynamicRules((rules) => {
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 159)       const ruleIds = rules.map(rule => rule.id);
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 160)       if (ruleIds.length > 0) {
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 161)         chrome.declarativeNetRequest.updateDynamicRules({
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 162)           removeRuleIds: ruleIds
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 163)         }, () => {
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 164)           console.log('✅ Cleared', ruleIds.length, 'old blocking rules');
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 165)         });
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 166)       } else {
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 167)         console.log('✅ No old blocking rules to clear');
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 168)       }
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 169)     });
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 170)   }
+2d530f7f (Siddh Patel     2025-10-13 09:38:03 -0400 171) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   1) :root {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   7)   --danger-color: #ef4444;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   9) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  10) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  11) [data-theme="dark"] {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  19) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  20) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  21) * {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  22)   margin: 0;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  23)   padding: 0;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  24)   box-sizing: border-box;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  25) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  26) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  27) body {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  28)   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  29)   background-color: var(--bg-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  30)   color: var(--text-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  31)   min-height: 100vh;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  32)   padding: 20px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  33) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  34) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  35) .container {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  39)   margin: 0 auto;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  40) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  41) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  42) /* Header */
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  43) .header {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  44)   display: flex;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  45)   justify-content: space-between;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  46)   align-items: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  47)   margin-bottom: 30px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  48)   padding-bottom: 20px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  49)   border-bottom: 2px solid var(--border-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  50) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  51) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  52) .header h1 {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  53)   font-size: 2rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  54)   font-weight: 700;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  55)   color: var(--text-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  56)   display: flex;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  57)   align-items: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  58)   gap: 10px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  59) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  60) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  61) .header-icon {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  62)   font-size: 2rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  63) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  64) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  65) .theme-toggle {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  66)   background: var(--card-bg);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  67)   border: 2px solid var(--border-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  69)   border-radius: 50%;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  70)   width: 45px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  71)   height: 45px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  72)   cursor: pointer;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  73)   font-size: 1.3rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  74)   display: flex;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  75)   align-items: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  76)   justify-content: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  77) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  78) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  79) .theme-toggle:hover {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  80)   transform: scale(1.1);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  81)   border-color: var(--primary-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  82) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  83) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  84) /* Main Card */
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  85) .main-card {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  86)   background: var(--card-bg);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  87)   border-radius: 16px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  88)   padding: 30px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  90)   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  91)   border: 1px solid var(--border-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  92) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  93) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  94) .section-title {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  95)   font-size: 1.3rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  96)   font-weight: 600;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  98)   margin-bottom: 20px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  99)   color: var(--text-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 100) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 101) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 102) /* Input Group */
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 103) .input-group {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 104)   display: flex;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 105)   gap: 12px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 106)   margin-bottom: 30px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 107) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 108) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 109) .site-input {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 110)   flex: 1;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 111)   padding: 14px 18px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 112)   font-size: 1rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 113)   border: 2px solid var(--border-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 114)   border-radius: 10px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 115)   background: var(--bg-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 116)   color: var(--text-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 117) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 118) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 119) .site-input:focus {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 120)   outline: none;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 121)   border-color: var(--primary-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 123) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 124) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 125) .site-input::placeholder {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 127) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 128) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 129) .add-btn {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 130)   padding: 14px 28px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 131)   background: var(--success-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 133)   border: none;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 134)   border-radius: 10px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 135)   font-size: 1rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 136)   font-weight: 600;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 137)   cursor: pointer;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 138)   display: flex;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 139)   align-items: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 140)   gap: 8px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 141) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 142) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 143) .add-btn:hover {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 144)   transform: translateY(-2px);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 145)   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 146) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 147) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 148) .add-btn:active {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 149)   transform: translateY(0);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 150) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 151) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 152) /* Sites List */
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 153) .sites-list {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 154)   display: flex;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 155)   flex-direction: column;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 156)   gap: 12px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 157) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 158) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 159) .site-item {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 160)   display: flex;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 161)   align-items: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 162)   justify-content: space-between;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 164)   background: var(--bg-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 165)   border: 2px solid var(--border-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 166)   border-radius: 12px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 167) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 168) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 169) .site-item:hover {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 170)   border-color: var(--primary-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 171)   transform: translateX(4px);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 172) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 173) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 174) .site-info {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 175)   display: flex;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 176)   align-items: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 177)   gap: 12px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 178)   flex: 1;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 179) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 180) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 181) .site-icon {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 182)   font-size: 1.5rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 183) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 184) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 185) .site-name {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 186)   font-size: 1.1rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 187)   font-weight: 500;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 188)   color: var(--text-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 189) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 190) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 191) .remove-btn {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 192)   padding: 8px 18px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 193)   background: var(--danger-color);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 195)   border: none;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 196)   border-radius: 8px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 197)   font-size: 0.9rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 198)   font-weight: 600;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 199)   cursor: pointer;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 200) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 201) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 202) .remove-btn:hover {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 204)   transform: scale(1.05);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 205) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 206) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 207) /* Empty State */
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 208) .empty-state {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 209)   text-align: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 210)   padding: 60px 20px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 211) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 212) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 213) .empty-icon {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 214)   font-size: 4rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 215)   margin-bottom: 20px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 216)   opacity: 0.5;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 217) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 218) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 219) .empty-text {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 220)   font-size: 1.2rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 222)   margin-bottom: 8px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 223) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 224) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 225) .empty-subtext {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 226)   font-size: 1rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 228) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 229) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 230) /* Stats Section */
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 231) .stats-section {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 233) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 234) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 235) .stats-grid {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 236)   display: grid;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 241) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 242) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 243) .stat-card {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 245)   border-radius: 12px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 246)   padding: 20px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 250)   text-align: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 252) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 253) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 254) .stat-number {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 255)   font-size: 2.5rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 256)   font-weight: 700;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 257)   margin-bottom: 8px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 258) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 259) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 260) .stat-label {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 261)   font-size: 0.95rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 262)   opacity: 0.9;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 263) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 264) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 265) /* Animations */
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 266) @keyframes slideIn {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 267)   from {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 268)     opacity: 0;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 269)     transform: translateY(20px);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 270)   }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 271)   to {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 272)     opacity: 1;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 273)     transform: translateY(0);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 274)   }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 275) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 276) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 277) /* Responsive */
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 278) @media (max-width: 768px) {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 279)   .container {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 280)     padding: 10px;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 281)   }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 282)   
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 283)   .header h1 {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 284)     font-size: 1.5rem;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 285)   }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 286)   
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 287)   .input-group {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 288)     flex-direction: column;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 289)   }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 290)   
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 291)   .add-btn {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 292)     width: 100%;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 293)     justify-content: center;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 294)   }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  1) <!DOCTYPE html>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  2) <html lang="en">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  3) <head>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  4)   <meta charset="UTF-8">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  5)   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  7)   <link rel="stylesheet" href="blocker.css">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  8) </head>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  9) <body>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 10)   <div id="root"></div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 11)   <script type="module" src="blocker.js"></script>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 12) </body>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   1) import React, { useState, useEffect } from "react";
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   2) import ReactDOM from "react-dom/client";
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   3) import { blocked_get, blocked_add, blocked_remove } from "./storage.js";
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   4) import "./blocker.css";
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   5) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   6) function SiteBlockerPage() {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   7)   const [blockedSites, setBlockedSites] = useState([]);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   8)   const [newSite, setNewSite] = useState("");
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400   9)   const [theme, setTheme] = useState("light");
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  10) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  11)   // Load theme
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  12)   useEffect(() => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  13)     chrome.storage.local.get("theme", (result) => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  14)       setTheme(result.theme || "light");
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  15)     });
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  16)   }, []);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  17) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  18)   // Apply theme
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  19)   useEffect(() => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  20)     document.documentElement.setAttribute("data-theme", theme);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  21)     chrome.storage.local.set({ theme });
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  22)   }, [theme]);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  23) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  24)   // Load blocked sites
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  25)   useEffect(() => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  26)     const fetchSites = async () => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  27)       const sites = await blocked_get();
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  28)       setBlockedSites(sites || []);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  29)     };
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  30)     fetchSites();
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  31)   }, []);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  32) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  33)   // Add site
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  34)   const addSite = async () => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  35)     const siteToAdd = newSite.trim().toLowerCase();
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  36)     
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  37)     // Validation
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  38)     if (!siteToAdd) {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  39)       alert("Please enter a website!");
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  40)       return;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  41)     }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  42)     
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  43)     if (blockedSites.includes(siteToAdd)) {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  44)       alert("This site is already blocked!");
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  45)       return;
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  46)     }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  47) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  48)     await blocked_add(siteToAdd);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  49)     setBlockedSites([...blockedSites, siteToAdd]);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  50)     setNewSite("");
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  51)   };
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  52) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  53)   // Remove site
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  54)   const removeSite = async (siteToRemove) => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  55)     if (confirm(`Remove ${siteToRemove} from blocked list?`)) {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  56)       await blocked_remove(siteToRemove);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  57)       setBlockedSites(blockedSites.filter((s) => s !== siteToRemove));
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  58)     }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  59)   };
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  60) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  61)   // Handle Enter key
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  62)   const handleKeyPress = (e) => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  63)     if (e.key === "Enter") {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  64)       addSite();
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  65)     }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  66)   };
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  67) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  68)   return (
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  69)     <div className="container">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  70)       {/* Header */}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  71)       <div className="header">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  72)         <h1>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  74)         </h1>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  75)         <button
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  76)           className="theme-toggle"
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  77)           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  78)           title="Toggle theme"
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  79)         >
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  81)         </button>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  82)       </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  83) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  84)       {/* Main Card */}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400  85)       <div className="main-card">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 103)         
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 104)         {/* Input Group */}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 105)         <div className="input-group">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 106)           <input
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 107)             type="text"
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 108)             className="site-input"
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 109)             value={newSite}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 110)             onChange={(e) => setNewSite(e.target.value)}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 111)             onKeyPress={handleKeyPress}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 112)             placeholder="e.g., youtube.com, reddit.com, twitter.com"
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 113)           />
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 114)           <button className="add-btn" onClick={addSite}>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 116)           </button>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 117)         </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 118) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 120)         {/* Sites List */}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 121)         <h2 className="section-title">Blocked Sites ({blockedSites.length})</h2>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 122)         
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 123)         {blockedSites.length === 0 ? (
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 124)           <div className="empty-state">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 125)             <p className="empty-text">No distraction sites yet</p>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 126)             <p className="empty-subtext">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 127)               Add websites that distract you from your goals
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 128)             </p>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 129)           </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 130)         ) : (
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 131)           <div className="sites-list">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 132)             {blockedSites.map((site) => (
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 133)               <div key={site} className="site-item">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 134)                 <div className="site-info">
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 135)                   <span className="site-name">{site}</span>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 136)                 </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 137)                 <button
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 138)                   className="remove-btn"
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 139)                   onClick={() => removeSite(site)}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 140)                 >
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 142)                 </button>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 143)               </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 144)             ))}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 145)           </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 146)         )}
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 147)       </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 148)     </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 149)   );
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 150) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 151) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 152) // Render
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 153) const root = ReactDOM.createRoot(document.getElementById("root"));
+e8b4b390 (Siddh Patel      2025-09-23 08:13:58 -0400   5) 
+044f8b3c (Siddh Patel      2025-10-12 19:00:51 -0400  13)   const [distractionWarnings, setDistractionWarnings] = useState(0);
+044f8b3c (Siddh Patel      2025-10-12 19:00:51 -0400  14) 
+044f8b3c (Siddh Patel      2025-10-12 19:00:51 -0400  27)           setDistractionWarnings(response.distractionWarnings || 0); 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 158) // ---------------- Page Buttons ----------------
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 159) function PageButtons({ theme }) {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 160)   const openPage = (page) => {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 161)     const url = chrome.runtime.getURL(`${page}.html`);
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 162)     window.open(url, "_blank");
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 163)   };
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 164) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 165)   const buttonStyle = {
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 166)     padding: "12px 20px",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 167)     fontSize: "15px",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 169)     color: theme === "dark" ? "#fff" : "#000",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 170)     border: "2px solid",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 173)     cursor: "pointer",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 174)     fontWeight: "600",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 175)     display: "flex",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 176)     alignItems: "center",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 177)     gap: "8px",
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 178)     justifyContent: "center"
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 179)   };
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 180) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 181)   return (
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 183)       <button onClick={() => openPage("blocker")} style={buttonStyle}>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 185)       </button>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 186)       <button onClick={() => openPage("notes")} style={buttonStyle}>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 188)       </button>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 192)       </button>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 193)     </div>
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 194)   );
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 195) }
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 196) 
+0a8aff05 (Siddh Patel      2025-10-13 09:21:54 -0400 233)         <PageButtons theme={theme} />
