@@ -1,6 +1,12 @@
 /* src/stats.css */
+html, body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f7fafc; /* Default light background */
+}
+
 .stats-container {
-    font-family: Arial, sans-serif;
     padding: 16px;
     width: 1;
     box-sizing: border-box;
@@ -66,3 +72,29 @@
   }
   .domain-table th { font-weight: 600; background: #f3f4f6; }
   
+
+/* --- Dark Mode Overrides --- */
+
+body.dark, .stats-container.dark {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.stats-container.dark .card {
+  background-color: #282828;
+  border: 1px solid #333;
+  box-shadow: none;
+}
+
+.stats-container.dark .sitecount p {
+  color: #a0aec0;
+}
+
+.stats-container.dark .domain-table th, 
+.stats-container.dark .domain-table td {
+  border-bottom: 1px solid #444;
+}
+
+.stats-container.dark .domain-table th {
+  background: #3a3a3a;
+}

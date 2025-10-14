@@ -38,10 +38,16 @@ function StatsPage() {
   const [uniqueCount, setUniqueCount] = useState(0);
   const [categoryCounts, setCategoryCounts] = useState({}); // {category: visits}
   const [domainCategoryList, setDomainCategoryList] = useState([]); // [{domain, category, visits}]
+  const [theme, setTheme] = useState("light"); // default theme
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
   useEffect(() => {
+    // Load saved theme from storage
+    chrome.storage.local.get(["theme"], (result) => {
+      if (result.theme) setTheme(result.theme);
+    });
+    
     // Use last 90 days of history (adjust as needed)
     const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
 
@@ -97,6 +103,9 @@ function StatsPage() {
       chartInstanceRef.current = null;
     }
 
+    const isDark = theme === 'dark';
+    const chartFontColor = isDark ? '#e0e0e0' : '#666';
+
     chartInstanceRef.current = new Chart(chartRef.current, {
       type: 'pie',
       data: {
@@ -104,13 +113,21 @@ function StatsPage() {
         datasets: [{
           label: 'Visits by category',
           data,
+          backgroundColor: isDark 
+            ? ['#7b3f00', '#004225', '#00008b', '#4b0082', '#800000', '#5e4334', '#282828']
+            : ['#ffc107', '#28a745', '#007bff', '#6f42c1', '#dc3545', '#6c757d', '#f8f9fa']
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'bottom' }
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: chartFontColor,
+            }
+          }
         }
       }
     });
@@ -118,10 +135,10 @@ function StatsPage() {
     return () => {
       if (chartInstanceRef.current) chartInstanceRef.current.destroy();
     };
-  }, [categoryCounts]);
+  }, [categoryCounts, theme]);
 
   return (
-    <div className="stats-container">
+    <div className={`stats-container ${theme}`}>
       <h1>Statistics</h1>
       {loading ? <p>Loading history…</p> : (
         <>
