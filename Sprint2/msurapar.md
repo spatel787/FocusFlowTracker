@@ -1,6 +1,10 @@
 # Sprint 2
 
-Manihams Suraparaju  msurapar FocusFlowTracker
+Name: Manihams Suraparaju  
+
+Github id: Manihams
+
+Group name: FocusFlowTracker
 
 # What you planned to do
 
