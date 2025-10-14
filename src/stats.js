@@ -127,15 +127,18 @@ function StatsPage() {
         <>
           <div className="summary">
             <div className="card">
-              <h3>Top 5 sites</h3>
+              <h3>Most visited</h3>
               <ol>
                 {topSites.map(s => <li key={s.domain}>{s.domain} — {s.visits} visits</li>)}
               </ol>
             </div>
 
-            <div className="card">
+
+            <div className="card unique-site-card"> 
               <h3>Unique sites</h3>
-              <p>{uniqueCount}</p>
+              <div className="sitecount">
+                <p>{uniqueCount}</p>
+              </div>
             </div>
           </div>
 

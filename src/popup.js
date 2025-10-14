@@ -94,14 +94,19 @@ function FocusTracker() {
   const minutes = Math.floor((time % 3600000) / 60000);
   const seconds = Math.floor((time % 60000) / 1000);
 
+<<<<<<< HEAD
   const tabHours = Math.floor(tabTime / 3600000);
   const tabMinutes = Math.floor((tabTime % 3600000) / 60000);
   const tabSeconds = Math.floor((tabTime % 60000) / 1000);
 
+=======
+  /*Focus Flow Tracker Info*/
+>>>>>>> 7a26c68 (UI/UX improvements to FocusTracker popup, Blocked sites, and Statistics)
   return (
     <div className="card">
-      <h2>Focus Flow Tracker</h2>
+      <h2>{getDomain(currentTab)}</h2>
       <div className={`status ${isExtensionActive ? "active" : "inactive"}`}>
+<<<<<<< HEAD
         <p>Status: {isExtensionActive ? "TRACKING" : "INACTIVE"}</p>
         <p className="stopwatch-time">
           {hours.toString().padStart(2, "0")}:
@@ -110,9 +115,14 @@ function FocusTracker() {
         </p>
         <p>Tab Switches: {tabSwitches}</p>
         <p>Distraction Warnings: {distractionWarnings}</p> 
+=======
+>>>>>>> 7a26c68 (UI/UX improvements to FocusTracker popup, Blocked sites, and Statistics)
         <p>
-          <strong>Current Site:</strong> {getDomain(currentTab)}
+          <strong>Tab Switches:</strong> {tabSwitches}
         </p>
+        <p>
+          <strong>Distraction Warnings:</strong> {distractionWarnings}
+        </p> 
         <p className="stopwatch-time">
           {tabHours.toString().padStart(2, "0")}:
           {tabMinutes.toString().padStart(2, "0")}:
@@ -126,62 +136,6 @@ function FocusTracker() {
   );
 }
 
-// ---------------- Site Blocker ----------------
-function SiteBlocker() {
-  const [blockedSites, setBlockedSites] = useState([]);
-  const [newSite, setNewSite] = useState("");
-
-  useEffect(() => {
-    const fetchSites = async () => {
-      const sites = await blocked_get();
-      if (sites && sites.length > 0) setBlockedSites(sites);
-    };
-    fetchSites();
-  }, []);
-
-  const addSite = async () => {
-    const siteToAdd = newSite.trim();
-    if (!siteToAdd || blockedSites.includes(siteToAdd)) return;
-
-    await blocked_add(siteToAdd);
-    setBlockedSites([...blockedSites, siteToAdd]);
-    setNewSite("");
-  };
-
-  const removeSite = async (siteToRemove) => {
-    await blocked_remove(siteToRemove);
-    setBlockedSites(blockedSites.filter((s) => s !== siteToRemove));
-  };
-
-  return (
-    <div className="card">
-      <h2>Site Blocker</h2>
-      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-        <input
-          type="text"
-          value={newSite}
-          placeholder="example.com"
-          onChange={(e) => setNewSite(e.target.value)}
-          style={{ flex: 1, padding: "5px" }}
-        />
-        <button onClick={addSite} className="green">
-          Block
-        </button>
-      </div>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {blockedSites.map((site) => (
-          <li key={site} className="list-item">
-            <button onClick={() => removeSite(site)} className="gray">
-              Remove
-            </button>
-            <span> {site}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 // ---------------- Theme Toggle ----------------
 function ThemeToggle({ theme, setTheme }) {
   return (
@@ -190,7 +144,7 @@ function ThemeToggle({ theme, setTheme }) {
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       style={{ marginLeft: "auto" }}
     >
-      {theme === "light" ? "☼" : "☾"}
+      {"☼"}
     </button>
   );
 }
@@ -205,13 +159,12 @@ function PageButtons({ theme }) {
   const buttonStyle = {
     padding: "12px 20px",
     fontSize: "15px",
-    backgroundColor: theme === "dark" ? "#1e293b" : "#f8fafc",
+    backgroundColor: theme === "dark" ? "#1e1e1e" : "#fafafa",
     color: theme === "dark" ? "#fff" : "#000",
     border: "2px solid",
-    borderColor: theme === "dark" ? "#334155" : "#e2e8f0",
-    borderRadius: "10px",
+    borderColor: theme === "dark" ? "#353535" : "#e5e5e5",
+    borderRadius: "8px",
     cursor: "pointer",
-    transition: "all 0.2s ease",
     fontWeight: "600",
     display: "flex",
     alignItems: "center",
@@ -220,16 +173,16 @@ function PageButtons({ theme }) {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "20px" }}>
+    <div style={{ display: "flex", flexDirection: "center", gap: "10px", marginTop: "20px", marginBottom: "20px", marginLeft: "5px", marginRight: "5px" }}>
       <button onClick={() => openPage("blocker")} style={buttonStyle}>
-        🚫 Manage Blocked Sites
+        Blocked Sites
       </button>
       <button onClick={() => openPage("notes")} style={buttonStyle}>
-        📝 Open Notes
+        Open Notes
       </button>
       {/* Statistics button*/}
       <button onClick={() => openPage("stats")} style={buttonStyle}>
-        📊 View Statistics
+        View Statistics
       </button>
     </div>
   );
@@ -270,7 +223,6 @@ function MainApp() {
 
       <div className="content">
         <FocusTracker />
-        <SiteBlocker />
         <PageButtons theme={theme} />
       </div>
     </div>
@@ -280,9 +232,4 @@ function MainApp() {
 // ---------------- Render ----------------
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<MainApp />);
-
-
-
-
-
 

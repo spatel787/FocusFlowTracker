@@ -2,7 +2,7 @@
 .stats-container {
     font-family: Arial, sans-serif;
     padding: 16px;
-    width: 480px;
+    width: 1;
     box-sizing: border-box;
     background: #f7fafc;
     color: #111827;
@@ -22,6 +22,32 @@
     gap: 12px;
     margin-bottom: 12px;
   }
+
+
+
+
+/* This makes the card a vertical flex container */
+.unique-site-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* This makes the number's container grow to fill the available
+   space and then centers the number perfectly inside it. */
+.sitecount {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Style the number itself */
+.sitecount p {
+  font-size: 3rem;
+  font-weight: 600;
+  margin: 0; /* Remove default paragraph margin */
+  color: #4a5568;
+}
   
   .summary .card { flex: 1; }
   

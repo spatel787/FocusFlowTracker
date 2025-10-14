@@ -1,7 +1,7 @@
 :root {
   --bg-color: #ffffff;
   --text-color: #000000;
-  --card-bg: #ffffff;
+  --card-bg: #fafafa;
 }
 
 [data-theme="dark"] {
@@ -15,9 +15,11 @@ body {
   margin: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  transition: background-color 0.0s, color 0.0s;
   width: 350px;
-  min-height: 400px;
+}
+
+.content {
+  padding: 8px;
 }
 
 .toggle-btn {
@@ -50,7 +52,7 @@ h3 {
 .card {
   background: var(--card-bg);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   margin-bottom: 1rem;
   border: 1px solid rgba(0,0,0,0.1);
@@ -93,7 +95,6 @@ button {
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: opacity 0.2s;
 }
 
 button:hover {
@@ -155,7 +156,6 @@ ul {
   align-items: center;
   padding: 8px 0;
   border-bottom: 1px solid rgba(0,0,0,0.1);
-  transition: background-color 0.2s;
 }
 
 [data-theme="dark"] .note-item {
@@ -204,7 +204,6 @@ ul {
   font-size: 1.2rem;
   padding: 2px 6px;
   border-radius: 3px;
-  transition: background-color 0.2s;
   width: 24px;
   height: 24px;
   display: flex;
@@ -311,7 +310,7 @@ ul {
 .stopwatch-time {
     text-align: left;
     color: #000000;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 [data-theme="dark"] .stopwatch-time {

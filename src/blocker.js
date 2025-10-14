@@ -70,69 +70,19 @@ function SiteBlockerPage() {
       {/* Header */}
       <div className="header">
         <h1>
-          <span className="header-icon">🚫</span>
-          Distraction Blocker
+          Blocked Sites
         </h1>
         <button
           className="theme-toggle"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           title="Toggle theme"
         >
-          {theme === "light" ? "🌙" : "☀️"}
+          {"☼"}
         </button>
       </div>
 
       {/* Main Card */}
       <div className="main-card">
-        <h2 className="section-title">Add Distraction Sites</h2>
-        
-        {/* Input Group */}
-        <div className="input-group">
-          <input
-            type="text"
-            className="site-input"
-            value={newSite}
-            onChange={(e) => setNewSite(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="e.g., youtube.com, reddit.com, twitter.com"
-          />
-          <button className="add-btn" onClick={addSite}>
-            <span>➕</span>
-            Add Site
-          </button>
-        </div>
-
-        {/* Sites List */}
-        <h2 className="section-title">Blocked Sites ({blockedSites.length})</h2>
-        
-        {blockedSites.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🎯</div>
-            <p className="empty-text">No distraction sites yet</p>
-            <p className="empty-subtext">
-              Add websites that distract you from your goals
-            </p>
-          </div>
-        ) : (
-          <div className="sites-list">
-            {blockedSites.map((site) => (
-              <div key={site} className="site-item">
-                <div className="site-info">
-                  <span className="site-icon">🌐</span>
-                  <span className="site-name">{site}</span>
-                </div>
-                <button
-                  className="remove-btn"
-                  onClick={() => removeSite(site)}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Stats Section */}
         {blockedSites.length > 0 && (
           <div className="stats-section">
             <h2 className="section-title">Statistics</h2>
@@ -146,6 +96,52 @@ function SiteBlockerPage() {
                 <div className="stat-label">Warnings Active</div>
               </div>
             </div>
+          </div>
+        )}
+
+        <h2 className="section-title">Add Blocked Website</h2>
+        
+        {/* Input Group */}
+        <div className="input-group">
+          <input
+            type="text"
+            className="site-input"
+            value={newSite}
+            onChange={(e) => setNewSite(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="e.g., youtube.com, reddit.com, twitter.com"
+          />
+          <button className="add-btn" onClick={addSite}>
+            Add
+          </button>
+        </div>
+
+
+        {/* Sites List */}
+        <h2 className="section-title">Blocked Sites ({blockedSites.length})</h2>
+        
+        {blockedSites.length === 0 ? (
+          <div className="empty-state">
+            <p className="empty-text">No distraction sites yet</p>
+            <p className="empty-subtext">
+              Add websites that distract you from your goals
+            </p>
+          </div>
+        ) : (
+          <div className="sites-list">
+            {blockedSites.map((site) => (
+              <div key={site} className="site-item">
+                <div className="site-info">
+                  <span className="site-name">{site}</span>
+                </div>
+                <button
+                  className="remove-btn"
+                  onClick={() => removeSite(site)}
+                >
+                  {"x"}
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>
