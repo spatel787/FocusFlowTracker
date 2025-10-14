@@ -31,13 +31,14 @@ Manihams Suraparaju  msurapar
   
 * FocusFlowTracker/manifest.json
 
+* FocusFlowTracker/webpack.config.js
+
+* FocusFlowTracker/src/popup.js
+
 # Use of AI
 
 # What you accomplished
   
-* FocusFlowTracker/webpack.config.js
-
-* FocusFlowTracker/src/popup.js
 
 
 
