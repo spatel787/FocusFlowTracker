@@ -1,4 +1,3 @@
-// New Notes Page - Davyn's Code
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import "./notes.css";
@@ -52,17 +51,18 @@ function NotesApp() {
 
   return (
     <div className={`notes-container ${theme}`}>
+      <div className="notes-buttons">
+        <h1 className="header-title">Notepad</h1>
+        <button className="download-btn" onClick={handleDownload}>
+          💾 Download Notes
+        </button>
+      </div>
       <textarea
         value={notes}
         onChange={handleChange}
         placeholder="Write your notes here..."
         className={`notes-textarea ${theme}`}
       />
-      <div className="notes-buttons">
-        <button className="download-btn" onClick={handleDownload}>
-          💾 Download Notes
-        </button>
-      </div>
     </div>
   );
 }
@@ -70,8 +70,3 @@ function NotesApp() {
 // ---------------- Render ----------------
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<NotesApp />);
-
-
-
-
-
