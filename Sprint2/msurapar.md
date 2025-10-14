@@ -33,5 +33,7 @@ Files you worked on
   
 * FocusFlowTracker/webpack.config.js
 
+* FocusFlowTracker/src/popup.js
+
 
 
