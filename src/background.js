@@ -37,7 +37,7 @@ function urlShortener(url) {
   }
 }
 
-// This function checks if a site is a distraction
+// This function checks if a site should be warned about or blocked
 function checkDistraction(url) {
   if (!isTracking) return; // Only check when tracking
   
@@ -46,11 +46,19 @@ function checkDistraction(url) {
   
   // Fetch the distraction list from storage
   chrome.storage.sync.get({ blockedSites: [] }, (data) => {
-    const isDistraction = data.blockedSites.some(site =>
-      domain.includes(site) || site.includes(domain)
+    // Normalize sites to handle both old and new format
+    const normalizedSites = data.blockedSites.map(site => {
+      if (typeof site === 'string') {
+        return { url: site, action: 'warn' };
+      }
+      return site;
+    });
+    
+    const matchingSite = normalizedSites.find(site =>
+      domain.includes(site.url) || site.url.includes(domain)
     );
     
-    if (isDistraction) {
+    if (matchingSite && matchingSite.action === 'warn') {
       displayWarning(domain);
     }
   }); 
@@ -120,6 +128,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       timeElapsed: sessionStart ? Date.now() - sessionStart : 0
     });
   }
+
+  // Add this case inside your existing onMessage listener:
+if (message.type === 'UPDATE_BLOCKING_RULES') {
+  updateBlockingRules(message.sites);
+  sendResponse({success: true});
+}
+
 });
 
 // Siddh's CODE - Track tab switches (runs even when popup closed!)
@@ -161,13 +176,74 @@ chrome.runtime.onInstalled.addListener(() => {
         chrome.declarativeNetRequest.updateDynamicRules({
           removeRuleIds: ruleIds
         }, () => {
-          console.log('✅ Cleared', ruleIds.length, 'old blocking rules');
+          console.log('Cleared', ruleIds.length, 'old blocking rules');
+          initializeBlockingRules();
         });
       } else {
-        console.log('✅ No old blocking rules to clear');
+        console.log('No old blocking rules to clear');
+        initializeBlockingRules();
       }
     });
   }
 
 });
+
+// Update blocking rules when sites list changes
+function updateBlockingRules(sites) {
+  if (!chrome.declarativeNetRequest) {
+    console.log('declarativeNetRequest not available');
+    return;
+  }
+
+  // Get current dynamic rules
+  chrome.declarativeNetRequest.getDynamicRules((existingRules) => {
+    const existingRuleIds = existingRules.map(rule => rule.id);
+    
+    // Create new rules for sites with 'block' action
+    const newRules = [];
+    const blockedSites = sites.filter(site => site.action === 'block');
+    
+    blockedSites.forEach((site, index) => {
+      const ruleId = index + 1; // Start from 1
+      newRules.push({
+        id: ruleId,
+        priority: 1,
+        action: { type: 'block' },
+        condition: {
+          urlFilter: `*://*.${site.url}/*`,
+          resourceTypes: ['main_frame']
+        }
+      });
+    });
+
+    // Update rules: remove all existing, add new ones
+    chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: existingRuleIds,
+      addRules: newRules
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('Error updating blocking rules:', chrome.runtime.lastError);
+      } else {
+        console.log(`Updated blocking rules: ${newRules.length} sites blocked`);
+      }
+    });
+  });
+}
+
+// Initialize blocking rules from stored sites
+function initializeBlockingRules() {
+  chrome.storage.sync.get({ blockedSites: [] }, (data) => {
+    const normalizedSites = data.blockedSites.map(site => {
+      if (typeof site === 'string') {
+        return { url: site, action: 'warn' };
+      }
+      return site;
+    });
+    
+    updateBlockingRules(normalizedSites);
+    console.log('Initialized blocking rules for', normalizedSites.length, 'sites');
+  });
+}
+
+
 

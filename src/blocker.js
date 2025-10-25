@@ -6,6 +6,7 @@ import "./blocker.css";
 function SiteBlockerPage() {
   const [blockedSites, setBlockedSites] = useState([]);
   const [newSite, setNewSite] = useState("");
+  const [newAction, setNewAction] = useState("warn");
   const [theme, setTheme] = useState("light");
 
   // Load theme
@@ -40,13 +41,24 @@ function SiteBlockerPage() {
       return;
     }
     
-    if (blockedSites.includes(siteToAdd)) {
-      alert("This site is already blocked!");
+    //if (blockedSites.includes(siteToAdd)) {
+    const existingSite = blockedSites.find(site => site.url === siteToAdd);
+if (existingSite) {
+    //  alert("This site is already blocked!");
+    alert("This site is already in the list!");
       return;
     }
 
-    await blocked_add(siteToAdd);
-    setBlockedSites([...blockedSites, siteToAdd]);
+    //await blocked_add(siteToAdd);
+    await blocked_add(siteToAdd, newAction);
+    //setBlockedSites([...blockedSites, siteToAdd]);
+    const updatedSites = await blocked_get();
+setBlockedSites(updatedSites);
+// Add this after setBlockedSites(updatedSites); in both functions:
+chrome.runtime.sendMessage({ 
+  type: "UPDATE_BLOCKING_RULES", 
+  sites: updatedSites 
+});
     setNewSite("");
   };
 
@@ -54,7 +66,13 @@ function SiteBlockerPage() {
   const removeSite = async (siteToRemove) => {
     if (confirm(`Remove ${siteToRemove} from blocked list?`)) {
       await blocked_remove(siteToRemove);
-      setBlockedSites(blockedSites.filter((s) => s !== siteToRemove));
+      //setBlockedSites(blockedSites.filter((s) => s !== siteToRemove));
+      const updatedSites = await blocked_get();
+setBlockedSites(updatedSites);
+chrome.runtime.sendMessage({ 
+  type: "UPDATE_BLOCKING_RULES", 
+  sites: updatedSites 
+});
     }
   };
 
@@ -116,6 +134,29 @@ function SiteBlockerPage() {
           </button>
         </div>
 
+        <div className="action-selector">
+  <label>
+    <input
+      type="radio"
+      name="action"
+      value="warn"
+      checked={newAction === "warn"}
+      onChange={(e) => setNewAction(e.target.value)}
+    />
+    Warn
+  </label>
+  <label>
+    <input
+      type="radio"
+      name="action"
+      value="block"
+      checked={newAction === "block"}
+      onChange={(e) => setNewAction(e.target.value)}
+    />
+    Block
+  </label>
+</div>
+
 
         {/* Sites List */}
         <h2 className="section-title">Blocked Sites ({blockedSites.length})</h2>
@@ -130,13 +171,14 @@ function SiteBlockerPage() {
         ) : (
           <div className="sites-list">
             {blockedSites.map((site) => (
-              <div key={site} className="site-item">
+              <div key={site.url} className="site-item">
                 <div className="site-info">
-                  <span className="site-name">{site}</span>
+                  <span className="site-name">{site.url}</span>
+                  <span className={`action-badge ${site.action}`}>{site.action}</span>
                 </div>
                 <button
                   className="remove-btn"
-                  onClick={() => removeSite(site)}
+                  onClick={() => removeSite(site.url)}
                 >
                   {"x"}
                 </button>

@@ -21,15 +21,23 @@ function root_domain_get(url) {
  * @param {string} url The URL to block.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
  */
-export function blocked_add(url) {
+
+export function blocked_add(url, action = 'warn') {
   return new Promise((resolve) => {
     chrome.storage.sync.get({ blockedSites: [] }, (data) => {
       const blockedSites = data.blockedSites;
-      if (!blockedSites.includes(url)) {
-        blockedSites.push(url);
+      
+      //This is to check if site already exists
+      const existingIndex = blockedSites.findIndex(site => 
+        typeof site === 'string' ? site === url : site.url === url
+      );
+      
+      if (existingIndex === -1) {
+        // Adding new sit with action
+        blockedSites.push({ url, action });
         chrome.storage.sync.set({ blockedSites }, resolve);
       } else {
-        resolve(); // Resolve even if the URL is already there
+        resolve(); // Site already exists, do not replicate again
       }
     });
   });
@@ -43,20 +51,33 @@ export function blocked_add(url) {
 export function blocked_remove(url) {
   return new Promise((resolve) => {
     chrome.storage.sync.get({ blockedSites: [] }, (data) => {
-      const blockedSites = data.blockedSites.filter((site) => site !== url);
+      const blockedSites = data.blockedSites.filter((site) => {
+        //This portion is for handeling both old and new string format
+        const siteUrl = typeof site === 'string' ? site : site.url;
+        return siteUrl !== url;
+      });
       chrome.storage.sync.set({ blockedSites }, resolve);
     });
   });
 }
 
+
 /**
  * Retrieves the list of all blocked sites from chrome.storage.sync.
  * @returns {Promise<string[]>} A promise that resolves with an array of blocked site URLs.
  */
+
 export function blocked_get() {
   return new Promise((resolve) => {
     chrome.storage.sync.get({ blockedSites: [] }, (data) => {
-      resolve(data.blockedSites);
+      // This portion convert old string format to new object format
+      const normalizedSites = data.blockedSites.map(site => {
+        if (typeof site === 'string') {
+          return { url: site, action: 'warn' };
+        }
+        return site;
+      });
+      resolve(normalizedSites);
     });
   });
 }
