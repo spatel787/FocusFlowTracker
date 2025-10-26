@@ -28,6 +28,8 @@ const stopKeepAlive = () => {
 let lastTimeWarned = {};     // Track cooldown per site
 let distractionWarnings = 0; // Count total warnings
 
+restoreTrackingState();
+
 //This function extracts url name from the full url
 function urlShortener(url) { 
   try {  
@@ -103,6 +105,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     distractionWarnings = 0;      // Reset warning count
     lastTimeWarned = {};          // Clear cooldown timers
   
+    //fix for tracker randomly stopping
+    chrome.storage.session.set({
+    isTracking: true,
+    sessionStart: sessionStart,
+    tabSwitches: 0,
+    distractionWarnings: 0
+  });
+
     // CLAUDE'S ADDITION - Start keep alive when tracking starts
     startKeepAlive();
     console.log('Tracking started at', new Date(sessionStart).toLocaleTimeString());
@@ -113,6 +123,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     isTracking = false;
     sessionStart = null;
     
+    chrome.storage.session.set({ isTracking: false }); //Fix for tracker randomly stopping
+
     // CLAUDE'S ADDITION - Stop keep alive when tracking stops
     stopKeepAlive();
     console.log('Tracking stopped at', new Date().toLocaleTimeString());
@@ -142,6 +154,9 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
   if (isTracking) {
     tabSwitches++;
     currentTabId = activeInfo.tabId;
+
+    chrome.storage.session.set({ tabSwitches });
+
     console.log(`Tab switch detected! Total: ${tabSwitches}`);
     
     chrome.tabs.get(activeInfo.tabId, (tab) => {
@@ -163,11 +178,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // CLAUDE'S ADDITION - Handle service worker startup
 chrome.runtime.onStartup.addListener(() => {
   console.log('Background script started');
+  restoreTrackingState();
 });
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed/updated');
-
+ restoreTrackingState();
+ 
   // CLEAR OLD BLOCKING RULES (from previous version that used declarativeNetRequest)
   if (chrome.declarativeNetRequest) {
     chrome.declarativeNetRequest.getDynamicRules((rules) => {
@@ -270,6 +287,19 @@ function initializeBlockingRules() {
     
     updateBlockingRules(normalizedSites);
     console.log('Initialized blocking rules for', normalizedSites.length, 'sites');
+  });
+}
+
+function restoreTrackingState() {
+  chrome.storage.session.get(['isTracking', 'sessionStart', 'tabSwitches', 'distractionWarnings'], (data) => {
+    if (data.isTracking) {
+      isTracking = true;
+      sessionStart = data.sessionStart || Date.now();
+      tabSwitches = data.tabSwitches || 0;
+      distractionWarnings = data.distractionWarnings || 0;
+      startKeepAlive();
+      console.log('Restored tracking state active');
+    }
   });
 }
 
