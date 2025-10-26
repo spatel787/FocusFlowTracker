@@ -202,9 +202,12 @@ function updateBlockingRules(sites) {
     // Create new rules for sites with 'block' action
     const newRules = [];
     const blockedSites = sites.filter(site => site.action === 'block');
+     console.log('Sites to block:', blockedSites); //temp
     
     blockedSites.forEach((site, index) => {
       const ruleId = index + 1; // Start from 1
+
+      /*
       newRules.push({
         id: ruleId,
         priority: 1,
@@ -214,8 +217,33 @@ function updateBlockingRules(sites) {
           resourceTypes: ['main_frame']
         }
       });
-    });
+      */
 
+      // Rule for bare domain (x.com)
+      //For some reason youtube.com is still not fixed. Maybe the issue is with url pattern matching only subdomains?
+  newRules.push({
+  id: ruleId * 2 - 1,
+  priority: 1,
+  action: { type: 'block' },
+  condition: {
+    urlFilter: `*://${site.url}/*`,
+    resourceTypes: ['main_frame']
+  }
+});
+
+  // Rule for subdomains (www.youtube.com, m.youtube.com, etc)
+  newRules.push({
+  id: ruleId * 2,
+  priority: 1,
+  action: { type: 'block' },
+  condition: {
+    urlFilter: `*://*.${site.url}/*`,
+    resourceTypes: ['main_frame']
+  }
+});
+});
+
+ console.log('New rules to add:', newRules); //temp
     // Update rules: remove all existing, add new ones
     chrome.declarativeNetRequest.updateDynamicRules({
       removeRuleIds: existingRuleIds,
