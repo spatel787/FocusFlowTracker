@@ -123,6 +123,14 @@ function FocusTracker() {
         <p>
           <strong>Distraction Warnings:</strong> {distractionWarnings}
         </p> 
+
+             {/* Distraction Score */}
+        <DistractionScore
+          time={time}
+          tabSwitches={tabSwitches}
+          distractionWarnings={distractionWarnings}
+        />
+        
         <p className="stopwatch-time">
           <strong>Total Time: </strong>
           {hours.toString().padStart(2, "0")}:
@@ -138,6 +146,64 @@ function FocusTracker() {
         <button onClick={toggleTracking} className={isExtensionActive ? "red" : "green"}>
           {isExtensionActive ? "Stop" : "Start"} Tracking
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Distraction Score ----------------
+function DistractionScore({ time, tabSwitches, distractionWarnings }) {
+  // Convert ms → minutes for scoring
+  const timeMinutes = Math.max(time / 60000, 0.1);
+
+  const a = 1; // weight for tab switches
+  const b = 3; // weight for warnings
+  const score = Math.round(100 * (timeMinutes / (timeMinutes + (a * tabSwitches + b * distractionWarnings))));
+
+  let color = "#4caf50"; // default good
+  let label = "Good";
+  if (score < 60) {
+    color = "#f44336";
+    label = "Bad";
+  } else if (score < 80) {
+    color = "#ffb300";
+    label = "Okay";
+  }
+
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 100) * circumference;
+
+  return (
+    <div className="distraction-score">
+      <h3>Distraction Score</h3>
+      <div className="circle">
+        <svg width="120" height="120">
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            stroke="#e0e0e0"
+            strokeWidth="10"
+            fill="none"
+          />
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            stroke={color}
+            strokeWidth="10"
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{ transition: "stroke-dashoffset 0.5s ease, stroke 0.3s ease" }}
+          />
+        </svg>
+        <div className="score-text">
+          <span className="score-number">{score}</span>
+          <span className="score-label" style={{ color }}>{label}</span>
+        </div>
       </div>
     </div>
   );
