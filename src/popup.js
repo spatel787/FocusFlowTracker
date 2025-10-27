@@ -47,8 +47,6 @@ function FocusTracker() {
         }
       );
     }
-    if (!isExtensionActive) toggleTracking();
-    else setIsExtensionActive(!isExtensionActive);
   }, []);
 
   useEffect(() => {
