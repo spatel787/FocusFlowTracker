@@ -5,7 +5,7 @@ import "./popup.css";
 
 // ---------------- Focus Tracker ----------------
 function FocusTracker() {
-  const [isExtensionActive, setIsExtensionActive] = useState(false);
+  const [isExtensionActive, setIsExtensionActive] = useState(true);
   const [tabSwitches, setTabSwitches] = useState(0);
   const [currentTab, setCurrentTab] = useState("Loading...");
   const [time, setTime] = useState(0);
@@ -23,7 +23,7 @@ function FocusTracker() {
     if (typeof chrome !== "undefined" && chrome.runtime) {
       chrome.runtime.sendMessage({ type: "GET_STATUS" }, (response) => {
         if (response) {
-          setIsExtensionActive(response.isTracking || false);
+          setIsExtensionActive(response.isTracking || true);
           setTabSwitches(response.tabSwitches || 0);
           setDistractionWarnings(response.distractionWarnings || 0);
         }
@@ -107,24 +107,41 @@ function FocusTracker() {
     }
   };
 
+  const formatTime = (time) => {
+    const h = Math.floor(time / 3600000);
+    const m = Math.floor((time % 3600000) / 60000);
+    const s = Math.floor((time % 60000) / 1000);
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  };
+  
   /* Focus Flow Tracker Info */
   return (
-    <div className="card">
-      <h2>{getDomain(currentTab)}</h2>
+    <div>
+      <div className="card">
+        <h2>{getDomain(currentTab)}</h2>
 
-      {/* Distraction Score */}
-      <DistractionScore
-        time={time}
-        tabSwitches={tabSwitches}
-        distractionWarnings={distractionWarnings}
-      />
+        {/* Distraction Score */}
+        <DistractionScore
+          time={time}
+          tabSwitches={tabSwitches}
+          distractionWarnings={distractionWarnings}
+        />
 
-      <button
-        onClick={toggleTracking}
-        className={isExtensionActive ? "red" : "green"}
-      >
-        {isExtensionActive ? "Stop" : "Start"} Tracking
-      </button>
+        <button
+          onClick={toggleTracking}
+          className={isExtensionActive ? "red" : "green"}
+        >
+          {isExtensionActive ? "Stop" : "Start"} Tracking
+        </button>
+      </div>
+      <div className="card">
+        <h3>Session Time</h3> 
+        <p>{formatTime(time)}</p>
+      </div>
+      <div className="card">
+        <h3>Current Tab Time</h3> 
+        <p> {formatTime(tabTime)}</p>
+      </div>
     </div>
   );
 }
