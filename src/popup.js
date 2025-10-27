@@ -5,7 +5,7 @@ import "./popup.css";
 
 // ---------------- Focus Tracker ----------------
 function FocusTracker() {
-  const [isExtensionActive, setIsExtensionActive] = useState(true);
+  const [isExtensionActive, setIsExtensionActive] = useState(false);
   const [tabSwitches, setTabSwitches] = useState(0);
   const [currentTab, setCurrentTab] = useState("Loading...");
   const [time, setTime] = useState(0);
@@ -23,7 +23,7 @@ function FocusTracker() {
     if (typeof chrome !== "undefined" && chrome.runtime) {
       chrome.runtime.sendMessage({ type: "GET_STATUS" }, (response) => {
         if (response) {
-          setIsExtensionActive(response.isTracking || true);
+          setIsExtensionActive(response.isTracking || false);
           setTabSwitches(response.tabSwitches || 0);
           setDistractionWarnings(response.distractionWarnings || 0);
         }
@@ -31,7 +31,8 @@ function FocusTracker() {
       chrome.storage.session.get(
         ["isExtensionActive", "StartTime", "StopTime", "tabStartTimes", "tabStopTimes"],
         (res) => {
-          setIsExtensionActive(res.isExtensionActive || false);
+          if (res.isExtensionActive) setIsExtensionActive(res.isExtensionActive);
+          else setIsExtensionActive(true);
           if (res.StartTime && !res.StopTime) setTime(Date.now() - res.StartTime);
           else if (res.StartTime && res.StopTime) setTime(res.StopTime - res.StartTime);
 
@@ -46,6 +47,8 @@ function FocusTracker() {
         }
       );
     }
+    if (!isExtensionActive) toggleTracking();
+    else setIsExtensionActive(!isExtensionActive);
   }, []);
 
   useEffect(() => {
@@ -113,7 +116,7 @@ function FocusTracker() {
     const s = Math.floor((time % 60000) / 1000);
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   };
-  
+
   /* Focus Flow Tracker Info */
   return (
     <div>
@@ -139,7 +142,7 @@ function FocusTracker() {
         <p>{formatTime(time)}</p>
       </div>
       <div className="card">
-        <h3>Current Tab Time</h3> 
+        <h3>Current Tab Time:</h3> 
         <p> {formatTime(tabTime)}</p>
       </div>
     </div>
