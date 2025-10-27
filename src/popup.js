@@ -130,7 +130,7 @@ function FocusTracker() {
           tabSwitches={tabSwitches}
           distractionWarnings={distractionWarnings}
         />
-        
+
         <p className="stopwatch-time">
           <strong>Total Time: </strong>
           {hours.toString().padStart(2, "0")}:
@@ -156,7 +156,7 @@ function DistractionScore({ time, tabSwitches, distractionWarnings }) {
   // Convert ms → minutes for scoring
   const timeMinutes = Math.max(time / 60000, 0.1);
 
-  const a = 1; // weight for tab switches
+  const a = 0.25; // weight for tab switches
   const b = 3; // weight for warnings
   const score = Math.round(100 * (timeMinutes / (timeMinutes + (a * tabSwitches + b * distractionWarnings))));
 
