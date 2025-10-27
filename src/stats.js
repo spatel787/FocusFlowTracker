@@ -34,21 +34,57 @@ function extractDomain(url) {
 
 function StatsPage() {
   const [loading, setLoading] = useState(true);
-  const [topSites, setTopSites] = useState([]); // [{domain, visits}]
+  const [topSites, setTopSites] = useState([]);
   const [uniqueCount, setUniqueCount] = useState(0);
-  const [categoryCounts, setCategoryCounts] = useState({}); // {category: visits}
-  const [domainCategoryList, setDomainCategoryList] = useState([]); // [{domain, category, visits}]
-  const [theme, setTheme] = useState("light"); // default theme
+  const [categoryCounts, setCategoryCounts] = useState({});
+  const [domainCategoryList, setDomainCategoryList] = useState([]);
+  const [theme, setTheme] = useState("light");
+
+  // NEW state for focus stats
+  const [tabSwitches, setTabSwitches] = useState(0);
+  const [warnings, setWarnings] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const [tabTime, setTabTime] = useState(0);
+
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
+  // ---- Load tracking stats from chrome.storage.session ----
   useEffect(() => {
-    // Load saved theme from storage
+    if (chrome?.storage?.session) {
+      chrome.storage.session.get(["tabSwitches", "distractionWarnings", "StartTime", "StopTime", "tabStartTimes", "tabStopTimes"], (res) => {
+        setTabSwitches(res.tabSwitches || 0);
+        setWarnings(res.distractionWarnings || 0);
+
+        // Compute total time
+        let t = 0;
+        if (res.StartTime && !res.StopTime) t = Date.now() - res.StartTime;
+        else if (res.StartTime && res.StopTime) t = res.StopTime - res.StartTime;
+        setTotalTime(t);
+
+        // Compute current tab time
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]) {
+            const url = tabs[0].url;
+            const starts = res.tabStartTimes || {};
+            const stops = res.tabStopTimes || {};
+            const start = starts[url];
+            const stop = stops[url];
+            if (start && !stop) setTabTime(Date.now() - start);
+            else if (start && stop) setTabTime(stop - start);
+            else setTabTime(0);
+          }
+        });
+      });
+    }
+  }, []);
+
+  // ---- Load browsing history data ----
+  useEffect(() => {
     chrome.storage.local.get(["theme"], (result) => {
       if (result.theme) setTheme(result.theme);
     });
-    
-    // Use last 90 days of history (adjust as needed)
+
     const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
 
     if (!chrome || !chrome.history) {
@@ -58,8 +94,7 @@ function StatsPage() {
     }
 
     chrome.history.search({ text: '', startTime, maxResults: 5000 }, (results) => {
-      // results is an array of HistoryItem { id, url, title, lastVisitTime, visitCount }
-      const domainMap = new Map(); // domain -> visits (sum of visitCount)
+      const domainMap = new Map();
       results.forEach(item => {
         if (!item.url) return;
         const domain = extractDomain(item.url);
@@ -68,7 +103,6 @@ function StatsPage() {
         domainMap.set(domain, (domainMap.get(domain) || 0) + visits);
       });
 
-      // Build domain -> category list
       const domainCategoryArr = [];
       const categoryTotals = {};
       domainMap.forEach((visits, domain) => {
@@ -77,13 +111,11 @@ function StatsPage() {
         categoryTotals[category] = (categoryTotals[category] || 0) + visits;
       });
 
-      // Sort top sites by visits
       const sortedDomains = Array.from(domainMap.entries())
         .map(([domain, visits]) => ({ domain, visits }))
         .sort((a, b) => b.visits - a.visits);
 
-      const top5 = sortedDomains.slice(0, 5);
-      setTopSites(top5);
+      setTopSites(sortedDomains.slice(0, 5));
       setUniqueCount(domainMap.size);
       setCategoryCounts(categoryTotals);
       setDomainCategoryList(domainCategoryArr);
@@ -91,13 +123,12 @@ function StatsPage() {
     });
   }, []);
 
-  // Draw chart whenever categoryCounts changes
+  // ---- Draw pie chart ----
   useEffect(() => {
     if (!chartRef.current) return;
     const labels = Object.keys(categoryCounts);
     const data = labels.map(l => categoryCounts[l]);
 
-    // Destroy previous chart
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
       chartInstanceRef.current = null;
@@ -137,11 +168,30 @@ function StatsPage() {
     };
   }, [categoryCounts, theme]);
 
+  // Helper for formatting time
+  const formatTime = (ms) => {
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  };
+
   return (
     <div className={`stats-container ${theme}`}>
       <h1>Statistics</h1>
       {loading ? <p>Loading history…</p> : (
         <>
+          {/* New Focus Summary Section */}
+          <div className="card focus-summary">
+            <h3>Focus Tracking Summary</h3>
+            <div className="focus-grid">
+              <p><strong>Tab Switches:</strong> {tabSwitches}</p>
+              <p><strong>Distraction Warnings:</strong> {warnings}</p>
+              <p><strong>Total Time:</strong> {formatTime(totalTime)}</p>
+              <p><strong>Current Tab Time:</strong> {formatTime(tabTime)}</p>
+            </div>
+          </div>
+
           <div className="summary">
             <div className="card">
               <h3>Most visited</h3>
@@ -150,8 +200,7 @@ function StatsPage() {
               </ol>
             </div>
 
-
-            <div className="card unique-site-card"> 
+            <div className="card unique-site-card">
               <h3>Unique sites</h3>
               <div className="sitecount">
                 <p>{uniqueCount}</p>
@@ -191,6 +240,8 @@ function StatsPage() {
   );
 }
 
-// Mount the component
 const root = ReactDOM.createRoot(document.getElementById('stats-root'));
 root.render(<StatsPage />);
+
+
+

@@ -29,9 +29,6 @@ html, body {
     margin-bottom: 12px;
   }
 
-
-
-
 /* This makes the card a vertical flex container */
 .unique-site-card {
   display: flex;
@@ -98,3 +95,27 @@ body.dark, .stats-container.dark {
 .stats-container.dark .domain-table th {
   background: #3a3a3a;
 }
+
+.focus-summary {
+  display: flex;
+  flex-direction: column;
+  background: #fffbea;
+}
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.focus-grid p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Dark mode */
+.stats-container.dark .focus-summary {
+  background: #2a2a1f;
+}
+
