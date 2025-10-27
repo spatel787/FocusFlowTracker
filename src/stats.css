@@ -72,6 +72,16 @@ html, body {
 
 /* --- Dark Mode Overrides --- */
 
+body.dark{
+  background-color: #121212;
+  color: #eee;
+}
+
+body.light {
+  background-color: white;
+  color: black;
+}
+
 body.dark, .stats-container.dark {
   background-color: #1a1a1a;
   color: #e0e0e0;

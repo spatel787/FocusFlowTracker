@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+/*import React, { useEffect, useState, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 import Chart from 'chart.js/auto';
 import './stats.css';
@@ -181,8 +181,8 @@ function StatsPage() {
       <h1>Statistics</h1>
       {loading ? <p>Loading history…</p> : (
         <>
-          {/* New Focus Summary Section */}
-          <div className="card focus-summary">
+          {/* New Focus Summary Section} */
+          /*<div className="card focus-summary">
             <h3>Focus Tracking Summary</h3>
             <div className="focus-grid">
               <p><strong>Tab Switches:</strong> {tabSwitches}</p>
@@ -241,7 +241,170 @@ function StatsPage() {
 }
 
 const root = ReactDOM.createRoot(document.getElementById('stats-root'));
-root.render(<StatsPage />);
+root.render(<StatsPage />);*/
+
+// === stats.js ===
+
+const categories = {
+  "Social Media": [
+    "facebook.com", "instagram.com", "twitter.com", "tiktok.com", "linkedin.com",
+    "reddit.com", "pinterest.com", "snapchat.com"
+  ],
+  "Video Streaming": [
+    "youtube.com", "netflix.com", "hulu.com", "disneyplus.com", "twitch.tv", "primevideo.com"
+  ],
+  "Productivity": [
+    "notion.so", "docs.google.com", "drive.google.com", "calendar.google.com",
+    "asana.com", "slack.com", "trello.com", "github.com", "gitlab.com", "wikipedia.org"
+  ],
+  "News": [
+    "bbc.com", "cnn.com", "nytimes.com", "theguardian.com", "reuters.com", "washingtonpost.com"
+  ],
+  "Shopping": [
+    "amazon.com", "ebay.com", "walmart.com", "etsy.com", "bestbuy.com", "target.com", "temu.com"
+  ],
+  "Education": [
+    "coursera.org", "udemy.com", "khanacademy.org", "edx.org", "mit.edu", "harvard.edu", "codeacademy.com"
+  ],
+  "Generative AI": [
+    "openai.com", "perplexity.ai", "gemini.google.com", "anthropic.com"
+  ],
+  "Others": []
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const totalSitesElem = document.getElementById("total-sites");
+  const topSitesList = document.getElementById("top-sites");
+  const refreshBtn = document.getElementById("refresh-btn");
+  const exportBtn = document.getElementById("export-btn");
+  const themeToggle = document.getElementById("theme-toggle");
+  const ctx = document.getElementById("categoryChart").getContext("2d");
+
+  let categoryChart;
+
+  // --- Load and render stats ---
+  async function loadStats() {
+    const historyData = await getBrowsingData();
+    const { total, topSites, categoryCount } = processData(historyData);
+
+    totalSitesElem.textContent = total;
+
+    // Display top 5 sites
+    topSitesList.innerHTML = "";
+    topSites.forEach(([site, count]) => {
+      const li = document.createElement("li");
+      li.textContent = `${site} - ${count} visits`;
+      topSitesList.appendChild(li);
+    });
+
+    // Draw chart
+    if (categoryChart) categoryChart.destroy();
+    categoryChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: Object.keys(categoryCount),
+        datasets: [
+          {
+            label: "Visits by Category",
+            data: Object.values(categoryCount),
+            backgroundColor: [
+              "#4CAF50", "#2196F3", "#FF9800", "#E91E63",
+              "#9C27B0", "#FFC107", "#607D8B", "#8BC34A"
+            ]
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          legend: { position: "bottom" }
+        }
+      }
+    });
+  }
+
+  // --- Get browsing data from Chrome History ---
+  async function getBrowsingData() {
+    return new Promise((resolve) => {
+      const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000; // last 90 days
+      chrome.history.search({ text: "", startTime, maxResults: 10000 }, (results) => {
+        resolve(results);
+      });
+    });
+  }
+
+  // --- Process and categorize data ---
+  function processData(results) {
+    const siteCounts = {};
+
+    results.forEach((item) => {
+      try {
+        const url = new URL(item.url);
+        const domain = url.hostname.replace("www.", "");
+        siteCounts[domain] = (siteCounts[domain] || 0) + 1;
+      } catch (e) {}
+    });
+
+    const total = Object.keys(siteCounts).length;
+
+    // Sort and pick top 5
+    const sortedSites = Object.entries(siteCounts).sort((a, b) => b[1] - a[1]);
+    const topSites = sortedSites.slice(0, 5);
+
+    // Categorize
+    const categoryCount = {};
+    Object.keys(categories).forEach((cat) => (categoryCount[cat] = 0));
+
+    for (const [site, count] of sortedSites) {
+      let found = false;
+      for (const [cat, list] of Object.entries(categories)) {
+        if (list.some((domain) => site.includes(domain))) {
+          categoryCount[cat] += count;
+          found = true;
+          break;
+        }
+      }
+      if (!found) categoryCount["Others"] += count;
+    }
+
+    return { total, topSites, categoryCount };
+  }
+
+  // --- Export stats as JSON ---
+  function exportData() {
+    const exportObj = {
+      totalSites: totalSitesElem.textContent,
+      topSites: Array.from(topSitesList.children).map((li) => li.textContent)
+    };
+    const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "focusflow_stats.json";
+    a.click();
+  }
+
+  // --- Toggle light/dark mode ---
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    const isDark = document.body.classList.contains("dark-mode");
+    themeToggle.textContent = isDark ? "🌙 Dark" : "🌞 Light";
+    chrome.storage.local.set({ theme: isDark ? "dark" : "light" });
+  });
+
+  // --- Load theme preference on startup ---
+  chrome.storage.local.get("theme", (data) => {
+    const theme = data.theme || "light";
+    if (theme === "dark") document.body.classList.add("dark-mode");
+    themeToggle.textContent = theme === "dark" ? "🌙 Dark" : "🌞 Light";
+  });
+
+  refreshBtn.addEventListener("click", loadStats);
+  exportBtn.addEventListener("click", exportData);
+
+  loadStats(); // initial render
+});
+
+
 
 
 

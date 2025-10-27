@@ -1,11 +1,37 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Statistics</title>
-  </head>
-  <body>
-    <div id="stats-root"></div>
-    <script src="stats.js"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusFlow Stats</title>
+  <link rel="stylesheet" href="stats.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="light-mode">
+  <div class="container">
+    <header>
+      <h1>FocusFlow Stats</h1>
+      <button id="theme-toggle">🌞 Light</button>
+    </header>
+
+    <section id="summary">
+      <h2>Summary</h2>
+      <p>Total Sites in History: <span id="total-sites">0</span></p>
+      <p>Top 5 Most Visited Sites:</p>
+      <ul id="top-sites"></ul>
+    </section>
+
+    <section id="chart-section">
+      <h2>Category Breakdown</h2>
+      <canvas id="categoryChart"></canvas>
+    </section>
+
+    <section id="actions">
+      <button id="refresh-btn">🔄 Refresh Data</button>
+      <button id="export-btn">📤 Export Data</button>
+    </section>
+  </div>
+
+  <script src="stats.js"></script>
+</body>
 </html>
