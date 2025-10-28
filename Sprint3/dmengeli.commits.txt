@@ -1,1 +1,295 @@
+git blame src/popup.css 
+
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 343)
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 344) /* ---------- Distraction Score ---------- */
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 345) .distraction-score {
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 347) }
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 348)
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 349) .circle {
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 350)   position: relative;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 351)   width: 120px;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 352)   height: 120px;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 353)   margin: 0 auto;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 354) }
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 355) 
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 356) .score-text {
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 357)   position: absolute;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 358)   top: 50%;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 359)   left: 50%;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 360)   transform: translate(-50%, -50%);
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 361)   display: flex;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 362)   flex-direction: column;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 363)   align-items: center;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 364) }
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 365)
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 366) .score-number {
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 367)   font-size: 1.6rem;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 368)   font-weight: bold;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 369) }
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 370)
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 371) .score-label {
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 372)   font-size: 0.9rem;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 373)   font-weight: 600;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 374) }
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 375)
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 376) [data-theme="dark"] .circle circle:first-child {
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 377)   stroke: #333;
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 378) }
+8103f204 src/popup.css (Dmengeli04       2025-10-27 14:15:00 -0400 379) 
+
+git blame webpack.config.js
+
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 38)   plugins: [
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 39)     new HtmlWebpackPlugin({
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 40)       template: './src/popup.html',
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 41)       filename: 'popup.html',
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 42)       chunks: ['popup'], // injects only popup.js automatically
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 44)     new HtmlWebpackPlugin({
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 45)       template: './src/notes.html',
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 46)       filename: 'notes.html',
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 47)       chunks: ['notes'], // injects only notes.js
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 49)     new HtmlWebpackPlugin({  // ADD THIS!
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 50)         template: './src/blocker.html',
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 51)         filename: 'blocker.html',
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 52)         chunks: ['blocker']
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 53)       }),
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 54)     new HtmlWebpackPlugin({  // ADD THIS!
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 55)         template: './src/stats.html',
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 56)         filename: 'stats.html',
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 57)         chunks: ['stats']
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 58)       }),
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 59)     new CopyWebpackPlugin({
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 60)       patterns: [
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 61)         { from: 'manifest.json', to: 'manifest.json' },
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 62)         { from: 'icon.png', to: 'icon.png' }
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 63)       ]
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 64)     })
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 65)   ],
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 66)
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 67)   performance: {
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 68)     maxAssetSize: 400000, // 400 KiB
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 69)     maxEntrypointSize: 400000, // 400 KiB
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 70)     hints: 'warning'
+409d67b5 (Dmengeli04  2025-10-25 18:00:01 -0400 71)   }
+
+git blame src/popup.js (contributions to this file were overwritten and did not appear when calling "git blame". Following code was pasted from my commit.)
+https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/8103f204b0c29b5871c09bf0778e50aa9a33a7f0
+
+         {/* Distraction Score */}
+        <DistractionScore
+          time={time}
+          tabSwitches={tabSwitches}
+          distractionWarnings={distractionWarnings}
+        />
+
+...
+
+// ---------------- Distraction Score ----------------
+function DistractionScore({ time, tabSwitches, distractionWarnings }) {
+  // Convert ms → minutes for scoring
+  const timeMinutes = Math.max(time / 60000, 0.1);
+
+  const a = 1; // weight for tab switches
+  const b = 3; // weight for warnings
+  const score = Math.round(100 * (timeMinutes / (timeMinutes + (a * tabSwitches + b * distractionWarnings))));
+
+  let color = "#4caf50"; // default good
+  let label = "Good";
+  if (score < 60) {
+    color = "#f44336";
+    label = "Bad";
+  } else if (score < 80) {
+    color = "#ffb300";
+    label = "Okay";
+  }
+
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 100) * circumference;
+
+  return (
+    <div className="distraction-score">
+      <h3>Distraction Score</h3>
+      <div className="circle">
+        <svg width="120" height="120">
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            stroke="#e0e0e0"
+            strokeWidth="10"
+            fill="none"
+          />
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            stroke={color}
+            strokeWidth="10"
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{ transition: "stroke-dashoffset 0.5s ease, stroke 0.3s ease" }}
+          />
+        </svg>
+        <div className="score-text">
+          <span className="score-number">{score}</span>
+          <span className="score-label" style={{ color }}>{label}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/262b99e913a83609d5fcc7dbb8a6bbd7eda8a498
+
+...
+
+     chrome.storage.session.get(
+        ["isExtensionActive", "StartTime", "StopTime", "tabStartTimes", "tabStopTimes"],
+        (res) => {
+          setIsExtensionActive(res.isExtensionActive || false);
+          if (res.StartTime && !res.StopTime) setTime(Date.now() - res.StartTime);
+          else if (res.StartTime && res.StopTime) setTime(res.StopTime - res.StartTime);
+
+...
+
+          // Per-tab timers
+          const starts = res.tabStartTimes || {};
+          const stops = res.tabStopTimes || {};
+          const start = starts[currentTab];
+          const stop = stops[currentTab];
+          if (start && !stop) setTabTime(Date.now() - start);
+          else if (start && stop) setTabTime(stop - start);
+          else setTabTime(0);
+        }
+      );
+
+...
+
+      intervalId = setInterval(() => {
+
+...
+
+      <button
+        onClick={toggleTracking}
+        className={isExtensionActive ? "red" : "green"}
+      >
+        {isExtensionActive ? "Stop" : "Start"} Tracking
+      </button>
+
+git blame src/stats.css (contributions to this file were overwritten and did not appear when calling "git blame". Following code was pasted from my commit.)
+https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/262b99e913a83609d5fcc7dbb8a6bbd7eda8a498
+
+.focus-summary {
+  display: flex;
+  flex-direction: column;
+  background: #fffbea;
+}
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.focus-grid p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Dark mode */
+.stats-container.dark .focus-summary {
+  background: #2a2a1f;
+}
+
+git blame src/stats.js (contributions to this file were overwritten and did not appear when calling "git blame". Following code was pasted from my commit.)
+https://github.com/utk-cs340-fall25/FocusFlowTracker/commit/262b99e913a83609d5fcc7dbb8a6bbd7eda8a498
+
+  const [topSites, setTopSites] = useState([]);
+
+...
+
+  const [categoryCounts, setCategoryCounts] = useState({});
+  const [domainCategoryList, setDomainCategoryList] = useState([]);
+  const [theme, setTheme] = useState("light");
+
+  // NEW state for focus stats
+  const [tabSwitches, setTabSwitches] = useState(0);
+  const [warnings, setWarnings] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const [tabTime, setTabTime] = useState(0);
+
+...
+
+
+  // ---- Load tracking stats from chrome.storage.session ----
+  useEffect(() => {
+    if (chrome?.storage?.session) {
+      chrome.storage.session.get(["tabSwitches", "distractionWarnings", "StartTime", "StopTime", "tabStartTimes", "tabStopTimes"], (res) => {
+        setTabSwitches(res.tabSwitches || 0);
+        setWarnings(res.distractionWarnings || 0);
+
+        // Compute total time
+        let t = 0;
+        if (res.StartTime && !res.StopTime) t = Date.now() - res.StartTime;
+        else if (res.StartTime && res.StopTime) t = res.StopTime - res.StartTime;
+        setTotalTime(t);
+
+        // Compute current tab time
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]) {
+            const url = tabs[0].url;
+            const starts = res.tabStartTimes || {};
+            const stops = res.tabStopTimes || {};
+            const start = starts[url];
+            const stop = stops[url];
+            if (start && !stop) setTabTime(Date.now() - start);
+            else if (start && stop) setTabTime(stop - start);
+            else setTabTime(0);
+          }
+        });
+      });
+    }
+  }, []);
+
+  // ---- Load browsing history data ----
+
+...
+
+      const domainMap = new Map();
+
+...
+
+      setTopSites(sortedDomains.slice(0, 5));
+
+...
+
+  // Helper for formatting time
+  const formatTime = (ms) => {
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  };
+
+...
+
+          {/* New Focus Summary Section */}
+          <div className="card focus-summary">
+            <h3>Focus Tracking Summary</h3>
+            <div className="focus-grid">
+              <p><strong>Tab Switches:</strong> {tabSwitches}</p>
+              <p><strong>Distraction Warnings:</strong> {warnings}</p>
+              <p><strong>Total Time:</strong> {formatTime(totalTime)}</p>
+              <p><strong>Current Tab Time:</strong> {formatTime(tabTime)}</p>
+            </div>
+          </div>
+
+...
+
+       <div className="card unique-site-card">
+
 
