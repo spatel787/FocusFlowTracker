@@ -1,0 +1,2121 @@
+popup.js     (alexander rother on 10/28/2025 at 01:29): const getDomain = (url) => {
+popup.js     (alexander rother on 10/28/2025 at 01:29):   try {
+popup.js     (alexander rother on 10/28/2025 at 01:29):     return new URL(url).hostname;
+popup.js     (alexander rother on 10/28/2025 at 01:29):   } catch {
+popup.js     (alexander rother on 10/28/2025 at 01:29):     return "Loading...";
+popup.js     (alexander rother on 10/28/2025 at 01:29):   }
+popup.js     (alexander rother on 10/28/2025 at 01:29): };
+popup.js     (alexander rother on 10/28/2025 at 01:29): const truncateString = (str, maxLength) => {
+popup.js     (alexander rother on 10/28/2025 at 01:29):   if (str.length > maxLength) {
+popup.js     (alexander rother on 10/28/2025 at 01:29):     return str.substring(0, maxLength) + '...';
+popup.js     (alexander rother on 10/28/2025 at 01:29):   }
+popup.js     (alexander rother on 10/28/2025 at 01:29):   return str;
+popup.js     (alexander rother on 10/28/2025 at 01:29): };
+popup.js     (alexander rother on 10/28/2025 at 01:34):         if (tabs[0]) setCurrentTab(tabs[0].url);
+popup.js     (alexander rother on 10/28/2025 at 01:29):         >
+popup.js     (alexander rother on 10/28/2025 at 01:29):           {isExtensionActive ? "Stop" : "Start"}
+popup.js     (alexander rother on 10/28/2025 at 01:29):         <timer>{formatTime(time)}</timer>
+popup.js     (alexander rother on 10/28/2025 at 01:29):       {"☼"}
+popup.js     (alexander rother on 10/28/2025 at 01:29):         marginTop: "10px",
+popup.js     (alexander rother on 10/28/2025 at 01:29):         gap: "17px",
+popup.js     (alexander rother on 10/28/2025 at 01:29):         flex: 1,
+popup.js     (alexander rother on 10/28/2025 at 01:29):         justifyContent: "center",
+popup.js     (alexander rother on 10/28/2025 at 01:29):         <svg fill={(theme === "dark" ? "#ffffff" : "#000000")} width="20px" height="20px" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path d="M500 930q-117 0-217-59-97-57-154-154-59-100-59-217t59-217q57-97 154-154 100-59 217-59t217 59q97 57 154 154 59 100 59 217t-59 217q-57 97-154 154-100 59-217 59zM320 760q39 28 85.5 42.5T500 817q86 0 160-44 71-42 113-113 44-74 44-160 0-48-14.5-94.5T760 320zm180-577q-86 0-160 44-71 42-113 113-44 74-44 160 0 48 14.5 94.5T240 680l440-440q-39-28-85.5-42.5T500 183z"/></svg>
+popup.js     (alexander rother on 10/28/2025 at 01:29):         <svg width="20px" height="20px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="none" stroke={(theme === "dark" ? "#ffffff" : "#000000")} stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+popup.js     (alexander rother on 10/28/2025 at 01:29):         <polyline points="7.25 14.25,2.75 14.25,2.75 1.75,13.25 1.75,13.25 9.25"/>
+popup.js     (alexander rother on 10/28/2025 at 01:29):         <path d="m9.75 12.75 1.5 1.5 3-2.5m-8.5-4h4.5m-4.5 3h1.5m-1.5-6h4.5"/>
+popup.js     (alexander rother on 10/28/2025 at 01:29):         </svg>
+popup.js     (alexander rother on 10/28/2025 at 01:29):         <svg fill={(theme === "dark" ? "#ffffff" : "#000000")} width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+popup.js     (alexander rother on 10/28/2025 at 01:29):         <path id="stats1" class="cls-1" d="M1091,264h-22a1,1,0,0,1-1-1V241a1,1,0,0,1,2,0v21h21A1,1,0,0,1,1091,264Zm-5-4a1,1,0,0,1-1-1V248a1,1,0,0,1,2,0v11A1,1,0,0,1,1086,260Zm-4,0h0a1,1,0,0,1-1-1v-7a1,1,0,0,1,1-1h0a1,1,0,0,1,1,1v7A1,1,0,0,1,1082,260Zm-4,0a1,1,0,0,1-1-1V243a1,1,0,0,1,2,0v16A1,1,0,0,1,1078,260Zm-4,0a1,1,0,0,1-1-1V249a1,1,0,0,1,2,0v10A1,1,0,0,1,1074,260Z" transform="translate(-1068 -240)"/>
+popup.js     (alexander rother on 10/28/2025 at 01:29):         </svg>
+popup.js     (alexander rother on 10/28/2025 at 01:29):   const [currentTab, setCurrentTab] = useState("Loading...");
+popup.js     (alexander rother on 10/28/2025 at 01:29):   React.useEffect(() => {
+popup.js     (alexander rother on 10/28/2025 at 01:29):     // On load, get current tab and status
+popup.js     (alexander rother on 10/28/2025 at 01:29):     if (typeof chrome !== "undefined" && chrome.tabs) {
+popup.js     (alexander rother on 10/28/2025 at 01:29):       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+popup.js     (alexander rother on 10/28/2025 at 01:29):         if (tabs[0]) setCurrentTab(tabs[0].url);
+popup.js     (alexander rother on 10/28/2025 at 01:29):       });
+popup.js     (alexander rother on 10/28/2025 at 01:29):     }
+popup.js     (alexander rother on 10/28/2025 at 01:29):   }, []);
+popup.js     (alexander rother on 10/28/2025 at 01:29):         <h1 className="header-title">{truncateString(getDomain(currentTab), 15)}</h1>
+popup.css    (alexander rother on 10/28/2025 at 01:29):   width: 250px;
+popup.css    (alexander rother on 10/28/2025 at 01:29):   text-align: end;
+popup.css    (alexander rother on 10/28/2025 at 01:29): timer {
+popup.css    (alexander rother on 10/28/2025 at 01:29):   font-size: 1rem;
+popup.css    (alexander rother on 10/28/2025 at 01:29):   float: right;
+popup.css    (alexander rother on 10/28/2025 at 01:29):   margin-top: 7px;
+popup.css    (alexander rother on 10/28/2025 at 01:29): }
+popup.css    (alexander rother on 10/28/2025 at 01:29):   text-align: center;
+popup.css    (alexander rother on 10/28/2025 at 01:29):   width: 75px;
+popup.css    (alexander rother on 10/28/2025 at 01:29):   text-align: ;
+blocker.js   (alexander rother on 10/28/2025 at 01:29):   const [newAction, setNewAction] = useState("block");
+main.py      (alexander rother on 10/28/2025 at 02:33): import json
+main.py      (alexander rother on 10/28/2025 at 01:20): from transformers import pipeline
+main.py      (alexander rother on 10/28/2025 at 02:33): from tqdm import tqdm
+main.py      (alexander rother on 10/28/2025 at 02:33): import torch
+main.py      (alexander rother on 10/28/2025 at 02:33): def classify_websites_simple(input_file='websites.txt', output_file='website_categories.json'):
+main.py      (alexander rother on 10/28/2025 at 02:33):     """
+main.py      (alexander rother on 10/28/2025 at 02:33):     Reads websites from a file, finds the single best category for each,
+main.py      (alexander rother on 10/28/2025 at 02:33):     and saves the results to a simple key-value JSON file.
+main.py      (alexander rother on 10/28/2025 at 02:33):     """
+main.py      (alexander rother on 10/28/2025 at 02:33):     # ------------------- SETUP -------------------
+main.py      (alexander rother on 10/28/2025 at 02:33):     # Check for GPU, default to CPU if not available.
+main.py      (alexander rother on 10/28/2025 at 02:33):     device = 0 if torch.cuda.is_available() else -1
+main.py      (alexander rother on 10/28/2025 at 02:33):     print(f"Using device: {'GPU' if device == 0 else 'CPU'}")
+main.py      (alexander rother on 10/28/2025 at 02:33):     # Use the smaller, more efficient DistilBART model
+main.py      (alexander rother on 10/28/2025 at 02:33):     model_name = 'valhalla/distilbart-mnli-12-3'
+main.py      (alexander rother on 10/28/2025 at 02:33):     print(f"Loading the classification model: {model_name}...")
+main.py      (alexander rother on 10/28/2025 at 02:33):     try:
+main.py      (alexander rother on 10/28/2025 at 02:33):         classifier = pipeline(
+main.py      (alexander rother on 10/28/2025 at 02:33):             'zero-shot-classification',
+main.py      (alexander rother on 10/28/2025 at 02:33):             model=model_name,
+main.py      (alexander rother on 10/28/2025 at 02:33):             device=device
+main.py      (alexander rother on 10/28/2025 at 02:33):         )
+main.py      (alexander rother on 10/28/2025 at 02:33):     except Exception as e:
+main.py      (alexander rother on 10/28/2025 at 02:33):         print(f"Error initializing pipeline: {e}")
+main.py      (alexander rother on 10/28/2025 at 02:33):         return
+main.py      (alexander rother on 10/28/2025 at 02:33):     # Define the categories and the hypothesis template
+main.py      (alexander rother on 10/28/2025 at 02:33):     labels = [
+main.py      (alexander rother on 10/28/2025 at 02:33):         "Productivity", "Entertainment", "Games", "Finance", "Social",
+main.py      (alexander rother on 10/28/2025 at 02:33):         "Shopping", "Generative AI", "Education", "News", "Software",
+main.py      (alexander rother on 10/28/2025 at 02:33):         "Art", "Adult"
+main.py      (alexander rother on 10/28/2025 at 02:33):     ]
+main.py      (alexander rother on 10/28/2025 at 02:33):     template = 'This website is about {}.'
+main.py      (alexander rother on 10/28/2025 at 02:33):     # ------------------- READ INPUT -------------------
+main.py      (alexander rother on 10/28/2025 at 02:33):     try:
+main.py      (alexander rother on 10/28/2025 at 02:33):         with open(input_file, 'r') as f:
+main.py      (alexander rother on 10/28/2025 at 02:33):             websites = [line.strip() for line in f if line.strip()]
+main.py      (alexander rother on 10/28/2025 at 02:33):         print(f"Found {len(websites)} websites to classify in '{input_file}'.")
+main.py      (alexander rother on 10/28/2025 at 02:33):     except FileNotFoundError:
+main.py      (alexander rother on 10/28/2025 at 02:33):         print(f"Error: Input file '{input_file}' not found.")
+main.py      (alexander rother on 10/28/2025 at 02:33):         return
+main.py      (alexander rother on 10/28/2025 at 02:33):     # ------------------- PROCESS DATA -------------------
+main.py      (alexander rother on 10/28/2025 at 02:33):     # A dictionary is the perfect structure for {website: category}
+main.py      (alexander rother on 10/28/2025 at 02:33):     website_to_category_map = {}
+main.py      (alexander rother on 10/28/2025 at 02:33):     # Use tqdm to create a progress bar
+main.py      (alexander rother on 10/28/2025 at 02:33):     for site in tqdm(websites, desc="Classifying websites"):
+main.py      (alexander rother on 10/28/2025 at 02:33):         try:
+main.py      (alexander rother on 10/28/2025 at 02:33):             # When multi_label is False (default), the model finds the single best fit.
+main.py      (alexander rother on 10/28/2025 at 02:33):             # The output is already sorted by score, so the first label is the best one.
+main.py      (alexander rother on 10/28/2025 at 02:33):             prediction = classifier(
+main.py      (alexander rother on 10/28/2025 at 02:33):                 site,
+main.py      (alexander rother on 10/28/2025 at 02:33):                 candidate_labels=labels,
+main.py      (alexander rother on 10/28/2025 at 02:33):                 hypothesis_template=template
+main.py      (alexander rother on 10/28/2025 at 02:33):             )
+main.py      (alexander rother on 10/28/2025 at 02:33):             # Extract the website name and the top category
+main.py      (alexander rother on 10/28/2025 at 02:33):             website_name = prediction['sequence']
+main.py      (alexander rother on 10/28/2025 at 02:33):             top_category = prediction['labels'][0] # The first label is the one with the highest score
+main.py      (alexander rother on 10/28/2025 at 02:33):             # Add the result to our dictionary
+main.py      (alexander rother on 10/28/2025 at 02:33):             website_to_category_map[website_name] = top_category
+main.py      (alexander rother on 10/28/2025 at 02:33):         except Exception as e:
+main.py      (alexander rother on 10/28/2025 at 02:33):             print(f"\nCould not process '{site}'. Error: {e}")
+main.py      (alexander rother on 10/28/2025 at 02:33):             website_to_category_map[site] = "CLASSIFICATION_FAILED"
+main.py      (alexander rother on 10/28/2025 at 02:33):     # ------------------- WRITE OUTPUT -------------------
+main.py      (alexander rother on 10/28/2025 at 02:33):     with open(output_file, 'w') as f:
+main.py      (alexander rother on 10/28/2025 at 02:33):         # Dump the entire dictionary into the JSON file with nice formatting
+main.py      (alexander rother on 10/28/2025 at 02:33):         json.dump(website_to_category_map, f, indent=4)
+main.py      (alexander rother on 10/28/2025 at 02:33):     print(f"\nProcessing complete. Results saved to '{output_file}'.")
+main.py      (alexander rother on 10/28/2025 at 02:33): if __name__ == "__main__":
+main.py      (alexander rother on 10/28/2025 at 02:33):     classify_websites_simple()
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): youtube.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): facebook.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): baidu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yahoo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wikipedia.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): twitter.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): qq.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): live.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): taobao.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bing.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): msn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yahoo.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): linkedin.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sina.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): instagram.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): weibo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): vk.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yandex.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): hao123.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebay.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): reddit.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.br
+websites.txt (alexander rother on 10/28/2025 at 02:33): mail.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): t.co
+websites.txt (alexander rother on 10/28/2025 at 02:33): pinterest.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): netflix.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gmw.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): tmall.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 360.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): microsoft.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): onclickads.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.es
+websites.txt (alexander rother on 10/28/2025 at 02:33): paypal.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sohu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wordpress.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tumblr.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blogspot.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): imgur.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): xvideos.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.mx
+websites.txt (alexander rother on 10/28/2025 at 02:33): naver.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): stackoverflow.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): apple.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): chinadaily.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): fc2.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): aliexpress.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): imdb.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.ca
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.kr
+websites.txt (alexander rother on 10/28/2025 at 02:33): github.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ok.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): pornhub.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.hk
+websites.txt (alexander rother on 10/28/2025 at 02:33): whatsapp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): diply.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): jd.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.tr
+websites.txt (alexander rother on 10/28/2025 at 02:33): rakuten.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): craigslist.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): office.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.id
+websites.txt (alexander rother on 10/28/2025 at 02:33): kat.cr
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): tianya.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): blogger.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.pl
+websites.txt (alexander rother on 10/28/2025 at 02:33): nicovideo.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): alibaba.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): soso.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): pixnet.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.au
+websites.txt (alexander rother on 10/28/2025 at 02:33): go.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): xhamster.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): dropbox.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.tw
+websites.txt (alexander rother on 10/28/2025 at 02:33): outbrain.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): xinhuanet.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cntv.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): googleusercontent.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cnn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ask.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): coccoc.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): booking.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bbc.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): popads.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): youth.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): twitch.tv
+websites.txt (alexander rother on 10/28/2025 at 02:33): wikia.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): microsoftonline.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): quora.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): chase.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): adobe.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 163.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 360.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): haosou.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.pk
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.th
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.eg
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.ar
+websites.txt (alexander rother on 10/28/2025 at 02:33): youku.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.sa
+websites.txt (alexander rother on 10/28/2025 at 02:33): bbc.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): flipkart.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): alipay.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bongacams.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): adf.ly
+websites.txt (alexander rother on 10/28/2025 at 02:33): nytimes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.nl
+websites.txt (alexander rother on 10/28/2025 at 02:33): sogou.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): livedoor.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): daum.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): txxx.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): espn.go.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebay.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): ettoday.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): bankofamerica.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): china.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): indiatimes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): myway.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bilibili.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): walmart.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebay.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): china.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): godaddy.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): dailymail.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): buzzfeed.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zillow.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): xnxx.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): salesforce.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): dailymotion.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wellsfargo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): detail.tmall.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): steampowered.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): steamcommunity.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nametests.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.ve
+websites.txt (alexander rother on 10/28/2025 at 02:33): theguardian.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.ua
+websites.txt (alexander rother on 10/28/2025 at 02:33): indeed.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ameblo.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): aol.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): etsy.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): globo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.za
+websites.txt (alexander rother on 10/28/2025 at 02:33): yelp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazonaws.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): huffingtonpost.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tudou.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): so.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zhihu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): soundcloud.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tripadvisor.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.gr
+websites.txt (alexander rother on 10/28/2025 at 02:33): varzesh3.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): avito.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): onlinesbi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): vice.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cnzz.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): directrev.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): uol.com.br
+websites.txt (alexander rother on 10/28/2025 at 02:33): bet365.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): weather.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mediafire.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): uptodown.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cnet.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): washingtonpost.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gfycat.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): goo.ne.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): stackexchange.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): force.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): taboola.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.co
+websites.txt (alexander rother on 10/28/2025 at 02:33): dmm.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): tuberel.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): vimeo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.ng
+websites.txt (alexander rother on 10/28/2025 at 02:33): naver.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): feedly.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): theladbible.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): pixiv.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): redtube.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): detik.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): homedepot.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): torrentz.eu
+websites.txt (alexander rother on 10/28/2025 at 02:33): slideshare.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.ro
+websites.txt (alexander rother on 10/28/2025 at 02:33): taringa.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): foxnews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): target.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.pe
+websites.txt (alexander rother on 10/28/2025 at 02:33): flickr.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hclips.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.be
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): 9gag.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): kakaku.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blogspot.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): ikea.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mega.nz
+websites.txt (alexander rother on 10/28/2025 at 02:33): ifeng.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): udn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): web.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): americanexpress.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): iqiyi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bp.blogspot.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): fbcdn.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.ph
+websites.txt (alexander rother on 10/28/2025 at 02:33): orange.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): comcast.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.sg
+websites.txt (alexander rother on 10/28/2025 at 02:33): terraclicks.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): youm7.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): putlocker.is
+websites.txt (alexander rother on 10/28/2025 at 02:33): tribunnews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gmx.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): youporn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): deviantart.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nih.gov
+websites.txt (alexander rother on 10/28/2025 at 02:33): zol.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): ontests.me
+websites.txt (alexander rother on 10/28/2025 at 02:33): roblox.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): doubleclick.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): hdfcbank.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ozock.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tistory.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): capitalone.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): leboncoin.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): douyu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): 51.la
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.se
+websites.txt (alexander rother on 10/28/2025 at 02:33): spotify.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wikihow.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): onet.pl
+websites.txt (alexander rother on 10/28/2025 at 02:33): babytree.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): w3schools.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): upornia.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): snapdeal.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): forbes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.at
+websites.txt (alexander rother on 10/28/2025 at 02:33): wix.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bestbuy.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): livejournal.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mozilla.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): rdsa2013.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): xfinity.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): handycafe.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): groupon.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): adnetworkperformance.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): onedio.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): thepiratebay.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): skype.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): github.io
+websites.txt (alexander rother on 10/28/2025 at 02:33): allegro.pl
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.dz
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.vn
+websites.txt (alexander rother on 10/28/2025 at 02:33): paytm.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): twimg.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wikimedia.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): icicibank.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): t-online.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): tokopedia.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): popcash.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): telegraph.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): usps.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): slither.io
+websites.txt (alexander rother on 10/28/2025 at 02:33): wp.pl
+websites.txt (alexander rother on 10/28/2025 at 02:33): blog.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.ch
+websites.txt (alexander rother on 10/28/2025 at 02:33): webtretho.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): irctc.co.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): trello.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.pt
+websites.txt (alexander rother on 10/28/2025 at 02:33): yesky.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): xywy.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): huanqiu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): eksisozluk.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blastingnews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): citi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): shutterstock.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): rediff.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): files.wordpress.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ups.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 1688.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.cl
+websites.txt (alexander rother on 10/28/2025 at 02:33): bitauto.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): speedtest.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): pandora.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): adexc.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): imzog.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.ae
+websites.txt (alexander rother on 10/28/2025 at 02:33): 2ch.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.cz
+websites.txt (alexander rother on 10/28/2025 at 02:33): loading-delivery2.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): seznam.cz
+websites.txt (alexander rother on 10/28/2025 at 02:33): ltn.com.tw
+websites.txt (alexander rother on 10/28/2025 at 02:33): about.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): chaturbate.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebay-kleinanzeigen.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): slack.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mercadolivre.com.br
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.il
+websites.txt (alexander rother on 10/28/2025 at 02:33): doorblog.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): goodreads.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): livejasmin.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): battle.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): softonic.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): accuweather.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.es
+websites.txt (alexander rother on 10/28/2025 at 02:33): wordpress.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): mbc.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): slickdeals.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): icloud.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): caijing.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.hu
+websites.txt (alexander rother on 10/28/2025 at 02:33): kaskus.co.id
+websites.txt (alexander rother on 10/28/2025 at 02:33): wittyfeed.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): fedex.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ndtv.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): att.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mlb.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): kompas.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.ie
+websites.txt (alexander rother on 10/28/2025 at 02:33): giphy.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): usatoday.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): xcar.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): hulu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): archive.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): sberbank.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): media.tumblr.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): pinimg.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): messenger.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sourceforge.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): oracle.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): lowes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zendesk.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): viralthread.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): csdn.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): 1905.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mama.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): youtube-mp3.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): 39.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): digikala.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): badoo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): businessinsider.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): kinogo.co
+websites.txt (alexander rother on 10/28/2025 at 02:33): weebly.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): samsung.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): abs-cbn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): reimageplus.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): airbnb.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sabah.com.tr
+websites.txt (alexander rother on 10/28/2025 at 02:33): wordreference.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hurriyet.com.tr
+websites.txt (alexander rother on 10/28/2025 at 02:33): uefa.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): rambler.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): 51yes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cnnic.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): webmd.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ign.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): liputan6.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): dell.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gizmodo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blogspot.com.br
+websites.txt (alexander rother on 10/28/2025 at 02:33): bloomberg.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blkget.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gsmarena.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): evernote.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): verizonwireless.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): secureserver.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): repubblica.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): milliyet.com.tr
+websites.txt (alexander rother on 10/28/2025 at 02:33): isanalyze.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sharepoint.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): eastday.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mailchimp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nyaa.se
+websites.txt (alexander rother on 10/28/2025 at 02:33): enet.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): medium.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.az
+websites.txt (alexander rother on 10/28/2025 at 02:33): akamaihd.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): dmm.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): billdesk.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wsj.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): naukri.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): kinopoisk.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): friv.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): expedia.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): livedoor.biz
+websites.txt (alexander rother on 10/28/2025 at 02:33): macys.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): avg.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tube8.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): libero.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): intuit.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.no
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.fi
+websites.txt (alexander rother on 10/28/2025 at 02:33): urdupoint.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): taleo.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): addthis.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sahibinden.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ancestry.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): likes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): savefrom.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): haber7.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): answers.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.sk
+websites.txt (alexander rother on 10/28/2025 at 02:33): kissanime.to
+websites.txt (alexander rother on 10/28/2025 at 02:33): marca.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): k618.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebay.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): ask.fm
+websites.txt (alexander rother on 10/28/2025 at 02:33): wetransfer.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): adplxmd.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): spiegel.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): bild.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): livedoor.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ouo.io
+websites.txt (alexander rother on 10/28/2025 at 02:33): nownews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): elpais.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): thesaurus.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): rt.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): amazon.ca
+websites.txt (alexander rother on 10/28/2025 at 02:33): gearbest.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ck101.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): independent.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): reuters.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.dk
+websites.txt (alexander rother on 10/28/2025 at 02:33): suning.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): daikynguyenvn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): scribd.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): themeforest.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): lifebuzz.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): acfun.tv
+websites.txt (alexander rother on 10/28/2025 at 02:33): box.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): newegg.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nbcnews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): rutracker.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): freepik.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): telegram.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): kapanlagi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): goal.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blogfa.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): southwest.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): openload.co
+websites.txt (alexander rother on 10/28/2025 at 02:33): hm.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): kickstarter.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cloudfront.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): thesportbible.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): engadget.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): impress.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): kohls.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): playstation.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): clickadu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): shopify.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tabelog.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mashable.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): upwork.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): espncricinfo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): conservativetribune.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): siteadvisor.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): realtor.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): asos.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ci123.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hatena.ne.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): usaa.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): xe.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): olx.pl
+websites.txt (alexander rother on 10/28/2025 at 02:33): videomega.tv
+websites.txt (alexander rother on 10/28/2025 at 02:33): ameba.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): atlassian.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): sh.st
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebay.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): doublepimp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): costco.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): albawabhnews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hatenablog.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gismeteo.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): souq.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.by
+websites.txt (alexander rother on 10/28/2025 at 02:33): extratorrent.cc
+websites.txt (alexander rother on 10/28/2025 at 02:33): yallakora.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): abcnews.go.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): baike.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): moneycontrol.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): lifehacker.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wunderground.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hotels.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zippyshare.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zoho.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): discovercard.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): fidelity.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cnblogs.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zomato.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): jabong.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blogimg.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): nikkei.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 4shared.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): offerhaus.link
+websites.txt (alexander rother on 10/28/2025 at 02:33): hespress.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): theverge.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): exoclick.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bhaskar.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gamer.com.tw
+websites.txt (alexander rother on 10/28/2025 at 02:33): webex.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 17ok.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): elmogaz.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gap.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gamepedia.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gamersky.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): okezone.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gamefaqs.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): infusionsoft.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebay.com.au
+websites.txt (alexander rother on 10/28/2025 at 02:33): clipconverter.cc
+websites.txt (alexander rother on 10/28/2025 at 02:33): umblr.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ibm.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ticketmaster.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mercadolibre.com.ar
+websites.txt (alexander rother on 10/28/2025 at 02:33): beeg.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): behance.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): surveymonkey.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): rbc.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): rednet.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): ca.gov
+websites.txt (alexander rother on 10/28/2025 at 02:33): trulia.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zing.vn
+websites.txt (alexander rother on 10/28/2025 at 02:33): elmundo.es
+websites.txt (alexander rother on 10/28/2025 at 02:33): mi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): aparat.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): free.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): airtel.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): blackboard.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): meetup.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): trackingclick.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.bg
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.lk
+websites.txt (alexander rother on 10/28/2025 at 02:33): adidas.tmall.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nordstrom.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): merdeka.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): list-manage.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nike.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): list.tmall.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): seesaa.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): blogspot.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): allrecipes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.kz
+websites.txt (alexander rother on 10/28/2025 at 02:33): huaban.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nifty.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): fiverr.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): donga.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mobile.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): npr.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): kooora.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wayfair.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): coursera.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): redirectvoluum.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tutorialspoint.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): panda.tv
+websites.txt (alexander rother on 10/28/2025 at 02:33): lenta.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): weblio.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): xda-developers.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): asahi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.kw
+websites.txt (alexander rother on 10/28/2025 at 02:33): thefreedictionary.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): adp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): kayak.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yandex.ua
+websites.txt (alexander rother on 10/28/2025 at 02:33): kijiji.ca
+websites.txt (alexander rother on 10/28/2025 at 02:33): youdao.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): korabia.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): chaoshi.tmall.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): netteller.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): drudgereport.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): japanpost.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): hotstar.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tradeadexchange.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hdzog.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): change.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): hootsuite.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): dictionary.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): makemytrip.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sq.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): streamcloud.eu
+websites.txt (alexander rother on 10/28/2025 at 02:33): norton.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blog.me
+websites.txt (alexander rother on 10/28/2025 at 02:33): watsons.tmall.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): prothom-alo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): researchgate.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebates.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hotmovs.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): olx.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): sakura.ne.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): bookmyshow.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): subscene.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): le.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): emol.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): justdial.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 11st.co.kr
+websites.txt (alexander rother on 10/28/2025 at 02:33): cookpad.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): retailmenot.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): thewatchseries.to
+websites.txt (alexander rother on 10/28/2025 at 02:33): alicdn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): shaparak.ir
+websites.txt (alexander rother on 10/28/2025 at 02:33): corriere.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): gmarket.co.kr
+websites.txt (alexander rother on 10/28/2025 at 02:33): overstock.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): asus.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): y8.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yaolan.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): momoshop.com.tw
+websites.txt (alexander rother on 10/28/2025 at 02:33): woot.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): shopclues.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): csgolounge.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): disqus.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): so-net.ne.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): wattpad.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ytimg.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cbsnews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): leagueoflegends.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): prjcq.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): reddituploads.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): patch.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 4399.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): adbooth.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sabq.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): dropbooks.tv
+websites.txt (alexander rother on 10/28/2025 at 02:33): www.gov.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): udemy.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cnmo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bleacherreport.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): aa.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): lapatilla.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): instructables.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): clien.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): bidverdrd.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nba.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mirror.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): interia.pl
+websites.txt (alexander rother on 10/28/2025 at 02:33): nhk.or.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): ensonhaber.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yadi.sk
+websites.txt (alexander rother on 10/28/2025 at 02:33): line.me
+websites.txt (alexander rother on 10/28/2025 at 02:33): mercadolibre.com.ve
+websites.txt (alexander rother on 10/28/2025 at 02:33): e-hentai.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): uploaded.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): verizon.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): alexa.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): namu.wiki
+websites.txt (alexander rother on 10/28/2025 at 02:33): yodobashi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): heroquizz.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): latimes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 123cha.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): pof.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): eyny.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): azlyrics.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): aliyun.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): people.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yandex.com.tr
+websites.txt (alexander rother on 10/28/2025 at 02:33): rottentomatoes.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 104.com.tw
+websites.txt (alexander rother on 10/28/2025 at 02:33): houzz.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): time.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cisco.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ppomppu.co.kr
+websites.txt (alexander rother on 10/28/2025 at 02:33): delta.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): biglobe.ne.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): jrj.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): xunlei.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): lenovo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): usbank.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): vk.me
+websites.txt (alexander rother on 10/28/2025 at 02:33): zulily.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): asana.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): youboy.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zone-telechargement.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): glassdoor.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): seasonvar.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): nikkeibp.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): investing.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.do
+websites.txt (alexander rother on 10/28/2025 at 02:33): united.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): teepr.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): indianexpress.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wikiwiki.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): pch.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): jimdo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): oeeee.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gyazo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): myfitnesspal.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yts.ag
+websites.txt (alexander rother on 10/28/2025 at 02:33): custhelp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): paytm.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): nextdoor.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): voc.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): cnbc.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sears.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bs.to
+websites.txt (alexander rother on 10/28/2025 at 02:33): itmedia.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): thekitchn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bomb01.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): slate.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): torcache.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.my
+websites.txt (alexander rother on 10/28/2025 at 02:33): 4chan.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): biobiochile.cl
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.co.nz
+websites.txt (alexander rother on 10/28/2025 at 02:33): okcupid.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.rs
+websites.txt (alexander rother on 10/28/2025 at 02:33): instructure.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): intoday.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): zhanqi.tv
+websites.txt (alexander rother on 10/28/2025 at 02:33): chinaso.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): squarespace.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): fitbit.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): photobucket.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): eskimi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mixi.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): 4dsply.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): thatviralfeed.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): pantip.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): as.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): elfagr.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): 3dmgame.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): howtogeek.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): aastocks.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): manoramaonline.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): alwafd.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): inquirer.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): himado.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): xbox.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): meaww.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): pogo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): redfin.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): buy.tmall.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): drom.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): infoseek.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): buzzfil.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): urbandictionary.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mit.edu
+websites.txt (alexander rother on 10/28/2025 at 02:33): olx.com.br
+websites.txt (alexander rother on 10/28/2025 at 02:33): chinaz.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): chip.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): panet.co.il
+websites.txt (alexander rother on 10/28/2025 at 02:33): gamespot.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.com.ec
+websites.txt (alexander rother on 10/28/2025 at 02:33): subito.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): gazetaexpress.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zara.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): swagbucks.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tmz.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nexusmods.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tsite.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): timeanddate.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): discuss.com.hk
+websites.txt (alexander rother on 10/28/2025 at 02:33): quanjing.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bhphotovideo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): lequipe.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): superuser.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ero-advertising.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): myntra.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cdiscount.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): issuu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): filehippo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): vporn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): quikr.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): axisbank.co.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): gameforge.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): twoo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 4pda.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): java.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): blogspot.mx
+websites.txt (alexander rother on 10/28/2025 at 02:33): spankbang.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): discover.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): kdnet.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): agar.io
+websites.txt (alexander rother on 10/28/2025 at 02:33): priceline.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mercadolibre.com.mx
+websites.txt (alexander rother on 10/28/2025 at 02:33): atwiki.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): audible.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mynavi.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): vodlocker.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sky.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sciencedirect.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gigazine.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): olx.ua
+websites.txt (alexander rother on 10/28/2025 at 02:33): livescore.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 58.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): syosetu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): prezi.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hotnewhiphop.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): jcpenney.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ero-video.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): nypost.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): nydailynews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): acunn.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): foodnetwork.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mint.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bitbucket.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): creditkarma.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mataharimall.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): rarbg.to
+websites.txt (alexander rother on 10/28/2025 at 02:33): tim.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): anitube.se
+websites.txt (alexander rother on 10/28/2025 at 02:33): mapquest.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): westernjournalism.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): eventbrite.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): liveinternet.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): politico.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): android.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): weather.gov
+websites.txt (alexander rother on 10/28/2025 at 02:33): lun.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bankmellat.ir
+websites.txt (alexander rother on 10/28/2025 at 02:33): sfgate.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): misrjournal.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): lemonde.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): uber.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): givemesport.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): stockstar.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wiktionary.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): 51sole.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.hr
+websites.txt (alexander rother on 10/28/2025 at 02:33): reverso.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): thehindu.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): marriott.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): yomiuri.co.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): topix.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): prpops.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sankei.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): europa.eu
+websites.txt (alexander rother on 10/28/2025 at 02:33): pcmag.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): constantcontact.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): battlefield.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): php.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): ria.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): fanpage.gr
+websites.txt (alexander rother on 10/28/2025 at 02:33): getpocket.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cpasbien.cm
+websites.txt (alexander rother on 10/28/2025 at 02:33): diep.io
+websites.txt (alexander rother on 10/28/2025 at 02:33): rightmove.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): sfr.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): hilton.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sozcu.com.tr
+websites.txt (alexander rother on 10/28/2025 at 02:33): blog-newstime.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): agoda.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): india.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bodybuilding.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): techcrunch.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): thisav.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hbogo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): zappos.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): google.lt
+websites.txt (alexander rother on 10/28/2025 at 02:33): appledaily.com.tw
+websites.txt (alexander rother on 10/28/2025 at 02:33): geocities.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): duckduckgo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): irs.gov
+websites.txt (alexander rother on 10/28/2025 at 02:33): kotaku.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): marktplaats.nl
+websites.txt (alexander rother on 10/28/2025 at 02:33): eroterest.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): duolingo.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ebay.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): wp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): jin115.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): staples.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): youjizz.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): fanfiction.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): walgreens.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): bt.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): microsoftstore.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 123movies.to
+websites.txt (alexander rother on 10/28/2025 at 02:33): 126.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): exblog.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): yjc.ir
+websites.txt (alexander rother on 10/28/2025 at 02:33): t-mobile.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): farsnews.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): chron.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): stumbleupon.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): parentanswercentre.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 123rf.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): breitbart.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hh.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): cbssports.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): sex.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): pnc.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mega.co.nz
+websites.txt (alexander rother on 10/28/2025 at 02:33): lazada.co.id
+websites.txt (alexander rother on 10/28/2025 at 02:33): marketwatch.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ew.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ryanair.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gazeta.pl
+websites.txt (alexander rother on 10/28/2025 at 02:33): gmanetwork.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): dcinside.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ampclicks.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): slimspots.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): basecamp.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): cctv.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): incometaxindiaefiling.gov.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): citibank.co.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): brightonclick.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gazzetta.it
+websites.txt (alexander rother on 10/28/2025 at 02:33): indianrail.gov.in
+websites.txt (alexander rother on 10/28/2025 at 02:33): idnes.cz
+websites.txt (alexander rother on 10/28/2025 at 02:33): thedailybeast.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): intel.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): auction.co.kr
+websites.txt (alexander rother on 10/28/2025 at 02:33): fatosdesconhecidos.com.br
+websites.txt (alexander rother on 10/28/2025 at 02:33): to8to.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ultimate-guitar.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mcafee.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): neobux.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): tripadvisor.co.uk
+websites.txt (alexander rother on 10/28/2025 at 02:33): tomshardware.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): rapidgator.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): bola.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): hubspot.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): otto.de
+websites.txt (alexander rother on 10/28/2025 at 02:33): digitaltrends.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): elevenia.co.id
+websites.txt (alexander rother on 10/28/2025 at 02:33): n121adserv.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): gofundme.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): lacaixa.es
+websites.txt (alexander rother on 10/28/2025 at 02:33): ctrip.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): flashx.tv
+websites.txt (alexander rother on 10/28/2025 at 02:33): quizlet.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): banggood.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): garmin.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): primewire.ag
+websites.txt (alexander rother on 10/28/2025 at 02:33): vox.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): labanquepostale.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): telekom.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): drive2.ru
+websites.txt (alexander rother on 10/28/2025 at 02:33): eonline.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): chosun.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): credit-agricole.fr
+websites.txt (alexander rother on 10/28/2025 at 02:33): wowhead.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): match.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): hamariweb.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): vnexpress.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): familydoctor.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): thethao247.vn
+websites.txt (alexander rother on 10/28/2025 at 02:33): state.gov
+websites.txt (alexander rother on 10/28/2025 at 02:33): todayhumor.co.kr
+websites.txt (alexander rother on 10/28/2025 at 02:33): abril.com.br
+websites.txt (alexander rother on 10/28/2025 at 02:33): uzone.id
+websites.txt (alexander rother on 10/28/2025 at 02:33): hepsiburada.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wwwpromoter.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): popsugar.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): panasonic.jp
+websites.txt (alexander rother on 10/28/2025 at 02:33): 360doc.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): minecraft.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): internethaber.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): dailypakistan.com.pk
+websites.txt (alexander rother on 10/28/2025 at 02:33): bedbathandbeyond.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): pixabay.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wav.tv
+websites.txt (alexander rother on 10/28/2025 at 02:33): novinky.cz
+websites.txt (alexander rother on 10/28/2025 at 02:33): uptobox.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): whitepages.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): icolor.com.cn
+websites.txt (alexander rother on 10/28/2025 at 02:33): babycenter.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): qvc.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): indiamart.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): onlinecreditcenter6.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): 6pm.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): g2a.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): milanuncios.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mayoclinic.org
+websites.txt (alexander rother on 10/28/2025 at 02:33): commentcamarche.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): gawker.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): fandango.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): duowan.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): myanimelist.net
+websites.txt (alexander rother on 10/28/2025 at 02:33): telegram.me
+websites.txt (alexander rother on 10/28/2025 at 02:33): genius.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): wiley.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): liveleak.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): divar.ir
+websites.txt (alexander rother on 10/28/2025 at 02:33): bestadbid.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): niuche.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): chouftv.ma
+websites.txt (alexander rother on 10/28/2025 at 02:33): life.tw
+websites.txt (alexander rother on 10/28/2025 at 02:33): dream.co.id
+websites.txt (alexander rother on 10/28/2025 at 02:33): cocolog-nifty.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): ptt.cc
+websites.txt (alexander rother on 10/28/2025 at 02:33): legacy.com
+websites.txt (alexander rother on 10/28/2025 at 02:33): mynet.com
+website_categories.json (alexander rother on 10/28/2025 at 02:33): {
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youtube.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "facebook.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "baidu.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yahoo.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wikipedia.org": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.in": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "twitter.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "qq.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "live.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "taobao.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bing.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.jp": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "msn.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yahoo.co.jp": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "linkedin.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sina.com.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "instagram.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "weibo.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "vk.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yandex.ru": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.de": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.ru": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hao123.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebay.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "reddit.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.uk": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.br": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mail.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "t.co": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pinterest.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.co.jp": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.fr": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "netflix.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gmw.cn": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tmall.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "360.cn": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.it": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "microsoft.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "onclickads.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.es": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "paypal.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sohu.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wordpress.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tumblr.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blogspot.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "imgur.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xvideos.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.mx": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "naver.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "stackoverflow.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "apple.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chinadaily.com.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fc2.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "aliexpress.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "imdb.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.ca": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.kr": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "github.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ok.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pornhub.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.hk": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "whatsapp.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "diply.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "jd.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.de": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.tr": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rakuten.co.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "craigslist.org": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "office.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.id": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kat.cr": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.in": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tianya.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blogger.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.pl": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nicovideo.jp": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "alibaba.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "soso.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pixnet.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.au": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "go.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.co.uk": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xhamster.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dropbox.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.tw": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "outbrain.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xinhuanet.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cntv.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "googleusercontent.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cnn.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ask.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "coccoc.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "booking.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bbc.co.uk": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "popads.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youth.cn": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "twitch.tv": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wikia.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "microsoftonline.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "quora.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chase.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "adobe.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "163.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "360.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "haosou.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.pk": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.th": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.eg": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.ar": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youku.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.sa": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bbc.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "flipkart.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "alipay.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bongacams.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "adf.ly": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nytimes.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.nl": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sogou.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "livedoor.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "daum.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "txxx.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.cn": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "espn.go.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebay.co.uk": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ettoday.net": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bankofamerica.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "china.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "indiatimes.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "myway.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bilibili.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "walmart.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebay.de": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "china.com.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "godaddy.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dailymail.co.uk": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "buzzfeed.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zillow.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xnxx.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "salesforce.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dailymotion.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wellsfargo.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "detail.tmall.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "steampowered.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "steamcommunity.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nametests.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.ve": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "theguardian.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.ua": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "indeed.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ameblo.jp": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "aol.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "etsy.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "globo.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.za": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yelp.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazonaws.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "huffingtonpost.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tudou.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "so.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zhihu.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "soundcloud.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tripadvisor.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.gr": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "varzesh3.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "avito.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "onlinesbi.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "vice.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cnzz.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "directrev.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "uol.com.br": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bet365.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "weather.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mediafire.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "uptodown.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cnet.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "washingtonpost.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gfycat.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "goo.ne.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "stackexchange.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "force.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "taboola.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.co": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dmm.co.jp": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tuberel.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "vimeo.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.ng": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "naver.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "feedly.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "theladbible.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pixiv.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "redtube.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "detik.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "homedepot.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "torrentz.eu": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "slideshare.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.ro": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "taringa.net": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "foxnews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "target.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.it": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.pe": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "flickr.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hclips.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.be": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.fr": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "9gag.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kakaku.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blogspot.in": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ikea.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mega.nz": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ifeng.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "udn.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "web.de": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "americanexpress.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "iqiyi.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bp.blogspot.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fbcdn.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.ph": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "orange.fr": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "comcast.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.sg": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "terraclicks.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youm7.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "putlocker.is": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tribunnews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gmx.net": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youporn.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "deviantart.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nih.gov": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zol.com.cn": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ontests.me": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "roblox.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "doubleclick.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hdfcbank.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ozock.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tistory.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "capitalone.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "leboncoin.fr": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "douyu.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.cn": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "51.la": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.se": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "spotify.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wikihow.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "onet.pl": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "babytree.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "w3schools.com": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "upornia.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "snapdeal.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "forbes.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.at": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wix.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bestbuy.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "livejournal.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mozilla.org": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rdsa2013.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xfinity.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "handycafe.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "groupon.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "adnetworkperformance.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "onedio.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thepiratebay.org": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "skype.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "github.io": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "allegro.pl": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.dz": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.vn": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "paytm.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "twimg.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wikimedia.org": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "icicibank.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "t-online.de": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tokopedia.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "popcash.net": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "telegraph.co.uk": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "usps.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "slither.io": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wp.pl": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blog.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.ch": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "webtretho.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "irctc.co.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "trello.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.pt": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yesky.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xywy.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "huanqiu.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "eksisozluk.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blastingnews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "citi.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "shutterstock.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rediff.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "files.wordpress.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ups.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "1688.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.cl": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bitauto.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "speedtest.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pandora.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "adexc.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "imzog.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.ae": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "2ch.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.cz": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "loading-delivery2.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "seznam.cz": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ltn.com.tw": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "about.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chaturbate.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebay-kleinanzeigen.de": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "slack.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mercadolivre.com.br": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.il": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "doorblog.jp": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "goodreads.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "livejasmin.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "battle.net": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "softonic.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "accuweather.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.es": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wordpress.org": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mbc.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "slickdeals.net": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "icloud.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "caijing.com.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.hu": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kaskus.co.id": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wittyfeed.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fedex.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ndtv.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "att.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mlb.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kompas.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.ie": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "giphy.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "usatoday.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xcar.com.cn": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hulu.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "archive.org": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sberbank.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "media.tumblr.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pinimg.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "messenger.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sourceforge.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "oracle.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hp.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lowes.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zendesk.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "viralthread.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "csdn.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "1905.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mama.cn": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youtube-mp3.org": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "39.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "digikala.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "badoo.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "businessinsider.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kinogo.co": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "weebly.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "samsung.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "abs-cbn.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "reimageplus.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "airbnb.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sabah.com.tr": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wordreference.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hurriyet.com.tr": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "uefa.com": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rambler.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "51yes.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cnnic.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "webmd.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ign.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "liputan6.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dell.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gizmodo.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blogspot.com.br": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bloomberg.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blkget.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gsmarena.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "evernote.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "verizonwireless.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "secureserver.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "repubblica.it": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "milliyet.com.tr": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "isanalyze.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sharepoint.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "eastday.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mailchimp.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nyaa.se": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "enet.com.cn": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "medium.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.az": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "akamaihd.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dmm.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "billdesk.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wsj.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "naukri.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kinopoisk.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "friv.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "expedia.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "livedoor.biz": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "macys.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "avg.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tube8.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "libero.it": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "intuit.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.no": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.fi": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "urdupoint.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "taleo.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "addthis.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sahibinden.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ancestry.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "likes.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "savefrom.net": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "haber7.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "answers.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.sk": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kissanime.to": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "marca.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "k618.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebay.in": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ask.fm": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wetransfer.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "adplxmd.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "spiegel.de": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bild.de": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "livedoor.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ouo.io": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nownews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "elpais.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thesaurus.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rt.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "amazon.ca": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gearbest.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ck101.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "independent.co.uk": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "reuters.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.dk": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "suning.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "daikynguyenvn.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "scribd.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "themeforest.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lifebuzz.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "acfun.tv": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "box.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "newegg.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nbcnews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rutracker.org": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "freepik.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "telegram.org": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kapanlagi.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "goal.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blogfa.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "southwest.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "openload.co": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hm.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kickstarter.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cloudfront.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thesportbible.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "engadget.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "impress.co.jp": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kohls.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "playstation.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "clickadu.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "shopify.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tabelog.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mashable.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "upwork.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "espncricinfo.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "conservativetribune.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "siteadvisor.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "realtor.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "asos.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ci123.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hatena.ne.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "usaa.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xe.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "olx.pl": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "videomega.tv": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ameba.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "atlassian.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sh.st": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebay.it": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "doublepimp.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "costco.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "albawabhnews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hatenablog.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gismeteo.ru": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "souq.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.by": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "extratorrent.cc": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yallakora.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "abcnews.go.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "baike.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "moneycontrol.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lifehacker.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wunderground.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hotels.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zippyshare.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zoho.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "discovercard.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fidelity.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cnblogs.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zomato.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "jabong.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blogimg.jp": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nikkei.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "4shared.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "offerhaus.link": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hespress.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "theverge.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "exoclick.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bhaskar.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gamer.com.tw": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "webex.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "17ok.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "elmogaz.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gap.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gamepedia.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gamersky.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "okezone.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gamefaqs.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "infusionsoft.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebay.com.au": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "clipconverter.cc": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "umblr.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ibm.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ticketmaster.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mercadolibre.com.ar": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "beeg.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "behance.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "surveymonkey.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rbc.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rednet.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ca.gov": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "trulia.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zing.vn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "elmundo.es": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mi.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "aparat.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "free.fr": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "airtel.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blackboard.com": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "meetup.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "trackingclick.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.bg": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.lk": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "adidas.tmall.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nordstrom.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "merdeka.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "list-manage.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nike.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "list.tmall.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "seesaa.net": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blogspot.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "allrecipes.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.kz": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "huaban.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nifty.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fiverr.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "donga.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mobile.de": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "npr.org": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kooora.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wayfair.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "coursera.org": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "redirectvoluum.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tutorialspoint.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "panda.tv": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lenta.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "weblio.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xda-developers.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "asahi.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.kw": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thefreedictionary.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "adp.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kayak.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yandex.ua": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kijiji.ca": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youdao.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "korabia.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chaoshi.tmall.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "netteller.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "drudgereport.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "japanpost.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hotstar.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tradeadexchange.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hdzog.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "change.org": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hootsuite.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dictionary.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "makemytrip.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sq.cn": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "streamcloud.eu": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "norton.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blog.me": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "watsons.tmall.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "prothom-alo.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "researchgate.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebates.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hotmovs.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "olx.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sakura.ne.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bookmyshow.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "subscene.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "le.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "emol.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "justdial.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "11st.co.kr": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cookpad.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "retailmenot.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thewatchseries.to": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "alicdn.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "shaparak.ir": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "corriere.it": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gmarket.co.kr": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "overstock.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "asus.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "y8.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yaolan.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "momoshop.com.tw": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "woot.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "shopclues.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "csgolounge.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "disqus.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "so-net.ne.jp": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wattpad.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ytimg.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cbsnews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "leagueoflegends.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "prjcq.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "reddituploads.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "patch.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "4399.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "adbooth.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sabq.org": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dropbooks.tv": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "www.gov.uk": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "udemy.com": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cnmo.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bleacherreport.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "aa.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lapatilla.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "instructables.com": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "clien.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bidverdrd.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nba.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mirror.co.uk": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "interia.pl": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nhk.or.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ensonhaber.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yadi.sk": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "line.me": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mercadolibre.com.ve": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "e-hentai.org": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "uploaded.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "verizon.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "alexa.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "namu.wiki": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yodobashi.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "heroquizz.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "latimes.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "123cha.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pof.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "eyny.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "azlyrics.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "aliyun.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "people.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yandex.com.tr": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rottentomatoes.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "104.com.tw": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "houzz.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "time.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cisco.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ppomppu.co.kr": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "delta.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "biglobe.ne.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "jrj.com.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xunlei.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lenovo.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "usbank.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "vk.me": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zulily.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "asana.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youboy.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zone-telechargement.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "glassdoor.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "seasonvar.ru": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nikkeibp.co.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "investing.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.do": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "united.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "teepr.com": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "indianexpress.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wikiwiki.jp": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pch.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "jimdo.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "oeeee.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gyazo.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "myfitnesspal.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yts.ag": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "custhelp.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "paytm.in": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nextdoor.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "voc.com.cn": "Generative AI",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cnbc.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sears.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bs.to": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "itmedia.co.jp": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thekitchn.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bomb01.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "slate.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "torcache.net": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.my": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "4chan.org": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "biobiochile.cl": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.co.nz": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "okcupid.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.rs": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "instructure.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "intoday.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zhanqi.tv": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chinaso.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "squarespace.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fitbit.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "photobucket.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "eskimi.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mixi.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "4dsply.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thatviralfeed.com": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pantip.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "as.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "elfagr.org": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "3dmgame.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "howtogeek.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "aastocks.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "manoramaonline.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "alwafd.org": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "inquirer.net": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "himado.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "xbox.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "meaww.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pogo.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "redfin.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "buy.tmall.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "drom.ru": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "infoseek.co.jp": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "buzzfil.net": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "urbandictionary.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mit.edu": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "olx.com.br": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chinaz.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chip.de": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "panet.co.il": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gamespot.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.com.ec": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "subito.it": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gazetaexpress.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zara.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "swagbucks.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tmz.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nexusmods.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tsite.jp": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "timeanddate.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "discuss.com.hk": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "quanjing.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bhphotovideo.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lequipe.fr": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "superuser.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ero-advertising.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "myntra.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cdiscount.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "issuu.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "filehippo.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "vporn.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "quikr.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "axisbank.co.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gameforge.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "twoo.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "4pda.ru": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "java.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blogspot.mx": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "spankbang.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "discover.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kdnet.net": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "agar.io": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "priceline.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mercadolibre.com.mx": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "atwiki.jp": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "audible.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mynavi.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "vodlocker.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sky.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sciencedirect.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gigazine.net": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "olx.ua": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "livescore.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "58.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "syosetu.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "prezi.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hotnewhiphop.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "jcpenney.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ero-video.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nypost.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "nydailynews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "acunn.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "foodnetwork.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mint.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bitbucket.org": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "creditkarma.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mataharimall.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rarbg.to": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tim.it": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "anitube.se": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mapquest.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "westernjournalism.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "eventbrite.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "liveinternet.ru": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "politico.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "android.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "weather.gov": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lun.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bankmellat.ir": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sfgate.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "misrjournal.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lemonde.fr": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "uber.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "givemesport.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "stockstar.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wiktionary.org": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "51sole.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.hr": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "reverso.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thehindu.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "marriott.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yomiuri.co.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "topix.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "prpops.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sankei.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "europa.eu": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pcmag.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "constantcontact.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "battlefield.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "php.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ria.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fanpage.gr": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "getpocket.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cpasbien.cm": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "diep.io": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rightmove.co.uk": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sfr.fr": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hilton.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sozcu.com.tr": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "blog-newstime.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "agoda.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "india.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bodybuilding.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "techcrunch.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thisav.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hbogo.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "zappos.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "google.lt": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "appledaily.com.tw": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "geocities.jp": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "duckduckgo.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "irs.gov": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "kotaku.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "marktplaats.nl": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "eroterest.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "duolingo.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ebay.fr": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wp.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "jin115.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "staples.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "youjizz.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fanfiction.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "walgreens.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bt.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "microsoftstore.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "123movies.to": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "126.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "exblog.jp": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "yjc.ir": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "t-mobile.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "farsnews.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chron.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "stumbleupon.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "parentanswercentre.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "123rf.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "breitbart.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hh.ru": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cbssports.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "sex.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pnc.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mega.co.nz": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lazada.co.id": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "marketwatch.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ew.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ryanair.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gazeta.pl": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gmanetwork.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dcinside.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ampclicks.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "slimspots.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "basecamp.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cctv.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "incometaxindiaefiling.gov.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "citibank.co.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "brightonclick.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gazzetta.it": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "indianrail.gov.in": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "idnes.cz": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thedailybeast.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "intel.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "auction.co.kr": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fatosdesconhecidos.com.br": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "to8to.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ultimate-guitar.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mcafee.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "neobux.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tripadvisor.co.uk": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "tomshardware.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "rapidgator.net": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bola.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hubspot.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "otto.de": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "digitaltrends.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "elevenia.co.id": "Education",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "n121adserv.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gofundme.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "lacaixa.es": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ctrip.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "flashx.tv": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "quizlet.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "banggood.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "garmin.com": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "primewire.ag": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "vox.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "labanquepostale.fr": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "telekom.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "drive2.ru": "Software Development",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "eonline.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chosun.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "credit-agricole.fr": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wowhead.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "match.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hamariweb.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "vnexpress.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "familydoctor.com.cn": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "thethao247.vn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "state.gov": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "todayhumor.co.kr": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "abril.com.br": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "uzone.id": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "hepsiburada.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wwwpromoter.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "popsugar.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "panasonic.jp": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "360doc.com": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "minecraft.net": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "internethaber.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dailypakistan.com.pk": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bedbathandbeyond.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "pixabay.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wav.tv": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "novinky.cz": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "uptobox.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "whitepages.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "icolor.com.cn": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "babycenter.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "qvc.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "indiamart.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "onlinecreditcenter6.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "6pm.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "g2a.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "milanuncios.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mayoclinic.org": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "commentcamarche.net": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "gawker.com": "Games",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "fandango.com": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "duowan.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "myanimelist.net": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "telegram.me": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "genius.com": "Generative AI",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "wiley.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "liveleak.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "divar.ir": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "bestadbid.com": "Shopping",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "niuche.com": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "chouftv.ma": "News",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "life.tw": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "dream.co.id": "Entertainment",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "cocolog-nifty.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "ptt.cc": "Productivity",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "legacy.com": "Social Networking",
+website_categories.json (alexander rother on 10/28/2025 at 02:33):     "mynet.com": "Social Networking"
+website_categories.json (alexander rother on 10/28/2025 at 02:33): }
