@@ -48,7 +48,7 @@ Also, our tracker randomly stopped after ten minutes or so, and I had to manuall
 ### AI Assistance (Claude)
 - Learning: Used extensively to learn JavaScript, React, and Chrome Extension concepts
 - Architecture: Got assistance understanding Chrome extension service worker architecture, API usage, and learn how to prevent Chrome from resetting our extension’s states.
-- Implementation: Received help implementing, correcting, partially generating, and reviewing code for background.js, storage.js, and blocker.css.
+- Implementation: Received help implementing, correcting, partially generating, and reviewing code for background.js, storage.js, blocker.js and blocker.css.
 - Code Review: Helped fix and improve my implementation.
 
 ---
