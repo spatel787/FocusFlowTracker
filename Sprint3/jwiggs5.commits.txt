@@ -1,1 +1,51 @@
+popup.js line 89)           chrome.storage.sync.set({ StopTime: stopTime });
+popup.js line 119)       chrome.storage.sync.set({ 
+popup.js line 120)         StartTime: Date.now() - time,
+popup.js line 121)         StopTime: null
+popup.js line 122)       });
+popup.js line 129)         chrome.storage.local.set({ tabStartTimes: starts, tabStopTimes: stops });
+popup.js line 136)         chrome.storage.sync.set({ StopTime: stopTime });
+popup.js line 144)         chrome.storage.local.set({ tabStopTimes: stops });
 
+storage.js line 201) 
+storage.js line 202) export function time_get() {
+storage.js line 203)   return new Promise((resolve) => {
+storage.js line 204)     chrome.storage.sync.get({TimeStart, TimeStop}, (res) => {
+storage.js line 205)       resolve(res.TimeStop - res.TimeStart);
+storage.js line 206)     });
+storage.js line 207)   });
+storage.js line 208) }
+
+ 
+stats.js line 5) import { time_get} from "./storage.js";
+stats.js line 53) 
+stats.js line 136)                 ({DisplayTime(site.domain)} time spent)
+stats.js line 142) function DisplayTime({site}) {
+stats.js line 143)   let now = 0;
+stats.js line 144)   chrome.storage.local.get(["tabStartTimes", "tabStopTimes"], (res) => {
+stats.js line 145)     if (res) {
+stats.js line 146)         const starts = res.tabStartTimes || {};
+stats.js line 147)         const stops = res.tabStopTimes || {};
+stats.js line 148)         if (stops[site]) {
+stats.js line 149)           now = stops[site] - starts[site];
+stats.js line 150)         }
+stats.js line 151)     }
+stats.js line 152)   });
+stats.js line 153)   if (now == 0) {
+stats.js line 154)     return ("Unknown")
+stats.js line 155)   }
+stats.js line 156)   else {
+stats.js line 157)     return (formatTime(now))
+stats.js line 158)   }
+stats.js line 159) }
+stats.js line 160)
+stats.js line 161) const formatTime = (ms) => {
+stats.js line 162)   const h = Math.floor(ms / 3600000);
+stats.js line 163)   const m = Math.floor((ms % 3600000) / 60000);
+stats.js line 164)   const s = Math.floor((ms % 60000) / 1000);
+stats.js line 165)   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; 
+stats.js line 166) };
+stats.js line 187)
+stats.js line 188)     const [time, setTime] = useState(0);
+stats.js line 240)         setTime(time_get());
+stats.js line 386)                             <span className="metric-value">{formatTime(time)}</span>
