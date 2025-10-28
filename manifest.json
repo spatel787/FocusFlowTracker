@@ -29,7 +29,7 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["notes.html", "notes.js", "stats.html", "stats.js", "stats.css", "styles.css"],
+      "resources": ["blocker.html", "blocker.js","notes.html", "notes.js", "stats.html", "stats.js", "stats.css", "styles.css"],
       "matches": ["<all_urls>"]
     }
   ]
