@@ -86,6 +86,7 @@ function FocusTracker() {
           if (start && !stop) {
             setTabTime(Date.now() - start);
           }
+          chrome.storage.sync.set({ StopTime: stopTime });
         });
       }, 10);
     }
@@ -115,18 +116,24 @@ function FocusTracker() {
         StartTime: Date.now() - time, 
         StopTime: null 
       });
+      chrome.storage.sync.set({ 
+        StartTime: Date.now() - time, 
+        StopTime: null 
+      });
       chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
         const starts = res.tabStartTimes || {};
         const stops = res.tabStopTimes || {};
         starts[currentTab] = Date.now() - tabTime;
         stops[currentTab] = null;
         chrome.storage.session.set({ tabStartTimes: starts, tabStopTimes: stops });
+        chrome.storage.local.set({ tabStartTimes: starts, tabStopTimes: stops });
       });
     } else {
       // Stopping tracking
       chrome.storage.session.get(["StartTime"], (res) => {
         const stopTime = (res.StartTime || 0) + time;
         chrome.storage.session.set({ StopTime: stopTime });
+        chrome.storage.sync.set({ StopTime: stopTime });
       });
       
       // Stop current tab timer
@@ -134,6 +141,7 @@ function FocusTracker() {
         const stops = res.tabStopTimes || {};
         stops[currentTab] = Date.now();
         chrome.storage.session.set({ tabStopTimes: stops });
+        chrome.storage.local.set({ tabStopTimes: stops });
       });
     }
   };
