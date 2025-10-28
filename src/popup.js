@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { blocked_get, blocked_add, blocked_remove } from "./storage.js";
@@ -36,7 +32,7 @@ function FocusTracker() {
     // On load, get current tab and status
     if (typeof chrome !== "undefined" && chrome.tabs) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0]) setCurrentTab(getDomain(tabs[0].url));
+        if (tabs[0]) setCurrentTab(tabs[0].url);
       });
     }
 
@@ -77,7 +73,6 @@ function FocusTracker() {
 
   useEffect(() => {
     let intervalId;
-    let tabStops = {};
     if (isExtensionActive) {
       intervalId = setInterval(() => {
         setTime((t) => t + 10);
@@ -90,9 +85,6 @@ function FocusTracker() {
           const stop = stops[currentTab];
           if (start && !stop) {
             setTabTime(Date.now() - start);
-            tabStops = stops;
-            tabStops[currentTab] = Date.now();
-            chrome.storage.local.set({tabStopTimes: tabStops});
           }
         });
       }, 10);
@@ -129,7 +121,6 @@ function FocusTracker() {
         starts[currentTab] = Date.now() - tabTime;
         stops[currentTab] = null;
         chrome.storage.session.set({ tabStartTimes: starts, tabStopTimes: stops });
-        chrome.storage.local.set({tabStopTimes: starts, tabStopTimes: stops });
       });
     } else {
       // Stopping tracking
@@ -143,22 +134,10 @@ function FocusTracker() {
         const stops = res.tabStopTimes || {};
         stops[currentTab] = Date.now();
         chrome.storage.session.set({ tabStopTimes: stops });
-        chrome.storage.local.set({tabStopTimes: stops });
       });
     }
   };
 
-<<<<<<< Updated upstream
-  const getDomain = (url) => {
-  try {
-    const u = new URL(url);
-    return u.hostname.replace(/^www\./, '');
-  } catch (e) {
-    return null;
-  }
-}
-=======
->>>>>>> Stashed changes
 
   const formatTime = (ms) => {
     const h = Math.floor(ms / 3600000);
@@ -170,10 +149,6 @@ function FocusTracker() {
   return (
     <div>
       <div className="card">
-<<<<<<< Updated upstream
-        <h2>{currentTab}</h2>
-=======
->>>>>>> Stashed changes
 
         {/* Distraction Score */}
         <DistractionScore
