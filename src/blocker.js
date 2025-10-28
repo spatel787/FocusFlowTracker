@@ -6,7 +6,7 @@ import "./blocker.css";
 function SiteBlockerPage() {
   const [blockedSites, setBlockedSites] = useState([]);
   const [newSite, setNewSite] = useState("");
-  const [newAction, setNewAction] = useState("warn");
+  const [newAction, setNewAction] = useState("block");
   const [theme, setTheme] = useState("light");
 
   // Load theme

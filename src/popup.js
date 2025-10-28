@@ -1,8 +1,27 @@
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { blocked_get, blocked_add, blocked_remove } from "./storage.js";
 import "./popup.css";
+
+
+const getDomain = (url) => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "Loading...";
+  }
+};
+
+const truncateString = (str, maxLength) => {
+  if (str.length > maxLength) {
+    return str.substring(0, maxLength) + '...';
+  }
+  return str;
+};
 
 // ---------------- Focus Tracker ----------------
 function FocusTracker() {
@@ -129,6 +148,7 @@ function FocusTracker() {
     }
   };
 
+<<<<<<< Updated upstream
   const getDomain = (url) => {
   try {
     const u = new URL(url);
@@ -137,6 +157,8 @@ function FocusTracker() {
     return null;
   }
 }
+=======
+>>>>>>> Stashed changes
 
   const formatTime = (ms) => {
     const h = Math.floor(ms / 3600000);
@@ -148,7 +170,10 @@ function FocusTracker() {
   return (
     <div>
       <div className="card">
+<<<<<<< Updated upstream
         <h2>{currentTab}</h2>
+=======
+>>>>>>> Stashed changes
 
         {/* Distraction Score */}
         <DistractionScore
@@ -160,17 +185,12 @@ function FocusTracker() {
         <button
           onClick={toggleTracking}
           className={isExtensionActive ? "red" : "green"}
-        >
-          {isExtensionActive ? "Stop" : "Start"} Tracking
+        >        
+          {isExtensionActive ? "Stop" : "Start"}
         </button>
-      </div>
-      <div className="card">
-        <h3>Session Time</h3> 
-        <p>{formatTime(time)}</p>
-      </div>
-      <div className="card">
-        <h3>Current Tab Time:</h3> 
-        <p>{formatTime(tabTime)}</p>
+
+        <timer>{formatTime(time)}</timer>
+        
       </div>
     </div>
   );
@@ -201,7 +221,6 @@ function DistractionScore({ time, tabSwitches, distractionWarnings }) {
 
   return (
     <div className="distraction-score">
-      <h3>Distraction Score</h3>
       <div className="circle">
         <svg width="120" height="120">
           <circle
@@ -243,7 +262,7 @@ function ThemeToggle({ theme, setTheme }) {
       className="toggle-btn"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
     >
-      {theme === "light" ? "🌙" : "☀️"}
+      {"☼"}
     </button>
   );
 }
@@ -256,7 +275,6 @@ function PageButtons({ theme }) {
   };
 
   const buttonStyle = {
-    padding: "12px 20px",
     fontSize: "15px",
     backgroundColor: theme === "dark" ? "#1e1e1e" : "#fafafa",
     color: theme === "dark" ? "#fff" : "#000",
@@ -267,30 +285,32 @@ function PageButtons({ theme }) {
     fontWeight: "600",
     display: "flex",
     alignItems: "center",
-    gap: "8px",
     justifyContent: "center",
   };
 
   return (
     <div
       style={{
+        marginTop: "10px",
         display: "flex",
-        flexDirection: "row",
-        gap: "10px",
-        marginTop: "20px",
-        marginBottom: "20px",
-        marginLeft: "5px",
-        marginRight: "5px",
+        gap: "17px",
+        flex: 1,
+        justifyContent: "center",
       }}
     >
       <button onClick={() => openPage("blocker")} style={buttonStyle}>
-        🚫 Blocked Sites
+        <svg fill={(theme === "dark" ? "#ffffff" : "#000000")} width="20px" height="20px" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path d="M500 930q-117 0-217-59-97-57-154-154-59-100-59-217t59-217q57-97 154-154 100-59 217-59t217 59q97 57 154 154 59 100 59 217t-59 217q-57 97-154 154-100 59-217 59zM320 760q39 28 85.5 42.5T500 817q86 0 160-44 71-42 113-113 44-74 44-160 0-48-14.5-94.5T760 320zm180-577q-86 0-160 44-71 42-113 113-44 74-44 160 0 48 14.5 94.5T240 680l440-440q-39-28-85.5-42.5T500 183z"/></svg>
       </button>
       <button onClick={() => openPage("notes")} style={buttonStyle}>
-        📝 Open Notes
+        <svg width="20px" height="20px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="none" stroke={(theme === "dark" ? "#ffffff" : "#000000")} stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+        <polyline points="7.25 14.25,2.75 14.25,2.75 1.75,13.25 1.75,13.25 9.25"/>
+        <path d="m9.75 12.75 1.5 1.5 3-2.5m-8.5-4h4.5m-4.5 3h1.5m-1.5-6h4.5"/>
+        </svg>
       </button>
       <button onClick={() => openPage("stats")} style={buttonStyle}>
-        📊 View Statistics
+        <svg fill={(theme === "dark" ? "#ffffff" : "#000000")} width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path id="stats1" class="cls-1" d="M1091,264h-22a1,1,0,0,1-1-1V241a1,1,0,0,1,2,0v21h21A1,1,0,0,1,1091,264Zm-5-4a1,1,0,0,1-1-1V248a1,1,0,0,1,2,0v11A1,1,0,0,1,1086,260Zm-4,0h0a1,1,0,0,1-1-1v-7a1,1,0,0,1,1-1h0a1,1,0,0,1,1,1v7A1,1,0,0,1,1082,260Zm-4,0a1,1,0,0,1-1-1V243a1,1,0,0,1,2,0v16A1,1,0,0,1,1078,260Zm-4,0a1,1,0,0,1-1-1V249a1,1,0,0,1,2,0v10A1,1,0,0,1,1074,260Z" transform="translate(-1068 -240)"/>
+        </svg>
       </button>
     </div>
   );
@@ -299,6 +319,7 @@ function PageButtons({ theme }) {
 // ---------------- Main App ----------------
 function MainApp() {
   const [theme, setTheme] = React.useState(null);
+  const [currentTab, setCurrentTab] = useState("Loading...");
 
   React.useEffect(() => {
     if (typeof chrome !== "undefined" && chrome.storage) {
@@ -307,6 +328,16 @@ function MainApp() {
       });
     } else {
       setTheme("light");
+    }
+  }, []);
+
+  
+  React.useEffect(() => {
+    // On load, get current tab and status
+    if (typeof chrome !== "undefined" && chrome.tabs) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) setCurrentTab(tabs[0].url);
+      });
     }
   }, []);
 
@@ -324,7 +355,7 @@ function MainApp() {
   return (
     <div className="app-container">
       <div className="header">
-        <h1 className="header-title">Focus Flow Tracker</h1>
+        <h1 className="header-title">{truncateString(getDomain(currentTab), 15)}</h1>
         <ThemeToggle theme={theme} setTheme={setTheme} />
       </div>
 
