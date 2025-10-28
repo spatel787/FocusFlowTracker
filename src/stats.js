@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import Chart from 'chart.js/auto';
 import './stats.css';
+import { time_get} from "./storage.js";
 
 // --- Configuration and Helpers ---
 
@@ -183,6 +184,8 @@ function StatsPage() {
     const [mode, setMode] = useState(() => {
         return localStorage.getItem('mode') === 'dark' ? 'dark' : 'light';
     });
+
+    const [time, setTime] = useState(0);
     
     // Chart Refs
     const chartRef = useRef(null); // Pie Chart
@@ -234,6 +237,7 @@ function StatsPage() {
     
     useEffect(() => {
         fetchHistory();
+        setTime(time_get());
     }, []); 
 
     // --- UI/Sort/Filter Logic ---
@@ -379,7 +383,7 @@ function StatsPage() {
                         </div>
                         <div className="metric-chip">
                             <span className="metric-label">Time:</span>
-                            <span className="metric-value">N/A</span>
+                            <span className="metric-value">{formatTime(time)}</span>
                         </div>
 
                         {/* Control Buttons Group */}
