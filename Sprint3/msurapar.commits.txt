@@ -1,0 +1,1214 @@
+FocusFlowTracker/src/stats.js
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400   1) import React, { useEffect, useState, useRef, useMemo } from 'react';
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400   2) import ReactDOM from 'react-dom/client';
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400   3) import Chart from 'chart.js/auto';
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400   4) import './stats.css';
+2e4b8b32 (UltraStarcastic 2025-10-28 09:07:41 -0400   5) import { time_get} from "./storage.js";
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400   6) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400   7) // --- Configuration and Helpers ---
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400   8) 
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400   9) const CATEGORY_MAP = [
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  10)   { name: 'Entertainment', tokens: ['youtube.com', 'netflix.com', 'twitch.tv'] },
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  11)   { name: 'Games', tokens: ['roblox.com', 'coolmathgames.com'] },
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  12)   { name: 'Social Networking', tokens: ['instagram.com', 'twitter.com', 'discord.com', 'x.com'] },
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  13)   { name: 'Shopping', tokens: ['amazon.com', 'ebay.com', 'walmart.com', 'temu.com'] },
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  14)   { name: 'Productivity', tokens: ['wikipedia.org', 'github.com', 'gitlab.com', 'docs.google.com', 'drive.google.com', 'bank'] },
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  15)   { name: 'Generative AI', tokens: ['openai.com', 'perplexity.ai', 'gemini.google.com'] },
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  16)   { name: 'Other', tokens: [] }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  17) ];
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  18) 
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  19) function categorizeDomain(domain) {
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  20)   const d = domain.toLowerCase();
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  21)   for (const c of CATEGORY_MAP) {
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  22)     for (const token of c.tokens) {
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  23)       if (d.includes(token)) return c.name;
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  24)     }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  25)   }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  26)   return 'Other';
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  27) }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  28) 
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  29) function extractDomain(url) {
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  30)   try {
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  31)     const u = new URL(url);
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  32)     return u.hostname.replace(/^www\./, '');
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  33)   } catch (e) {
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  34)     return null;
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  35)   }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  36) }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  37) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  38) // Helper to get the base URL for the favicon
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  39) function getFaviconUrl(domain) {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  40)     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  41)         return `chrome-extension://${chrome.runtime.id}/_favicon/?pageUrl=https://${domain}/&size=16`;
+262b99e9 (Dmengeli04      2025-10-27 15:02:34 -0400  42)     }
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  43)     return `https://www.google.com/s2/favicons?domain=${domain}`;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  44) }
+262b99e9 (Dmengeli04      2025-10-27 15:02:34 -0400  45) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  46) const TOP_SITES_LIMIT = 10;
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  47) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  48) // --- Data Processing Function ---
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  49) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  50) function processHistoryResults(results) {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  51)     const domainMap = new Map();
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  52)     let totalVisits = 0;
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400  53) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  54)     // We only need domain totals and category data for the remaining charts/tables
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  55)     results.forEach(item => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  56)         if (!item.url || !item.visitCount) return;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  57)         
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  58)         const domain = extractDomain(item.url);
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  59)         if (!domain) return;
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  60)         const visits = item.visitCount || 1;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  61)         totalVisits += visits;
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  62) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  63)         const existing = domainMap.get(domain) || { visits: 0 };
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  64)         domainMap.set(domain, { visits: existing.visits + visits });
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  65)     });
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  66) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  67)     // Build Category Totals, Domain List, and All Sites List
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  68)     const domainCategoryArr = [];
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  69)     const categoryTotals = {};
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  70)     const allDomainsWithData = [];
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  71) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  72)     domainMap.forEach((data, domain) => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  73)         const visits = data.visits;
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  74)         const category = categorizeDomain(domain);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  75)         
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  76)         domainCategoryArr.push({ domain, category, visits });
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  77)         categoryTotals[category] = (categoryTotals[category] || 0) + visits;
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  78) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  79)         allDomainsWithData.push({ 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  80)             domain, 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  81)             visits,
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  82)             faviconUrl: getFaviconUrl(domain)
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  83)         });
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  84)     });
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400  85) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  86)     // Sort category totals by count
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  87)     const sortedCategories = Object.entries(categoryTotals)
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  88)       .sort(([, visitsA], [, visitsB]) => visitsB - visitsA)
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  89)       .reduce((obj, [category, visits]) => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  90)         obj[category] = visits;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  91)         return obj;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  92)       }, {});
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  93) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  94)     return { 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  95)         allDomainsWithData, 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  96)         categoryTotals: sortedCategories, 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  97)         domainCategoryList: domainCategoryArr, 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  98)         uniqueCount: domainMap.size,
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400  99)         totalVisits,
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 100)         // Removed dailyVisitCounts
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 101)     };
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 102) }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400 103) 
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400 104) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 105) // --- Site List Item Component with Favicon Fallback ---
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400 106) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 107) function SiteListItem({ site, mode }) {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 108)     const [imgSrc, setImgSrc] = useState(site.faviconUrl);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 109)     
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 110)     const fallbackIcon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWdsb2JlIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxwYXRoIGQ9Ik0xMiAyYy00LjcgMi41LTcgOC03IDh2MGMwIDQuNyAyLjUgNyA4IDd2MGM1LjUtMi4yIDgtOC41IDgtOHYwYzAtMi43LTIuNS03LTgtN3oiLz48cGF0aCBkPSJNOSAyMi42TDEyIDE5bDMtMy42Ii8+PC9zdmc+';
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 111)     
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 112)     const handleImageError = () => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 113)         if (imgSrc !== fallbackIcon) {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 114)             setImgSrc(fallbackIcon);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 115)         }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400 116)     };
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400 117) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 118)     return (
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 119)         <li className="site-list-item">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 120)             <img 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 121)                 src={imgSrc} 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 122)                 onError={handleImageError} 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 123)                 alt="icon" 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 124)                 style={{ width: '16px', height: '16px', marginRight: '8px', flexShrink: 0 }} 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 125)             />
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 126)             <a 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 127)                 href={`https://${site.domain}`} 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 128)                 target="_blank" 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 129)                 rel="noopener noreferrer"
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 130)                 style={{ flexGrow: 1, textDecoration: 'none', color: mode === 'dark' ? '#93c5fd' : '#1d4ed8' }}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 131)             >
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 132)                 {site.domain}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 133)             </a>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 134)             <span style={{ fontWeight: 'bold', flexShrink: 0 }}>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 135)                 ({site.visits} visits)
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 136)                 ({DisplayTime(site.domain)} time spent)
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 137)             </span>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 138)         </li>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 139)     );
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400 140) }
+b2e6b8cc (Manihams        2025-10-13 13:10:07 -0400 141) 
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 142) function DisplayTime({site}) {
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 143)   let now = 0;
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 144)   chrome.storage.local.get(["tabStartTimes", "tabStopTimes"], (res) => {
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 145)     if (res) {
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 146)         const starts = res.tabStartTimes || {};
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 147)         const stops = res.tabStopTimes || {};
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 148)         if (stops[site]) {
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 149)           now = stops[site] - starts[site];
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 150)         }
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 151)     }
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 152)   });
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 153)   if (now == 0) {
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 154)     return ("Unknown")
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 155)   }
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 156)   else {
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 157)     return (formatTime(now))
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 158)   }
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 159) }
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 160) 
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 161) const formatTime = (ms) => {
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 162)   const h = Math.floor(ms / 3600000);
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 163)   const m = Math.floor((ms % 3600000) / 60000);
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 164)   const s = Math.floor((ms % 60000) / 1000);
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 165)   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+c7f218ff (UltraStarcastic 2025-10-28 00:15:01 -0400 166) };
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 167) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 168) // --- Main App Component ---
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 169) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 170) function StatsPage() {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 171)     // --- State Management ---
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 172)     const [loading, setLoading] = useState(true);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 173)     const [uniqueCount, setUniqueCount] = useState(0);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 174)     const [totalVisits, setTotalVisits] = useState(0);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 175)     const [categoryCounts, setCategoryCounts] = useState({});
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 176)     const [domainCategoryList, setDomainCategoryList] = useState([]);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 177)     const [topSitesData, setTopSitesData] = useState([]);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 178)     // Removed: dailyVisitData
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 179)     
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 180)     // UI States
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 181)     const [sortBy, setSortBy] = useState('visits');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 182)     const [sortOrder, setSortOrder] = useState('desc');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 183)     const [selectedCategory, setSelectedCategory] = useState('All');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 184)     const [mode, setMode] = useState(() => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 185)         return localStorage.getItem('mode') === 'dark' ? 'dark' : 'light';
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 186)     });
+2e4b8b32 (UltraStarcastic 2025-10-28 09:07:41 -0400 187) 
+2e4b8b32 (UltraStarcastic 2025-10-28 09:07:41 -0400 188)     const [time, setTime] = useState(0);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 189)     
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 190)     // Chart Refs
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 191)     const chartRef = useRef(null); // Pie Chart
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 192)     const chartInstanceRef = useRef(null);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 193)     // Removed: dailyChartRef and dailyChartInstanceRef
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 194) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 195)     // --- Mode/Auth Handlers ---
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 196) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 197)     const toggleMode = () => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 198)         setMode(prevMode => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 199)             const newMode = prevMode === 'light' ? 'dark' : 'light';
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 200)             localStorage.setItem('mode', newMode);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 201)             return newMode;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 202)         });
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 203)     };
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 204) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 205)     useEffect(() => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 206)         if (mode === 'dark') {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 207)             document.body.classList.add('dark-mode');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 208)         } else {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 209)             document.body.classList.remove('dark-mode');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 210)         }
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 211)     }, [mode]);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 212) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 213)     // --- Data Fetching and Refresh ---
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 214)     
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 215)     const fetchHistory = (maxResults = 5000) => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 216)         setLoading(true);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 217)         const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 218) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 219)         if (!chrome || !chrome.history) {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 220)             console.error('chrome.history not available.');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 221)             setLoading(false);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 222)             return;
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 223)         }
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 224) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 225)         chrome.history.search({ text: '', startTime, maxResults }, (results) => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 226)             const data = processHistoryResults(results);
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 227) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 228)             setUniqueCount(data.uniqueCount);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 229)             setCategoryCounts(data.categoryTotals);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 230)             setDomainCategoryList(data.domainCategoryList);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 231)             setTopSitesData(data.allDomainsWithData);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 232)             setTotalVisits(data.totalVisits);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 233)             // Removed: setDailyVisitData
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 234)             setLoading(false);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 235)         });
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 236)     };
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 237)     
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 238)     useEffect(() => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 239)         fetchHistory();
+2e4b8b32 (UltraStarcastic 2025-10-28 09:07:41 -0400 240)         setTime(time_get());
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 241)     }, []); 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 242) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 243)     // --- UI/Sort/Filter Logic ---
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 244) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 245)     const handleSortChange = (newSortBy) => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 246)         if (sortBy === newSortBy) {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 247)             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 248)         } else {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 249)             setSortBy(newSortBy);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 250)             setSortOrder(newSortBy === 'visits' ? 'desc' : 'asc');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 251)         }
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 252)     };
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 253) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 254)     // Memoized sorting and limiting of top sites
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 255)     const sortedTopSites = useMemo(() => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 256)         if (topSitesData.length === 0) return [];
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 257) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 258)         const sorted = [...topSitesData].sort((a, b) => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 259)             let comparison = 0;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 260)             
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 261)             if (sortBy === 'visits') {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 262)                 comparison = a.visits - b.visits;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 263)             } else if (sortBy === 'domain') {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 264)                 comparison = a.domain.localeCompare(b.domain);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 265)             }
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 266) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 267)             return sortOrder === 'asc' ? comparison : -comparison;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 268)         });
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 269) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 270)         return sorted.slice(0, TOP_SITES_LIMIT);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 271)     }, [topSitesData, sortBy, sortOrder]);
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 272) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 273)     // Memoized filtered domain list for the bottom table
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 274)     const filteredDomainList = useMemo(() => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 275)         let list = [...domainCategoryList];
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 276) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 277)         if (selectedCategory !== 'All') {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 278)             list = list.filter(d => d.category === selectedCategory);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 279)         }
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 280)         
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 281)         return list.sort((a, b) => b.visits - a.visits);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 282) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 283)     }, [domainCategoryList, selectedCategory]);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 284) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 285)     // --- Export Function ---
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 286)     
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 287)     const exportData = (format) => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 288)         const dataToExport = domainCategoryList.sort((a, b) => b.visits - a.visits);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 289)         let content;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 290)         let mimeType;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 291)         let filename;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 292) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 293)         if (format === 'csv') {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 294)             const header = ['Domain', 'Category', 'Visits'].join(',');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 295)             const rows = dataToExport.map(d => [d.domain, d.category, d.visits].join(','));
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 296)             content = [header, ...rows].join('\n');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 297)             mimeType = 'text/csv';
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 298)             filename = 'browsing_stats.csv';
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 299)         } else { // JSON
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 300)             content = JSON.stringify(dataToExport, null, 2);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 301)             mimeType = 'application/json';
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 302)             filename = 'browsing_stats.json';
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 303)         }
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 304) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 305)         const blob = new Blob([content], { type: mimeType });
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 306)         const url = URL.createObjectURL(blob);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 307)         const a = document.createElement('a');
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 308)         a.href = url;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 309)         a.download = filename;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 310)         document.body.appendChild(a);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 311)         a.click();
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 312)         document.body.removeChild(a);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 313)         URL.revokeObjectURL(url);
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 314)     };
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 315) 
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 316) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 317)     // --- Chart Effects ---
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 318) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 319)     // Pie Chart Effect (The only remaining chart)
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 320)     useEffect(() => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 321)         if (!chartRef.current || Object.keys(categoryCounts).length === 0) return;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 322)         const labels = Object.keys(categoryCounts);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 323)         const data = labels.map(l => categoryCounts[l]);
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 324) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 325)         const backgroundColors = [
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 326)             '#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#c9cbcf'
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 327)         ];
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 328) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 329)         if (chartInstanceRef.current) {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 330)             chartInstanceRef.current.destroy();
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 331)             chartInstanceRef.current = null;
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 332)         }
+a68421f4 (Manihams        2025-10-27 18:53:53 -0400 333) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 334)         chartInstanceRef.current = new Chart(chartRef.current, {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 335)             type: 'pie',
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 336)             data: {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 337)                 labels,
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 338)                 datasets: [{
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 339)                     label: 'Visits by category',
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 340)                     data,
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 341)                     backgroundColor: backgroundColors.slice(0, labels.length),
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 342)                     borderColor: mode === 'dark' ? '#374151' : '#fff',
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 343)                     borderWidth: 2
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 344)                 }]
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 345)             },
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 346)             options: {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 347)                 responsive: true,
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 348)                 maintainAspectRatio: false,
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 349)                 plugins: {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 350)                     legend: {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 351)                         position: 'right',
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 352)                         labels: {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 353)                             color: mode === 'dark' ? '#f3f4f6' : '#111827',
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 354)                             padding: 15
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 355)                         }
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 356)                     }
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 357)                 }
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 358)             }
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 359)         });
+262b99e9 (Dmengeli04      2025-10-27 15:02:34 -0400 360) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 361)         return () => {
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 362)             if (chartInstanceRef.current) chartInstanceRef.current.destroy();
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 363)         };
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 364)     }, [categoryCounts, mode]);
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 365) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 366)     // --- JSX Render ---
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 367)     return (
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 368)         <div className="stats-container">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 369)             {/* Header Bar: Compacted Title, Metrics, and Controls */}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 370)             <div className="header-bar">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 371)                 <h1 className="header-title">Your Recent Browsing Stats (Last 90 Days)</h1>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 372) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 373)                 {loading ? <p>Loading...</p> : (
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 374)                     <div className="metric-and-control-group">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 375)                         {/* Metrics */}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 376)                         <div className="metric-chip">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 377)                             <span className="metric-label">Domains:</span>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 378)                             <span className="metric-value">{uniqueCount}</span>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 379)                         </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 380)                         <div className="metric-chip">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 381)                             <span className="metric-label">Visits:</span>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 382)                             <span className="metric-value">{totalVisits.toLocaleString()}</span>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 383)                         </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 384)                         <div className="metric-chip">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 385)                             <span className="metric-label">Time:</span>
+2e4b8b32 (UltraStarcastic 2025-10-28 09:07:41 -0400 386)                             <span className="metric-value">{formatTime(time)}</span>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 387)                         </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 388) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 389)                         {/* Control Buttons Group */}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 390)                         <div className="control-group">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 391)                             <button onClick={() => exportData('csv')} className="control-btn export-btn">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 392)                                 ⬇️ Export
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 393)                             </button>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 394)                             <button onClick={() => fetchHistory()} className="control-btn refresh-btn">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 395)                                 🔄 Refresh
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 396)                             </button>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 397)                             <button onClick={toggleMode} className="mode-toggle">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 398)                                 {mode === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 399)                             </button>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 400)                         </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 401)                     </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 402)                 )}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 403)             </div>
+262b99e9 (Dmengeli04      2025-10-27 15:02:34 -0400 404) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 405)             {loading ? <p className="text-center-note">Loading history...</p> : (
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 406)                 <>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 407)                     {/* The large-chart-card section has been removed! */}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 408) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 409)                     {/* Top Sites & Category Pie Chart - Side-by-Side (Moves up to fill the gap) */}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 410)                     <div className="summary main-content-row">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 411)                         <div className="card top-sites-card">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 412)                             <h3>Top {TOP_SITES_LIMIT} Most Visited Sites</h3>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 413)                             
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 414)                             <div className="sort-controls">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 415)                                 <span>Sort by: </span>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 416)                                 <button 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 417)                                   onClick={() => handleSortChange('visits')} 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 418)                                   className={sortBy === 'visits' ? 'active' : ''}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 419)                                 >
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 420)                                   Visits {sortBy === 'visits' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 421)                                 </button>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 422)                                 <button 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 423)                                   onClick={() => handleSortChange('domain')}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 424)                                   className={sortBy === 'domain' ? 'active' : ''}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 425)                                 >
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 426)                                   Domain {sortBy === 'domain' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 427)                                 </button>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 428)                             </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 429) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 430)                             <ol className="top-sites-list">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 431)                                 {sortedTopSites.map(s => (
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 432)                                     <SiteListItem key={s.domain} site={s} mode={mode} />
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 433)                                 ))}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 434)                             </ol>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 435)                             {sortedTopSites.length === 0 && <p className="text-center-note">No sites found in history.</p>}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 436)                         </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 437) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 438)                         <div className="chart-card card pie-chart-card">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 439)                             <h3>Visits by Category</h3>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 440)                             <div className="chart-wrapper">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 441)                                 <canvas ref={chartRef} />
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 442)                             </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 443)                         </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 444)                     </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 445) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 446)                     {/* All Domains Table with Filter */}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 447)                     <div className="card">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 448)                         <div className="domain-table-header">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 449)                             <h3>Domains by Category</h3>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 450)                             <div className="filter-control">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 451)                                 <label htmlFor="category-filter">Filter:</label>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 452)                                 <select 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 453)                                     id="category-filter"
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 454)                                     value={selectedCategory}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 455)                                     onChange={(e) => setSelectedCategory(e.target.value)}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 456)                                     className={mode === 'dark' ? 'dark-select' : ''}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 457)                                 >
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 458)                                     <option value="All">All Categories ({domainCategoryList.length})</option>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 459)                                     {Object.keys(categoryCounts).map(category => (
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 460)                                         <option key={category} value={category}>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 461)                                             {category} ({categoryCounts[category].toLocaleString()})
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 462)                                         </option>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 463)                                     ))}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 464)                                 </select>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 465)                             </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 466)                         </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 467)                         
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 468)                         <table className="domain-table">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 469)                             <thead>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 470)                                 <tr><th>Domain</th><th>Category</th><th>Visits</th></tr>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 471)                             </thead>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 472)                             <tbody>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 473)                                 {filteredDomainList
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 474)                                     .map(row => (
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 475)                                         <tr key={row.domain}>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 476)                                             <td>{row.domain}</td>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 477)                                             <td>{row.category}</td>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 478)                                             <td>{row.visits}</td>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 479)                                         </tr>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 480)                                     ))}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 481)                             </tbody>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 482)                         </table>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 483)                         
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 484)                         {filteredDomainList.length === 0 && (
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 485)                             <p className="text-center-note">
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 486)                                 No sites found in the selected category.
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 487)                             </p>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 488)                         )}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 489)                     </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 490)                 </>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 491)             )}
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 492)         </div>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 493)     );
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 494) }
+262b99e9 (Dmengeli04      2025-10-27 15:02:34 -0400 495) 
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 496) // Mount the component
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 497) const root = ReactDOM.createRoot(document.getElementById('stats-root'));
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 498) root.render(
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 499)   <React.StrictMode>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 500)     <StatsPage />
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 501)   </React.StrictMode>
+3e9510e4 (Manihams        2025-10-27 21:43:29 -0400 502) );
+src/stats.html
+3e9510e4 (Manihams 2025-10-27 21:43:29 -0400  1) <!doctype html>
+3e9510e4 (Manihams 2025-10-27 21:43:29 -0400  2)  <html>
+3e9510e4 (Manihams 2025-10-27 21:43:29 -0400  3)    <head>
+3e9510e4 (Manihams 2025-10-27 21:43:29 -0400  4)     <meta charset="utf-8" />
+a68421f4 (Manihams 2025-10-27 18:53:53 -0400  5) </head>
+3e9510e4 (Manihams 2025-10-27 21:43:29 -0400  6) <body>
+3e9510e4 (Manihams 2025-10-27 21:43:29 -0400  7) <div id="stats-root"></div>
+a68421f4 (Manihams 2025-10-27 18:53:53 -0400  8)   <script src="stats.js"></script>
+3e9510e4 (Manihams 2025-10-27 21:43:29 -0400  9)  </body>
+3e9510e4 (Manihams 2025-10-27 21:43:29 -0400 10)  </html>
+src/stats.css
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400   1) /* src/stats.css */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   2) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   3) /* --- GLOBAL HEIGHT FIX --- */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   4) /* These rules ensure the page content fills the entire viewport, eliminating extra background space below the content */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   5) html, body, #stats-root {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   6)   height: 100%;
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400   7)   margin: 0;
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400   8)   padding: 0;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   9)   box-sizing: border-box; /* Ensures padding/border doesn't cause overflow */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  10) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  11) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  12) /* Set the default page background color for a consistent look */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  13) body {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  14)     background: #f7fafc; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  15) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  16) body.dark-mode {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  17)     background: #1f2937;
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400  18) }
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400  19) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  20) /* --- Base Styles --- */
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  21) .stats-container {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  22)   /* No longer needs to define full height, as parent elements handle it. */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  23)   padding: 16px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  24)   box-sizing: border-box;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  25)   background: #f7fafc;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  26)   color: #111827;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  27)   min-height: 100%; /* Ensures the container is at least full height */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  28) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  29) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  30) h1 { margin: 0; font-size: 1.5rem; }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  31) h3 { margin: 0 0 10px; font-size: 1.1rem; font-weight: 600; }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  32) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  33) .card {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  34)   background: #fff;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  35)   padding: 16px; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  36)   border-radius: 8px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  37)   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  38)   margin-bottom: 16px; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  39)   display: flex; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  40)   flex-direction: column;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  41) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  42) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  43) /* --- New Compact Header Bar (Fixes extra space) --- */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  44) .header-bar {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  45)     display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  46)     justify-content: space-between;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  47)     align-items: center;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  48)     padding: 12px 16px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  49)     border-radius: 8px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  50)     background: #e5e7eb; /* Light grey bar background */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  51)     margin-bottom: 20px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  52)     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  53)     flex-wrap: wrap; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  54)     gap: 15px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  55) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  56) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  57) .header-title { 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  58)     margin: 0; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  59)     font-size: 1.1rem; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  60)     font-weight: 700;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  61) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  62) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  63) .metric-and-control-group {
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400  64)     display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  65)     align-items: center;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  66)     gap: 15px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  67) }
+6ee68ff8 (Alexander Rother 2025-10-13 20:57:37 -0400  68) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  69) /* --- Metric Chips --- */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  70) .metric-chip {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  71)     display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  72)     gap: 6px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  73)     align-items: center;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  74)     padding: 4px 8px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  75)     background: #f3f4f6; /* White chip background */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  76)     border-radius: 6px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  77)     font-size: 0.85rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  78)     font-weight: 500;
+6ee68ff8 (Alexander Rother 2025-10-13 20:57:37 -0400  79) }
+6ee68ff8 (Alexander Rother 2025-10-13 20:57:37 -0400  80) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  81) .metric-label {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  82)     color: #4b5563; /* Grey label */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  83) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  84) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  85) .metric-value {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  86)     font-weight: 700;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  87)     color: #1f2937; /* Dark value */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  88) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  89) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  90) /* --- Control Buttons --- */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  91) .control-group {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  92)     display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  93)     gap: 8px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  94)     align-items: center;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  95) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  96) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  97) .control-btn {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  98)     padding: 8px 12px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  99)     border: none;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 100)     border-radius: 4px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 101)     cursor: pointer;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 102)     font-weight: 600;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 103)     background: #e5e7eb;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 104)     color: #1f2937;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 105)     transition: background 0.2s;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 106)     font-size: 0.9rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 107) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 108) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 109) .control-btn:hover {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 110)     background: #d1d5db;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 111) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 112) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 113) .mode-toggle {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 114)     padding: 8px 12px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 115)     border: none;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 116)     border-radius: 4px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 117)     cursor: pointer;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 118)     font-weight: 600;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 119)     background: #d1d5db;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 120)     color: #1f2937;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 121)     font-size: 0.9rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 122) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 123) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 124) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 125) /* --- Top Sites & Pie Chart Layout --- */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 126) .summary {
+6ee68ff8 (Alexander Rother 2025-10-13 20:57:37 -0400 127)   display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 128)   gap: 16px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 129)   margin-bottom: 16px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 130)   flex-wrap: wrap; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 131) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 132) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 133) .main-content-row {
+6e02ec31 (Manihams         2025-10-27 21:56:30 -0400 134)     display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 135)     align-items: stretch; /* Make cards match height */
+6e02ec31 (Manihams         2025-10-27 21:56:30 -0400 136)     gap: 16px;
+6e02ec31 (Manihams         2025-10-27 21:56:30 -0400 137)     margin-bottom: 16px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 138) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 139) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 140) .top-sites-card {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 141)     flex: 2; /* Gives Top Sites chart more space */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 142)     min-width: 300px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 143) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 144) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 145) .pie-chart-card {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 146)     flex: 1; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 147)     min-width: 250px;
+6e02ec31 (Manihams         2025-10-27 21:56:30 -0400 148)     height: auto;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 149) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 150) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 151) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 152) /* --- Top Sites List Customization --- */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 153) .top-sites-list {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 154)     padding-left: 0;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 155)     list-style: none;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 156)     flex-grow: 1;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 157) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 158) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 159) .top-sites-list li {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 160)     margin: 4px 0 !important;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 161)     font-size: 0.95rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 162)     display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 163)     align-items: center;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 164)     padding: 4px 0;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 165)     border-bottom: 1px dashed #e5e7eb;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 166) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 167) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 168) .top-sites-list li:last-child {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 169)     border-bottom: none;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 170) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 171) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 172) .sort-controls {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 173)     margin-bottom: 12px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 174)     display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 175)     align-items: center;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 176)     gap: 8px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 177)     font-size: 0.85rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 178) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 179) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 180) .sort-controls span {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 181)     font-weight: 600;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 182) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 183) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 184) .sort-controls button {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 185)     background: #e5e7eb;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 186)     border: 1px solid #d1d5db;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 187)     padding: 4px 8px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 188)     border-radius: 4px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 189)     cursor: pointer;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 190)     font-size: 0.8rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 191)     color: #1f2937;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 192)     transition: background 0.2s;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 193) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 194) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 195) .sort-controls button.active {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 196)     background: #3b82f6; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 197)     color: white;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 198)     border-color: #3b82f6;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 199)     font-weight: bold;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 200) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 201) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 202) .text-center-note {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 203)     text-align: center; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 204)     margin: 20px 0; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 205)     color: #6b7280;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 206)     font-style: italic;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 207) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 208) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 209) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 210) /* --- Charts --- */
+6e02ec31 (Manihams         2025-10-27 21:56:30 -0400 211)  .chart-card { height: auto; } 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 212) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 213) .large-chart-card {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 214)     height: 350px; /* Taller chart for daily activity */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 215)     min-height: 350px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 216) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 217) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 218) .chart-wrapper { 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 219)     flex-grow: 1;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 220)     position: relative; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 221)     padding-top: 10px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 222) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 223) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 224) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 225) /* --- Domain Table and Filter --- */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 226) .domain-table-header {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 227)     display: flex;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 228)     justify-content: space-between;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 229)     align-items: center;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 230)     margin-bottom: 10px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 231)     flex-wrap: wrap;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 232)     gap: 10px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 233) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 234) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 235) .filter-control label {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 236)     font-weight: 600;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 237)     margin-right: 8px;
+b2e6b8cc (Manihams         2025-10-13 13:10:07 -0400 238)     font-size: 0.9rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 239) }
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 240) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 241) .filter-control select {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 242)     padding: 6px 10px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 243)     border-radius: 4px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 244)     border: 1px solid #d1d5db;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 245)     background: #fff;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 246)     color: #111827;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 247)     font-size: 0.9rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 248)     cursor: pointer;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 249)     min-width: 200px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 250) }
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 251) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 252) .domain-table {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 253)   width: 100%;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 254)   border-collapse: collapse;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 255)   font-size: 0.9rem;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 256)   table-layout: fixed;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 257) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 258) .domain-table th, .domain-table td {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 259)   text-align: left;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 260)   padding: 8px 10px;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 261)   border-bottom: 1px solid #eee;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 262)   overflow: hidden;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 263)   text-overflow: ellipsis;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 264)   white-space: nowrap;
+a68421f4 (Manihams         2025-10-27 18:53:53 -0400 265) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 266) .domain-table th { font-weight: 600; background: #f3f4f6; }
+a68421f4 (Manihams         2025-10-27 18:53:53 -0400 267) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 268) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 269) /* --- Dark Mode Styles --- */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 270) body.dark-mode .stats-container {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 271)     background: #1f2937;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 272)     color: #f3f4f6;
+a68421f4 (Manihams         2025-10-27 18:53:53 -0400 273) }
+a68421f4 (Manihams         2025-10-27 18:53:53 -0400 274) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 275) body.dark-mode .card {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 276)     background: #374151;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 277)     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 278) }
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 279) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 280) body.dark-mode .metric-note, body.dark-mode .text-center-note {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 281)     color: #9ca3af;
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 282) }
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 283) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 284) /* Dark Mode Header Bar */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 285) body.dark-mode .header-bar {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 286)     background: #2b3544;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 287)     box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 288) }
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 289) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 290) body.dark-mode .metric-chip {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 291)     background: #4b5563;
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 292) }
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 293) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 294) body.dark-mode .metric-label {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 295)     color: #d1d5db;
+2fb2b37a (Alexander Rother 2025-10-13 22:38:06 -0400 296) }
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 297) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 298) body.dark-mode .metric-value {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 299)     color: #f3f4f6;
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 300) }
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 301) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 302) /* Dark Mode Controls */
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 303) body.dark-mode .control-btn, body.dark-mode .mode-toggle {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 304)     background: #4b5563;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 305)     color: #f3f4f6;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 306) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 307) body.dark-mode .control-btn:hover {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 308)     background: #6b7280;
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 309) }
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 310) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 311) body.dark-mode .filter-control select {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 312)     background: #4b5563;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 313)     color: #f3f4f6;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 314)     border-color: #6b7280;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 315) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 316) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 317) body.dark-mode .top-sites-list li {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 318)     border-bottom: 1px dashed #4b5563;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 319) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 320) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 321) body.dark-mode .domain-table th, body.dark-mode .domain-table td {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 322)     border-bottom: 1px solid #4b5563;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 323) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 324) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 325) body.dark-mode .domain-table th { 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 326)     background: #4b5563;
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 327) }
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 328) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 329) body.dark-mode .sort-controls button {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 330)     background: #4b5563;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 331)     border-color: #6b7280;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 332)     color: #f3f4f6;
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 333) }
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 334) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 335) body.dark-mode .sort-controls button.active {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 336)     background: #60a5fa; 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 337)     border-color: #60a5fa;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 338)     color: #1f2937;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 339) }
+src/popup.js
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   1) import React, { useState, useEffect } from "react";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   2) import ReactDOM from "react-dom/client";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   3) import { blocked_get, blocked_add, blocked_remove } from "./storage.js";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   4) import "./popup.css";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400   5) 
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400   6) 
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400   7) const getDomain = (url) => {
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400   8)   try {
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400   9)     return new URL(url).hostname;
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  10)   } catch {
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  11)     return "Loading...";
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  12)   }
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  13) };
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  14) 
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  15) const truncateString = (str, maxLength) => {
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  16)   if (str.length > maxLength) {
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  17)     return str.substring(0, maxLength) + '...';
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  18)   }
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  19)   return str;
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  20) };
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400  21) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  22) // ---------------- Focus Tracker ----------------
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  23) function FocusTracker() {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  24)   const [isExtensionActive, setIsExtensionActive] = useState(false);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  25)   const [tabSwitches, setTabSwitches] = useState(0);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  26)   const [currentTab, setCurrentTab] = useState("Loading...");
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  27)   const [time, setTime] = useState(0);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  28)   const [tabTime, setTabTime] = useState(0);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  29)   const [distractionWarnings, setDistractionWarnings] = useState(0);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  30) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  31)   useEffect(() => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  32)     // On load, get current tab and status
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  33)     if (typeof chrome !== "undefined" && chrome.tabs) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  34)       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+b9fb78d7 (Alexander Rother 2025-10-28 01:34:13 -0400  35)         if (tabs[0]) setCurrentTab(tabs[0].url);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  36)       });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  37)     }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  38) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  39)     if (typeof chrome !== "undefined" && chrome.runtime) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  40)       chrome.runtime.sendMessage({ type: "GET_STATUS" }, (response) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  41)         if (response) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  42)           setIsExtensionActive(response.isTracking || false);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  43)           setTabSwitches(response.tabSwitches || 0);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  44)           setDistractionWarnings(response.distractionWarnings || 0);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  45)         }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  46)       });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  47) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  48)       chrome.storage.session.get(
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  49)         ["isExtensionActive", "StartTime", "StopTime", "tabStartTimes", "tabStopTimes"],
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  50)         (res) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  51)           setIsExtensionActive(res.isExtensionActive !== false);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  52)           
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  53)           if (res.StartTime && !res.StopTime) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  54)             setTime(Date.now() - res.StartTime);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  55)           } else if (res.StartTime && res.StopTime) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  56)             setTime(res.StopTime - res.StartTime);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  57)           }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  58) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  59)           // Per-tab timers
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  60)           const starts = res.tabStartTimes || {};
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  61)           const stops = res.tabStopTimes || {};
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  62)           const start = starts[currentTab];
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  63)           const stop = stops[currentTab];
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  64)           if (start && !stop) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  65)             setTabTime(Date.now() - start);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  66)           } else if (start && stop) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  67)             setTabTime(stop - start);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  68)           }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  69)         }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  70)       );
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  71)     }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  72)   }, [currentTab]);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  73) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  74)   useEffect(() => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  75)     let intervalId;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  76)     if (isExtensionActive) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  77)       intervalId = setInterval(() => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  78)         setTime((t) => t + 10);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  79)         
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  80)         // Update current tab timer
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  81)         chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  82)           const starts = res.tabStartTimes || {};
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  83)           const stops = res.tabStopTimes || {};
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  84)           const start = starts[currentTab];
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  85)           const stop = stops[currentTab];
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  86)           if (start && !stop) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  87)             setTabTime(Date.now() - start);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  88)           }
+1f31ddd8 (UltraStarcastic  2025-10-28 09:06:48 -0400  89)           chrome.storage.sync.set({ StopTime: stopTime });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  90)         });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  91)       }, 10);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  92)     }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  93)     return () => clearInterval(intervalId);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  94)   }, [isExtensionActive, currentTab]);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  95) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  96)   const toggleTracking = () => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  97)     const messageType = isExtensionActive ? "STOP_TRACKING" : "START_TRACKING";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  98)     const newIsExtensionActive = !isExtensionActive;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400  99) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 100)     chrome.runtime.sendMessage({ type: messageType }, (response) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 101)       if (response && response.success) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 102)         setIsExtensionActive(newIsExtensionActive);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 103)         if (newIsExtensionActive) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 104)           setTabSwitches(0);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 105)           setTime(0);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 106)         }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 107)       }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 108)     });
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 109) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 110)     // Update storage
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 111)     chrome.storage.session.set({ isExtensionActive: newIsExtensionActive });
+262b99e9 (Dmengeli04       2025-10-27 15:02:34 -0400 112) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 113)     if (newIsExtensionActive) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 114)       // Starting tracking
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 115)       chrome.storage.session.set({ 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 116)         StartTime: Date.now() - time, 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 117)         StopTime: null 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 118)       });
+1f31ddd8 (UltraStarcastic  2025-10-28 09:06:48 -0400 119)       chrome.storage.sync.set({ 
+1f31ddd8 (UltraStarcastic  2025-10-28 09:06:48 -0400 120)         StartTime: Date.now() - time, 
+1f31ddd8 (UltraStarcastic  2025-10-28 09:06:48 -0400 121)         StopTime: null 
+1f31ddd8 (UltraStarcastic  2025-10-28 09:06:48 -0400 122)       });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 123)       chrome.storage.session.get(["tabStartTimes", "tabStopTimes"], (res) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 124)         const starts = res.tabStartTimes || {};
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 125)         const stops = res.tabStopTimes || {};
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 126)         starts[currentTab] = Date.now() - tabTime;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 127)         stops[currentTab] = null;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 128)         chrome.storage.session.set({ tabStartTimes: starts, tabStopTimes: stops });
+1f31ddd8 (UltraStarcastic  2025-10-28 09:06:48 -0400 129)         chrome.storage.local.set({ tabStartTimes: starts, tabStopTimes: stops });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 130)       });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 131)     } else {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 132)       // Stopping tracking
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 133)       chrome.storage.session.get(["StartTime"], (res) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 134)         const stopTime = (res.StartTime || 0) + time;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 135)         chrome.storage.session.set({ StopTime: stopTime });
+1f31ddd8 (UltraStarcastic  2025-10-28 09:06:48 -0400 136)         chrome.storage.sync.set({ StopTime: stopTime });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 137)       });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 138)       
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 139)       // Stop current tab timer
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 140)       chrome.storage.session.get(["tabStopTimes"], (res) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 141)         const stops = res.tabStopTimes || {};
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 142)         stops[currentTab] = Date.now();
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 143)         chrome.storage.session.set({ tabStopTimes: stops });
+1f31ddd8 (UltraStarcastic  2025-10-28 09:06:48 -0400 144)         chrome.storage.local.set({ tabStopTimes: stops });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 145)       });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 146)     }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 147)   };
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 148) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 149) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 150)   const formatTime = (ms) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 151)     const h = Math.floor(ms / 3600000);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 152)     const m = Math.floor((ms % 3600000) / 60000);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 153)     const s = Math.floor((ms % 60000) / 1000);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 154)     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 155)   };
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 156) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 157)   return (
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 158)     <div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 159)       <div className="card">
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 160) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 161)         {/* Distraction Score */}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 162)         <DistractionScore
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 163)           time={time}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 164)           tabSwitches={tabSwitches}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 165)           distractionWarnings={distractionWarnings}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 166)         />
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 167) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 168)         <button
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 169)           onClick={toggleTracking}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 170)           className={isExtensionActive ? "red" : "green"}
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 171)         >        
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 172)           {isExtensionActive ? "Stop" : "Start"}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 173)         </button>
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 174) 
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 175)         <timer>{formatTime(time)}</timer>
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 176)         
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 177)       </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 178)     </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 179)   );
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 180) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 181) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 182) // ---------------- Distraction Score ----------------
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 183) function DistractionScore({ time, tabSwitches, distractionWarnings }) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 184)   const timeMinutes = Math.max(time / 60000, 0.1);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 185)   const a = 0.25;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 186)   const b = 3;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 187)   const score = Math.round(
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 188)     100 * (timeMinutes / (timeMinutes + (a * tabSwitches + b * distractionWarnings)))
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 189)   );
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 190) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 191)   let color = "#4caf50";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 192)   let label = "Good";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 193)   if (score < 60) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 194)     color = "#f44336";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 195)     label = "Bad";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 196)   } else if (score < 80) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 197)     color = "#ffb300";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 198)     label = "Okay";
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 199)   }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 200) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 201)   const radius = 45;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 202)   const circumference = 2 * Math.PI * radius;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 203)   const offset = circumference - (score / 100) * circumference;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 204) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 205)   return (
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 206)     <div className="distraction-score">
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 207)       <div className="circle">
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 208)         <svg width="120" height="120">
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 209)           <circle
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 210)             cx="60"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 211)             cy="60"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 212)             r={radius}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 213)             stroke="#e0e0e0"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 214)             strokeWidth="10"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 215)             fill="none"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 216)           />
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 217)           <circle
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 218)             cx="60"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 219)             cy="60"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 220)             r={radius}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 221)             stroke={color}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 222)             strokeWidth="10"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 223)             fill="none"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 224)             strokeDasharray={circumference}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 225)             strokeDashoffset={offset}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 226)             strokeLinecap="round"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 227)             style={{ transition: "stroke-dashoffset 0.5s ease, stroke 0.3s ease" }}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 228)           />
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 229)         </svg>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 230)         <div className="score-text">
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 231)           <span className="score-number">{score}</span>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 232)           <span className="score-label" style={{ color }}>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 233)             {label}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 234)           </span>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 235)         </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 236)       </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 237)     </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 238)   );
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 239) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 240) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 241) // ---------------- Theme Toggle ----------------
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 242) function ThemeToggle({ theme, setTheme }) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 243)   return (
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 244)     <button
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 245)       className="toggle-btn"
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 246)       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 247)     >
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 248)       {"☼"}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 249)     </button>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 250)   );
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 251) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 252) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 253) // ---------------- Page Buttons ----------------
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 254) function PageButtons({ theme }) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 255)   const openPage = (page) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 256)     const url = chrome.runtime.getURL(`${page}.html`);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 257)     window.open(url, "_blank");
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 258)   };
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 259) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 260)   const buttonStyle = {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 261)     fontSize: "15px",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 262)     backgroundColor: theme === "dark" ? "#1e1e1e" : "#fafafa",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 263)     color: theme === "dark" ? "#fff" : "#000",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 264)     border: "2px solid",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 265)     borderColor: theme === "dark" ? "#353535" : "#e5e5e5",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 266)     borderRadius: "8px",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 267)     cursor: "pointer",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 268)     fontWeight: "600",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 269)     display: "flex",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 270)     alignItems: "center",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 271)     justifyContent: "center",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 272)   };
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 273) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 274)   return (
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 275)     <div
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 276)       style={{
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 277)         marginTop: "10px",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 278)         display: "flex",
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 279)         gap: "17px",
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 280)         flex: 1,
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 281)         justifyContent: "center",
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 282)       }}
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 283)     >
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 284)       <button onClick={() => openPage("blocker")} style={buttonStyle}>
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 285)         <svg fill={(theme === "dark" ? "#ffffff" : "#000000")} width="20px" height="20px" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path d="M500 930q-117 0-217-59-97-57-154-154-59-100-59-217t59-217q57-97 154-154 100-59 217-59t217 59q97 57 154 154 59 100 59 217t-59 217q-57 97-154 154-100 59-217 59zM320 760q39 28 85.5 42.5T500 817q86 0 160-44 71-42 113-113 44-74 44-160 0-48-14.5-94.5T760 320zm180-577q-86 0-160 44-71 42-113 113-44 74-44 160 0 48 14.5 94.5T240 680l440-440q-39-28-85.5-42.5T500 183z"/></svg>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 286)       </button>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 287)       <button onClick={() => openPage("notes")} style={buttonStyle}>
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 288)         <svg width="20px" height="20px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="none" stroke={(theme === "dark" ? "#ffffff" : "#000000")} stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 289)         <polyline points="7.25 14.25,2.75 14.25,2.75 1.75,13.25 1.75,13.25 9.25"/>
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 290)         <path d="m9.75 12.75 1.5 1.5 3-2.5m-8.5-4h4.5m-4.5 3h1.5m-1.5-6h4.5"/>
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 291)         </svg>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 292)       </button>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 293)       <button onClick={() => openPage("stats")} style={buttonStyle}>
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 294)         <svg fill={(theme === "dark" ? "#ffffff" : "#000000")} width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 295)         <path id="stats1" class="cls-1" d="M1091,264h-22a1,1,0,0,1-1-1V241a1,1,0,0,1,2,0v21h21A1,1,0,0,1,1091,264Zm-5-4a1,1,0,0,1-1-1V248a1,1,0,0,1,2,0v11A1,1,0,0,1,1086,260Zm-4,0h0a1,1,0,0,1-1-1v-7a1,1,0,0,1,1-1h0a1,1,0,0,1,1,1v7A1,1,0,0,1,1082,260Zm-4,0a1,1,0,0,1-1-1V243a1,1,0,0,1,2,0v16A1,1,0,0,1,1078,260Zm-4,0a1,1,0,0,1-1-1V249a1,1,0,0,1,2,0v10A1,1,0,0,1,1074,260Z" transform="translate(-1068 -240)"/>
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 296)         </svg>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 297)       </button>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 298)     </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 299)   );
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 300) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 301) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 302) // ---------------- Main App ----------------
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 303) function MainApp() {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 304)   const [theme, setTheme] = React.useState(null);
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 305)   const [currentTab, setCurrentTab] = useState("Loading...");
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 306) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 307)   React.useEffect(() => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 308)     if (typeof chrome !== "undefined" && chrome.storage) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 309)       chrome.storage.local.get("theme", (result) => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 310)         setTheme(result.theme || "light");
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 311)       });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 312)     } else {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 313)       setTheme("light");
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 314)     }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 315)   }, []);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 316) 
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 317)   
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 318)   React.useEffect(() => {
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 319)     // On load, get current tab and status
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 320)     if (typeof chrome !== "undefined" && chrome.tabs) {
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 321)       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 322)         if (tabs[0]) setCurrentTab(tabs[0].url);
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 323)       });
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 324)     }
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 325)   }, []);
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 326) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 327)   React.useEffect(() => {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 328)     if (theme) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 329)       document.documentElement.setAttribute("data-theme", theme);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 330)       if (typeof chrome !== "undefined" && chrome.storage) {
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 331)         chrome.storage.local.set({ theme });
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 332)       }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 333)     }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 334)   }, [theme]);
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 335) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 336)   if (!theme) return null;
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 337) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 338)   return (
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 339)     <div className="app-container">
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 340)       <div className="header">
+cb0f78b1 (Alexander Rother 2025-10-28 01:29:45 -0400 341)         <h1 className="header-title">{truncateString(getDomain(currentTab), 15)}</h1>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 342)         <ThemeToggle theme={theme} setTheme={setTheme} />
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 343)       </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 344) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 345)       <div className="content">
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 346)         <FocusTracker />
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 347)         <PageButtons theme={theme} />
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 348)       </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 349)     </div>
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 350)   );
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 351) }
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 352) 
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 353) const root = ReactDOM.createRoot(document.getElementById("root"));
+3e9510e4 (Manihams         2025-10-27 21:43:29 -0400 354) root.render(<MainApp />);
+webpack.config.js
+457f4141 (Manihams    2025-09-25 18:09:06 -0400 30)       },
+457f4141 (Manihams    2025-09-25 18:09:06 -0400 31)       {
+457f4141 (Manihams    2025-09-25 18:09:06 -0400 32)         test: /\.css$/,
+457f4141 (Manihams    2025-09-25 18:09:06 -0400 33)         use: ['style-loader', 'css-loader']
