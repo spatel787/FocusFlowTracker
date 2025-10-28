@@ -198,3 +198,11 @@ export function notes_get() {
     });
   });
 }
+
+export function time_get() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get({TimeStart, TimeStop}, (res) => {
+      resolve(res.TimeStop - res.TimeStart);
+    });
+  });
+}
