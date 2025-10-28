@@ -49,7 +49,7 @@ const TOP_SITES_LIMIT = 10;
 function processHistoryResults(results) {
     const domainMap = new Map();
     let totalVisits = 0;
-    
+
     // We only need domain totals and category data for the remaining charts/tables
     results.forEach(item => {
         if (!item.url || !item.visitCount) return;
@@ -132,11 +132,37 @@ function SiteListItem({ site, mode }) {
             </a>
             <span style={{ fontWeight: 'bold', flexShrink: 0 }}>
                 ({site.visits} visits)
+                ({DisplayTime(site.domain)} time spent)
             </span>
         </li>
     );
 }
 
+function DisplayTime({site}) {
+  let now = 0;
+  chrome.storage.local.get(["tabStartTimes", "tabStopTimes"], (res) => {
+    if (res) {
+        const starts = res.tabStartTimes || {};
+        const stops = res.tabStopTimes || {};
+        if (stops[site]) {
+          now = stops[site] - starts[site];
+        }
+    }
+  });
+  if (now == 0) {
+    return ("Unknown")
+  }
+  else {
+    return (formatTime(now))
+  }
+}
+
+const formatTime = (ms) => {
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};
 
 // --- Main App Component ---
 
