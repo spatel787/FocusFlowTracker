@@ -131,7 +131,10 @@ h3 { margin: 0 0 10px; font-size: 1.1rem; font-weight: 600; }
 }
 
 .main-content-row {
+    display: flex;
     align-items: stretch; /* Make cards match height */
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .top-sites-card {
@@ -142,6 +145,7 @@ h3 { margin: 0 0 10px; font-size: 1.1rem; font-weight: 600; }
 .pie-chart-card {
     flex: 1; 
     min-width: 250px;
+    height: auto;
 }
 
 
@@ -204,7 +208,7 @@ h3 { margin: 0 0 10px; font-size: 1.1rem; font-weight: 600; }
 
 
 /* --- Charts --- */
-.chart-card { height: 300px; } 
+ .chart-card { height: auto; } 
 
 .large-chart-card {
     height: 350px; /* Taller chart for daily activity */
