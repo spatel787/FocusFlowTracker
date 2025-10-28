@@ -4,11 +4,20 @@
   "version": "1.0.0",
   "description": "A productivity tool to help users track their time and minimize distractions",
 
+  "declarative_net_request" : {
+    "rule_resources" : [{
+      "id": "ruleset_1",
+      "enabled": true,
+      "path": "easylist.txt"
+    }]
+  },
+
   "permissions": [
     "storage",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
     "tabs",
+    "declarativeNetRequest",
     "activeTab",
     "notifications",
     "history"
