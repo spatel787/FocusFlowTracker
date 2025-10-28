@@ -1,0 +1,223 @@
+storage.js   (siddh patel on 10/25/2025 at 19:40): export function blocked_add(url, action = 'warn') {
+storage.js   (siddh patel on 10/25/2025 at 19:40):       //This is to check if site already exists
+storage.js   (siddh patel on 10/25/2025 at 19:40):       const existingIndex = blockedSites.findIndex(site => 
+storage.js   (siddh patel on 10/25/2025 at 19:40):         typeof site === 'string' ? site === url : site.url === url
+storage.js   (siddh patel on 10/25/2025 at 19:40):       );
+storage.js   (siddh patel on 10/25/2025 at 19:40):       if (existingIndex === -1) {
+storage.js   (siddh patel on 10/25/2025 at 19:40):         // Adding new sit with action
+storage.js   (siddh patel on 10/25/2025 at 19:40):         blockedSites.push({ url, action });
+storage.js   (siddh patel on 10/25/2025 at 19:40):         resolve(); // Site already exists, do not replicate again
+storage.js   (siddh patel on 10/25/2025 at 19:40):       const blockedSites = data.blockedSites.filter((site) => {
+storage.js   (siddh patel on 10/25/2025 at 19:40):         //This portion is for handeling both old and new string format
+storage.js   (siddh patel on 10/25/2025 at 19:40):         const siteUrl = typeof site === 'string' ? site : site.url;
+storage.js   (siddh patel on 10/25/2025 at 19:40):         return siteUrl !== url;
+storage.js   (siddh patel on 10/25/2025 at 19:40):       });
+storage.js   (siddh patel on 10/25/2025 at 19:40):       // This portion convert old string format to new object format
+storage.js   (siddh patel on 10/25/2025 at 19:40):       const normalizedSites = data.blockedSites.map(site => {
+storage.js   (siddh patel on 10/25/2025 at 19:40):         if (typeof site === 'string') {
+storage.js   (siddh patel on 10/25/2025 at 19:40):           return { url: site, action: 'warn' };
+storage.js   (siddh patel on 10/25/2025 at 19:40):         }
+storage.js   (siddh patel on 10/25/2025 at 19:40):         return site;
+storage.js   (siddh patel on 10/25/2025 at 19:40):       });
+storage.js   (siddh patel on 10/25/2025 at 19:40):       resolve(normalizedSites);
+background.js (siddh patel on 10/26/2025 at 14:09): restoreTrackingState();
+background.js (siddh patel on 10/25/2025 at 19:40): // This function checks if a site should be warned about or blocked
+background.js (siddh patel on 10/25/2025 at 19:40):     // Normalize sites to handle both old and new format
+background.js (siddh patel on 10/25/2025 at 19:40):     const normalizedSites = data.blockedSites.map(site => {
+background.js (siddh patel on 10/25/2025 at 19:40):       if (typeof site === 'string') {
+background.js (siddh patel on 10/25/2025 at 19:40):         return { url: site, action: 'warn' };
+background.js (siddh patel on 10/25/2025 at 19:40):       }
+background.js (siddh patel on 10/25/2025 at 19:40):       return site;
+background.js (siddh patel on 10/25/2025 at 19:40):     });
+background.js (siddh patel on 10/25/2025 at 19:40):     const matchingSite = normalizedSites.find(site =>
+background.js (siddh patel on 10/25/2025 at 19:40):       domain.includes(site.url) || site.url.includes(domain)
+background.js (siddh patel on 10/25/2025 at 19:40):     if (matchingSite && matchingSite.action === 'warn') {
+background.js (siddh patel on 10/26/2025 at 14:09):     //fix for tracker randomly stopping
+background.js (siddh patel on 10/26/2025 at 14:09):     chrome.storage.session.set({
+background.js (siddh patel on 10/26/2025 at 14:09):     isTracking: true,
+background.js (siddh patel on 10/26/2025 at 14:09):     sessionStart: sessionStart,
+background.js (siddh patel on 10/26/2025 at 14:09):     tabSwitches: 0,
+background.js (siddh patel on 10/26/2025 at 14:09):     distractionWarnings: 0
+background.js (siddh patel on 10/26/2025 at 14:09):   });
+background.js (siddh patel on 10/26/2025 at 14:09):     chrome.storage.session.set({ isTracking: false }); //Fix for tracker randomly stopping
+background.js (siddh patel on 10/25/2025 at 19:40):   // Add this case inside your existing onMessage listener:
+background.js (siddh patel on 10/25/2025 at 19:40): if (message.type === 'UPDATE_BLOCKING_RULES') {
+background.js (siddh patel on 10/25/2025 at 19:40):   updateBlockingRules(message.sites);
+background.js (siddh patel on 10/25/2025 at 19:40):   sendResponse({success: true});
+background.js (siddh patel on 10/25/2025 at 19:40): }
+background.js (siddh patel on 10/26/2025 at 14:09):     chrome.storage.session.set({ tabSwitches });
+background.js (siddh patel on 10/26/2025 at 14:09):   restoreTrackingState();
+background.js (siddh patel on 10/26/2025 at 14:09):  restoreTrackingState();
+background.js (siddh patel on 10/25/2025 at 19:40):           console.log('Cleared', ruleIds.length, 'old blocking rules');
+background.js (siddh patel on 10/25/2025 at 19:40):           initializeBlockingRules();
+background.js (siddh patel on 10/25/2025 at 19:40):         console.log('No old blocking rules to clear');
+background.js (siddh patel on 10/25/2025 at 19:40):         initializeBlockingRules();
+background.js (siddh patel on 10/25/2025 at 19:40): // Update blocking rules when sites list changes
+background.js (siddh patel on 10/25/2025 at 19:40): function updateBlockingRules(sites) {
+background.js (siddh patel on 10/25/2025 at 19:40):   if (!chrome.declarativeNetRequest) {
+background.js (siddh patel on 10/25/2025 at 19:40):     console.log('declarativeNetRequest not available');
+background.js (siddh patel on 10/25/2025 at 19:40):     return;
+background.js (siddh patel on 10/25/2025 at 19:40):   }
+background.js (siddh patel on 10/25/2025 at 19:40):   // Get current dynamic rules
+background.js (siddh patel on 10/25/2025 at 19:40):   chrome.declarativeNetRequest.getDynamicRules((existingRules) => {
+background.js (siddh patel on 10/25/2025 at 19:40):     const existingRuleIds = existingRules.map(rule => rule.id);
+background.js (siddh patel on 10/25/2025 at 19:40):     // Create new rules for sites with 'block' action
+background.js (siddh patel on 10/25/2025 at 19:40):     const newRules = [];
+background.js (siddh patel on 10/25/2025 at 19:40):     const blockedSites = sites.filter(site => site.action === 'block');
+background.js (siddh patel on 10/26/2025 at 13:08):      console.log('Sites to block:', blockedSites); //temp
+background.js (siddh patel on 10/25/2025 at 19:40):     blockedSites.forEach((site, index) => {
+background.js (siddh patel on 10/25/2025 at 19:40):       const ruleId = index + 1; // Start from 1
+background.js (siddh patel on 10/26/2025 at 13:08):       /*
+background.js (siddh patel on 10/25/2025 at 19:40):       newRules.push({
+background.js (siddh patel on 10/25/2025 at 19:40):         id: ruleId,
+background.js (siddh patel on 10/25/2025 at 19:40):         priority: 1,
+background.js (siddh patel on 10/25/2025 at 19:40):         action: { type: 'block' },
+background.js (siddh patel on 10/25/2025 at 19:40):         condition: {
+background.js (siddh patel on 10/25/2025 at 19:40):           urlFilter: `*://*.${site.url}/*`,
+background.js (siddh patel on 10/25/2025 at 19:40):           resourceTypes: ['main_frame']
+background.js (siddh patel on 10/25/2025 at 19:40):         }
+background.js (siddh patel on 10/25/2025 at 19:40):       });
+background.js (siddh patel on 10/26/2025 at 13:08):       */
+background.js (siddh patel on 10/26/2025 at 13:08):       // Rule for bare domain (x.com)
+background.js (siddh patel on 10/26/2025 at 13:08):       //For some reason youtube.com is still not fixed. Maybe the issue is with url pattern matching only subdomains?
+background.js (siddh patel on 10/26/2025 at 13:08):   newRules.push({
+background.js (siddh patel on 10/26/2025 at 13:08):   id: ruleId * 2 - 1,
+background.js (siddh patel on 10/26/2025 at 13:08):   priority: 1,
+background.js (siddh patel on 10/26/2025 at 13:08):   action: { type: 'block' },
+background.js (siddh patel on 10/26/2025 at 13:08):   condition: {
+background.js (siddh patel on 10/26/2025 at 13:08):     urlFilter: `*://${site.url}/*`,
+background.js (siddh patel on 10/26/2025 at 13:08):     resourceTypes: ['main_frame']
+background.js (siddh patel on 10/26/2025 at 13:08):   }
+background.js (siddh patel on 10/26/2025 at 13:08): });
+background.js (siddh patel on 10/26/2025 at 13:08):   // Rule for subdomains (www.youtube.com, m.youtube.com, etc)
+background.js (siddh patel on 10/26/2025 at 13:08):   newRules.push({
+background.js (siddh patel on 10/26/2025 at 13:08):   id: ruleId * 2,
+background.js (siddh patel on 10/26/2025 at 13:08):   priority: 1,
+background.js (siddh patel on 10/26/2025 at 13:08):   action: { type: 'block' },
+background.js (siddh patel on 10/26/2025 at 13:08):   condition: {
+background.js (siddh patel on 10/26/2025 at 13:08):     urlFilter: `*://*.${site.url}/*`,
+background.js (siddh patel on 10/26/2025 at 13:08):     resourceTypes: ['main_frame']
+background.js (siddh patel on 10/26/2025 at 13:08):   }
+background.js (siddh patel on 10/26/2025 at 13:08): });
+background.js (siddh patel on 10/26/2025 at 13:08): });
+background.js (siddh patel on 10/26/2025 at 13:08):  console.log('New rules to add:', newRules); //temp
+background.js (siddh patel on 10/25/2025 at 19:40):     // Update rules: remove all existing, add new ones
+background.js (siddh patel on 10/25/2025 at 19:40):     chrome.declarativeNetRequest.updateDynamicRules({
+background.js (siddh patel on 10/25/2025 at 19:40):       removeRuleIds: existingRuleIds,
+background.js (siddh patel on 10/25/2025 at 19:40):       addRules: newRules
+background.js (siddh patel on 10/25/2025 at 19:40):     }, () => {
+background.js (siddh patel on 10/25/2025 at 19:40):       if (chrome.runtime.lastError) {
+background.js (siddh patel on 10/25/2025 at 19:40):         console.error('Error updating blocking rules:', chrome.runtime.lastError);
+background.js (siddh patel on 10/25/2025 at 19:40):       } else {
+background.js (siddh patel on 10/25/2025 at 19:40):         console.log(`Updated blocking rules: ${newRules.length} sites blocked`);
+background.js (siddh patel on 10/25/2025 at 19:40):       }
+background.js (siddh patel on 10/25/2025 at 19:40):     });
+background.js (siddh patel on 10/25/2025 at 19:40):   });
+background.js (siddh patel on 10/25/2025 at 19:40): }
+background.js (siddh patel on 10/25/2025 at 19:40): // Initialize blocking rules from stored sites
+background.js (siddh patel on 10/25/2025 at 19:40): function initializeBlockingRules() {
+background.js (siddh patel on 10/25/2025 at 19:40):   chrome.storage.sync.get({ blockedSites: [] }, (data) => {
+background.js (siddh patel on 10/25/2025 at 19:40):     const normalizedSites = data.blockedSites.map(site => {
+background.js (siddh patel on 10/25/2025 at 19:40):       if (typeof site === 'string') {
+background.js (siddh patel on 10/25/2025 at 19:40):         return { url: site, action: 'warn' };
+background.js (siddh patel on 10/25/2025 at 19:40):       }
+background.js (siddh patel on 10/25/2025 at 19:40):       return site;
+background.js (siddh patel on 10/25/2025 at 19:40):     });
+background.js (siddh patel on 10/25/2025 at 19:40):     updateBlockingRules(normalizedSites);
+background.js (siddh patel on 10/25/2025 at 19:40):     console.log('Initialized blocking rules for', normalizedSites.length, 'sites');
+background.js (siddh patel on 10/25/2025 at 19:40):   });
+background.js (siddh patel on 10/25/2025 at 19:40): }
+background.js (siddh patel on 10/26/2025 at 14:09): function restoreTrackingState() {
+background.js (siddh patel on 10/26/2025 at 14:09):   chrome.storage.session.get(['isTracking', 'sessionStart', 'tabSwitches', 'distractionWarnings'], (data) => {
+background.js (siddh patel on 10/26/2025 at 14:09):     if (data.isTracking) {
+background.js (siddh patel on 10/26/2025 at 14:09):       isTracking = true;
+background.js (siddh patel on 10/26/2025 at 14:09):       sessionStart = data.sessionStart || Date.now();
+background.js (siddh patel on 10/26/2025 at 14:09):       tabSwitches = data.tabSwitches || 0;
+background.js (siddh patel on 10/26/2025 at 14:09):       distractionWarnings = data.distractionWarnings || 0;
+background.js (siddh patel on 10/26/2025 at 14:09):       startKeepAlive();
+background.js (siddh patel on 10/26/2025 at 14:09):       console.log('Restored tracking state active');
+background.js (siddh patel on 10/26/2025 at 14:09):     }
+background.js (siddh patel on 10/26/2025 at 14:09):   });
+background.js (siddh patel on 10/26/2025 at 14:09): }
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   const [newAction, setNewAction] = useState("warn");
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     //if (blockedSites.includes(siteToAdd)) {
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     const existingSite = blockedSites.find(site => site.url === siteToAdd);
+blocker.js   (siddh patel on 10/25/2025 at 19:40): if (existingSite) {
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     //  alert("This site is already blocked!");
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     alert("This site is already in the list!");
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     //await blocked_add(siteToAdd);
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     await blocked_add(siteToAdd, newAction);
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     //setBlockedSites([...blockedSites, siteToAdd]);
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     const updatedSites = await blocked_get();
+blocker.js   (siddh patel on 10/25/2025 at 19:40): setBlockedSites(updatedSites);
+blocker.js   (siddh patel on 10/25/2025 at 19:40): // Add this after setBlockedSites(updatedSites); in both functions:
+blocker.js   (siddh patel on 10/25/2025 at 19:40): chrome.runtime.sendMessage({ 
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   type: "UPDATE_BLOCKING_RULES", 
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   sites: updatedSites 
+blocker.js   (siddh patel on 10/25/2025 at 19:40): });
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       //setBlockedSites(blockedSites.filter((s) => s !== siteToRemove));
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       const updatedSites = await blocked_get();
+blocker.js   (siddh patel on 10/25/2025 at 19:40): setBlockedSites(updatedSites);
+blocker.js   (siddh patel on 10/25/2025 at 19:40): chrome.runtime.sendMessage({ 
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   type: "UPDATE_BLOCKING_RULES", 
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   sites: updatedSites 
+blocker.js   (siddh patel on 10/25/2025 at 19:40): });
+blocker.js   (siddh patel on 10/25/2025 at 19:40):         <div className="action-selector">
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   <label>
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     <input
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       type="radio"
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       name="action"
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       value="warn"
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       checked={newAction === "warn"}
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       onChange={(e) => setNewAction(e.target.value)}
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     />
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     Warn
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   </label>
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   <label>
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     <input
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       type="radio"
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       name="action"
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       value="block"
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       checked={newAction === "block"}
+blocker.js   (siddh patel on 10/25/2025 at 19:40):       onChange={(e) => setNewAction(e.target.value)}
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     />
+blocker.js   (siddh patel on 10/25/2025 at 19:40):     Block
+blocker.js   (siddh patel on 10/25/2025 at 19:40):   </label>
+blocker.js   (siddh patel on 10/25/2025 at 19:40): </div>
+blocker.js   (siddh patel on 10/25/2025 at 19:40):               <div key={site.url} className="site-item">
+blocker.js   (siddh patel on 10/25/2025 at 19:40):                   <span className="site-name">{site.url}</span>
+blocker.js   (siddh patel on 10/25/2025 at 19:40):                   <span className={`action-badge ${site.action}`}>{site.action}</span>
+blocker.js   (siddh patel on 10/25/2025 at 19:40):                   onClick={() => removeSite(site.url)}
+blocker.css  (siddh patel on 10/25/2025 at 19:40): /* Action selector styling */
+blocker.css  (siddh patel on 10/25/2025 at 19:40): .action-selector {
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   display: flex;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   gap: 15px;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   margin: 15px 0;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   padding: 10px;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   border: 1px solid var(--border-color);
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   border-radius: 8px;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   background: var(--card-bg);
+blocker.css  (siddh patel on 10/25/2025 at 19:40): }
+blocker.css  (siddh patel on 10/25/2025 at 19:40): .action-selector label {
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   display: flex;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   align-items: center;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   gap: 6px;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   cursor: pointer;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   font-weight: 500;
+blocker.css  (siddh patel on 10/25/2025 at 19:40): }
+blocker.css  (siddh patel on 10/25/2025 at 19:40): /* Action badge styling */
+blocker.css  (siddh patel on 10/25/2025 at 19:40): .action-badge {
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   font-size: 0.8rem;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   font-weight: 600;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   padding: 2px 8px;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   border-radius: 4px;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   margin-left: 10px;
+blocker.css  (siddh patel on 10/25/2025 at 19:40): }
+blocker.css  (siddh patel on 10/25/2025 at 19:40): .action-badge.block {
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   background-color: #fee2e2;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   color: #dc2626;
+blocker.css  (siddh patel on 10/25/2025 at 19:40): }
+blocker.css  (siddh patel on 10/25/2025 at 19:40): .action-badge.warn {
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   background-color: #fef3c7;
+blocker.css  (siddh patel on 10/25/2025 at 19:40):   color: #d97706;
+blocker.css  (siddh patel on 10/25/2025 at 19:40): }
