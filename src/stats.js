@@ -104,7 +104,7 @@ function processHistoryResults(results) {
 
 // --- Site List Item Component with Favicon Fallback ---
 
-function SiteListItem({ site, mode }) {
+function SiteListItem({ site, mode, websiteStats }) {
     const [imgSrc, setImgSrc] = useState(site.faviconUrl);
     
     const fallbackIcon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWdsb2JlIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxwYXRoIGQ9Ik0xMiAyYy00LjcgMi41LTcgOC03IDh2MGMwIDQuNyAyLjUgNyA4IDd2MGM1LjUtMi4yIDgtOC41IDgtOHYwYzAtMi43LTIuNS03LTgtN3oiLz48cGF0aCBkPSJNOSAyMi42TDEyIDE5bDMtMy42Ii8+PC9zdmc+';
@@ -133,12 +133,14 @@ function SiteListItem({ site, mode }) {
             </a>
             <span style={{ fontWeight: 'bold', flexShrink: 0 }}>
                 ({site.visits} visits)
-                ({DisplayTime(site.domain)} time spent)
+
+                ({<DisplayTime site={site.domain} websiteStats={websiteStats} />} time spent)
             </span>
         </li>
     );
 }
 
+/*
 function DisplayTime({site}) {
   let now = 0;
   chrome.storage.local.get(["tabStartTimes", "tabStopTimes"], (res) => {
@@ -155,6 +157,37 @@ function DisplayTime({site}) {
   }
   else {
     return (formatTime(now))
+  }
+}
+*/
+
+// NEW: Function to get and display website time from your tracking feature
+function DisplayTime({ site, websiteStats }) {
+  // FIX: Better handling of empty or missing stats
+  if (!websiteStats || Object.keys(websiteStats).length === 0) {
+    return "0s";
+  }
+  
+  if (!websiteStats[site]) {
+    return "0s";
+  }
+  
+  const totalSeconds = websiteStats[site];
+  return formatTimeFromSeconds(totalSeconds);
+}
+
+// NEW: Format seconds to readable time (different from the existing formatTime which uses milliseconds)
+function formatTimeFromSeconds(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  
+  if (h > 0) {
+    return `${h}h ${m}m`;
+  } else if (m > 0) {
+    return `${m}m ${s}s`;
+  } else {
+    return `${s}s`;
   }
 }
 
@@ -175,6 +208,9 @@ function StatsPage() {
     const [categoryCounts, setCategoryCounts] = useState({});
     const [domainCategoryList, setDomainCategoryList] = useState([]);
     const [topSitesData, setTopSitesData] = useState([]);
+
+    // NEW: Add website time tracking stats
+const [websiteStats, setWebsiteStats] = useState({});
     // Removed: dailyVisitData
     
     // UI States
@@ -194,6 +230,38 @@ function StatsPage() {
 
     // --- Mode/Auth Handlers ---
 
+
+    // NEW: Function to get website time tracking stats
+const fetchWebsiteStats = () => {
+    return new Promise((resolve) => {
+        // FIX: Add chrome runtime check
+        if (!chrome || !chrome.runtime) {
+            console.log('❌ Chrome runtime not available');
+            resolve({});
+            return;
+        }
+
+        chrome.runtime.sendMessage({ type: 'GET_WEBSITE_STATS' }, (response) => {
+            // FIX: Check for runtime errors
+            if (chrome.runtime.lastError) {
+                console.error('❌ Error fetching website stats:', chrome.runtime.lastError);
+                resolve({});
+                return;
+            }
+
+            if (response && response.websiteStats) {
+                setWebsiteStats(response.websiteStats);
+                console.log('✅ Website stats loaded:', response.websiteStats);
+                resolve(response.websiteStats);
+            } else {
+                console.log('⚠️ No website stats available');
+                setWebsiteStats({});
+                resolve({});
+            }
+        });
+    });
+};
+
     const toggleMode = () => {
         setMode(prevMode => {
             const newMode = prevMode === 'light' ? 'dark' : 'light';
@@ -211,7 +279,7 @@ function StatsPage() {
     }, [mode]);
 
     // --- Data Fetching and Refresh ---
-    
+    /*
     const fetchHistory = (maxResults = 5000) => {
         setLoading(true);
         const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
@@ -234,10 +302,43 @@ function StatsPage() {
             setLoading(false);
         });
     };
+    */
+    const fetchHistory = (maxResults = 5000) => {
+    setLoading(true);
+    const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
+
+    if (!chrome || !chrome.history) {
+        console.error('chrome.history not available.');
+        setLoading(false);
+        return;
+    }
+
+    // NEW: Load both history and website stats
+    Promise.all([
+        new Promise(resolve => {
+            chrome.history.search({ text: '', startTime, maxResults }, resolve);
+        }),
+        fetchWebsiteStats()
+    ]).then(([results, websiteStatsData]) => {
+        const data = processHistoryResults(results);
+
+        setUniqueCount(data.uniqueCount);
+        setCategoryCounts(data.categoryTotals);
+        setDomainCategoryList(data.domainCategoryList);
+        setTopSitesData(data.allDomainsWithData);
+        setTotalVisits(data.totalVisits);
+        setLoading(false);
+    }).catch(error => {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+    });
+};
+    
     
     useEffect(() => {
         fetchHistory();
-        setTime(time_get());
+        //setTime(time_get());
+         time_get().then(setTime);
     }, []); 
 
     // --- UI/Sort/Filter Logic ---
@@ -429,7 +530,7 @@ function StatsPage() {
 
                             <ol className="top-sites-list">
                                 {sortedTopSites.map(s => (
-                                    <SiteListItem key={s.domain} site={s} mode={mode} />
+                                    <SiteListItem key={s.domain} site={s} mode={mode} websiteStats={websiteStats} />
                                 ))}
                             </ol>
                             {sortedTopSites.length === 0 && <p className="text-center-note">No sites found in history.</p>}
@@ -467,7 +568,7 @@ function StatsPage() {
                         
                         <table className="domain-table">
                             <thead>
-                                <tr><th>Domain</th><th>Category</th><th>Visits</th></tr>
+                                <tr><th>Domain</th><th>Category</th><th>Visits</th><th>Time Spent</th></tr>
                             </thead>
                             <tbody>
                                 {filteredDomainList
@@ -476,6 +577,7 @@ function StatsPage() {
                                             <td>{row.domain}</td>
                                             <td>{row.category}</td>
                                             <td>{row.visits}</td>
+                                            <td><DisplayTime site={row.domain} websiteStats={websiteStats} /></td>
                                         </tr>
                                     ))}
                             </tbody>

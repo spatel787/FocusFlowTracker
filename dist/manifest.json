@@ -4,11 +4,13 @@
   "version": "1.0.0",
   "description": "A productivity tool to help users track their time and minimize distractions",
 
+
   "permissions": [
     "storage",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
     "tabs",
+    "declarativeNetRequest",
     "activeTab",
     "notifications",
     "history"

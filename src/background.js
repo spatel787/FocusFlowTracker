@@ -28,7 +28,120 @@ const stopKeepAlive = () => {
 let lastTimeWarned = {};     // Track cooldown per site
 let distractionWarnings = 0; // Count total warnings
 
-restoreTrackingState();
+
+// CLAUDE'S ADDITION - Website time tracking variables
+let currentWebsiteUrl = null;
+let currentWebsiteStartTime = null;
+let websiteTimeMap = new Map(); // website -> total seconds
+let saveInterval; // For periodic saving every 5 minutes
+
+//Modified here
+
+// CLAUDE'S ADDITION - Website time tracking utility functions
+function getWebsiteName(url) {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.replace(/^www\./, ''); // Remove www prefix
+  } catch (e) {
+    return null;
+  }
+}
+
+async function loadWebsiteTimeMap() {
+  try {
+    const result = await chrome.storage.local.get({ websiteTimeMap: {} });
+    websiteTimeMap = new Map(Object.entries(result.websiteTimeMap));
+    console.log('Loaded website time map:', Object.fromEntries(websiteTimeMap));
+  } catch (error) {
+    console.error('Error loading website time map:', error);
+    websiteTimeMap = new Map();
+  }
+}
+
+async function saveWebsiteTimeMap() {
+  try {
+    const objectToSave = Object.fromEntries(websiteTimeMap);
+    await chrome.storage.local.set({ websiteTimeMap: objectToSave });
+    console.log('Saved website time map:', objectToSave);
+  } catch (error) {
+    console.error('Error saving website time map:', error);
+  }
+}
+
+function startWebsiteTracking(url) {
+  if (!url || !isTracking) return;
+
+   if (url.startsWith('chrome-extension://') || 
+      url.startsWith('chrome://') || 
+      url.startsWith('edge://') || 
+      url.includes('newtab')) {
+    console.log(`Skipping tracking for: ${url}`);
+    return;
+  }
+  
+  const websiteName = getWebsiteName(url);
+  if (!websiteName) return;
+  
+  // End tracking for previous website if any
+  endCurrentWebsiteTracking();
+  
+  // Start tracking new website
+  currentWebsiteUrl = url;
+  currentWebsiteStartTime = Date.now();
+  console.log(`Started tracking time for: ${websiteName}`);
+}
+
+function endCurrentWebsiteTracking() {
+  if (!currentWebsiteUrl || !currentWebsiteStartTime) return;
+  
+  const websiteName = getWebsiteName(currentWebsiteUrl);
+  if (!websiteName) return;
+  
+  const timeSpent = Math.floor((Date.now() - currentWebsiteStartTime) / 1000); // Convert to seconds
+  if (timeSpent > 0) {
+    const currentTotal = websiteTimeMap.get(websiteName) || 0;
+    websiteTimeMap.set(websiteName, currentTotal + timeSpent);
+    console.log(`Added ${timeSpent} seconds to ${websiteName}. Total: ${currentTotal + timeSpent} seconds`);
+  }
+  
+  currentWebsiteUrl = null;
+  currentWebsiteStartTime = null;
+}
+
+function startPeriodicSaving() {
+  if (saveInterval) return; // Already started
+  
+  saveInterval = setInterval(async () => {
+    if (isTracking) {
+      // Update current website time before saving
+      if (currentWebsiteUrl && currentWebsiteStartTime) {
+        const websiteName = getWebsiteName(currentWebsiteUrl);
+        if (websiteName) {
+          const timeSpent = Math.floor((Date.now() - currentWebsiteStartTime) / 1000);
+          const currentTotal = websiteTimeMap.get(websiteName) || 0;
+          websiteTimeMap.set(websiteName, currentTotal + timeSpent);
+          currentWebsiteStartTime = Date.now(); // Reset start time
+        }
+      }
+      await saveWebsiteTimeMap();
+    }
+  }, 5 * 60 * 1000); // Every 5 minutes
+}
+
+function stopPeriodicSaving() {
+  if (saveInterval) {
+    clearInterval(saveInterval);
+    saveInterval = null;
+  }
+}
+
+//modification end here
+
+// FIX: Properly initialize on startup
+(async () => {
+  await loadWebsiteTimeMap();
+  await restoreTrackingState();
+})();
 
 //This function extracts url name from the full url
 function urlShortener(url) { 
@@ -113,6 +226,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     distractionWarnings: 0
   });
 
+  // CLAUDE'S ADDITION - Start website time tracking
+    startPeriodicSaving();
+    // Get current tab and start tracking it
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0] && tabs[0].url) {
+        startWebsiteTracking(tabs[0].url);
+      }
+    });
+
     // CLAUDE'S ADDITION - Start keep alive when tracking starts
     startKeepAlive();
     console.log('Tracking started at', new Date(sessionStart).toLocaleTimeString());
@@ -124,6 +246,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sessionStart = null;
     
     chrome.storage.session.set({ isTracking: false }); //Fix for tracker randomly stopping
+
+    // CLAUDE'S ADDITION - End website time tracking and save
+    endCurrentWebsiteTracking();
+    saveWebsiteTimeMap(); // Save immediately when stopping
+    stopPeriodicSaving();
 
     // CLAUDE'S ADDITION - Stop keep alive when tracking stops
     stopKeepAlive();
@@ -141,6 +268,45 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
   }
 
+/*
+  // CLAUDE'S ADDITION - Get website time statistics
+  if (message.type === 'GET_WEBSITE_STATS') {
+    // Update current website time before sending stats
+    if (currentWebsiteUrl && currentWebsiteStartTime && isTracking) {
+      const websiteName = getWebsiteName(currentWebsiteUrl);
+      if (websiteName) {
+        const timeSpent = Math.floor((Date.now() - currentWebsiteStartTime) / 1000);
+        const currentTotal = websiteTimeMap.get(websiteName) || 0;
+        websiteTimeMap.set(websiteName, currentTotal + timeSpent);
+        currentWebsiteStartTime = Date.now(); // Reset start time
+      }
+    }
+    
+    const stats = Object.fromEntries(websiteTimeMap);
+    sendResponse({ websiteStats: stats });
+  }*/
+  // CLAUDE'S ADDITION - Get website time statistics
+if (message.type === 'GET_WEBSITE_STATS') {
+  // Update current website time before sending stats
+  if (currentWebsiteUrl && currentWebsiteStartTime && isTracking) {
+    const websiteName = getWebsiteName(currentWebsiteUrl);
+    if (websiteName) {
+      const timeSpent = Math.floor((Date.now() - currentWebsiteStartTime) / 1000);
+      const currentTotal = websiteTimeMap.get(websiteName) || 0;
+      websiteTimeMap.set(websiteName, currentTotal + timeSpent);
+      currentWebsiteStartTime = Date.now(); // Reset start time
+    }
+  }
+  
+  // FIX: Return the in-memory map (fresh data) instead of reading from storage
+  const stats = Object.fromEntries(websiteTimeMap);
+  console.log('📊 Sending website stats:', stats);
+  sendResponse({ websiteStats: stats });
+  return true; // Keep message channel open for async response
+}
+
+
+
   // Add this case inside your existing onMessage listener:
 if (message.type === 'UPDATE_BLOCKING_RULES') {
   updateBlockingRules(message.sites);
@@ -149,6 +315,7 @@ if (message.type === 'UPDATE_BLOCKING_RULES') {
 
 });
 
+/*
 // Siddh's CODE - Track tab switches (runs even when popup closed!)
 chrome.tabs.onActivated.addListener((activeInfo) => {
   if (isTracking) {
@@ -162,28 +329,66 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
     chrome.tabs.get(activeInfo.tabId, (tab) => {
       if (tab.url) {
         checkDistraction(tab.url);
+        // CLAUDE'S ADDITION - Start tracking time for new tab
+        startWebsiteTracking(tab.url);
+      }
+    });
+  }
+});*/
+
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  if (isTracking) {
+    chrome.tabs.get(activeInfo.tabId, (tab) => {
+      if (tab.url) {
+        currentTabId = activeInfo.tabId;
+        
+        // NEW: Only count switches to real websites
+        if (!tab.url.startsWith('chrome-extension://') && 
+            !tab.url.startsWith('chrome://') && 
+            !tab.url.startsWith('edge://') && 
+            !tab.url.includes('newtab')) {
+          
+          tabSwitches++;
+          chrome.storage.session.set({ tabSwitches });
+          console.log(`Real tab switch detected! Total: ${tabSwitches}`);
+        } else {
+          console.log(`Skipped counting switch to: ${tab.url}`);
+        }
+        
+        checkDistraction(tab.url);
+        startWebsiteTracking(tab.url);
       }
     });
   }
 });
+
+
+
 
 // This function monitor when URL changes in current tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.url && isTracking) {
     console.log(`URL changed to: ${changeInfo.url}`);
     checkDistraction(changeInfo.url);
+
+    // CLAUDE'S ADDITION - Handle URL change (switch website tracking)
+    if (tabId === currentTabId) {
+      startWebsiteTracking(changeInfo.url);
+    }
   }
 });
 
 // CLAUDE'S ADDITION - Handle service worker startup
-chrome.runtime.onStartup.addListener(() => {
+chrome.runtime.onStartup.addListener(async () => {
   console.log('Background script started');
-  restoreTrackingState();
+  await loadWebsiteTimeMap(); // FIX: await the load
+  await restoreTrackingState();
 });
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
   console.log('Extension installed/updated');
- restoreTrackingState();
+  await loadWebsiteTimeMap(); // FIX: await the load
+  await restoreTrackingState();
  
   // CLEAR OLD BLOCKING RULES (from previous version that used declarativeNetRequest)
   if (chrome.declarativeNetRequest) {
@@ -290,7 +495,7 @@ function initializeBlockingRules() {
   });
 }
 
-function restoreTrackingState() {
+async function restoreTrackingState() {
   chrome.storage.session.get(['isTracking', 'sessionStart', 'tabSwitches', 'distractionWarnings'], (data) => {
     if (data.isTracking) {
       isTracking = true;
@@ -298,10 +503,22 @@ function restoreTrackingState() {
       tabSwitches = data.tabSwitches || 0;
       distractionWarnings = data.distractionWarnings || 0;
       startKeepAlive();
+
+      // CLAUDE'S ADDITION - Restore website tracking if needed
+      startPeriodicSaving();
+      // Get current active tab to start tracking
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0] && tabs[0].url) {
+          currentTabId = tabs[0].id;
+          startWebsiteTracking(tabs[0].url);
+        }
+      });
+
       console.log('Restored tracking state active');
     }
   });
 }
+
 
 
 

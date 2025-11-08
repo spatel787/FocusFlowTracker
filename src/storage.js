@@ -199,10 +199,116 @@ export function notes_get() {
   });
 }
 
+/*
 export function time_get() {
   return new Promise((resolve) => {
     chrome.storage.sync.get({TimeStart, TimeStop}, (res) => {
       resolve(res.TimeStop - res.TimeStart);
     });
+  });
+}*/
+
+export function time_get() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(["TimeStart", "TimeStop"], (res) => {
+      if (res.TimeStart && res.TimeStop) {
+        resolve(res.TimeStop - res.TimeStart);
+      } else {
+        resolve(0);
+      }
+    });
+  });
+}
+
+
+
+
+/**
+ * Gets the clean domain name from a URL for website time tracking
+ * @param {string} url The URL to parse
+ * @returns {string} The clean domain name or empty string if invalid
+ */
+function getWebsiteName(url) {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.replace(/^www\./, ''); // Remove www prefix
+  } catch (e) {
+    console.error("Invalid URL for website tracking:", url, e);
+    return "";
+  }
+}
+
+/**
+ * Loads the persistent website time map from chrome storage
+ * @returns {Promise<Map<string, number>>} A promise that resolves with the website time map
+ */
+export function websiteTimeMap_load() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get({ websiteTimeMap: {} }, (data) => {
+      const map = new Map(Object.entries(data.websiteTimeMap));
+      resolve(map);
+    });
+  });
+}
+
+/**
+ * Saves the website time map to chrome storage
+ * @param {Map<string, number>} timeMap The map to save (website -> seconds)
+ * @returns {Promise<void>} A promise that resolves when the operation is complete
+ */
+export function websiteTimeMap_save(timeMap) {
+  return new Promise((resolve) => {
+    const objectToSave = Object.fromEntries(timeMap);
+    chrome.storage.local.set({ websiteTimeMap: objectToSave }, () => {
+      console.log('Website time map saved:', objectToSave);
+      resolve();
+    });
+  });
+}
+
+/**
+ * Updates the time for a specific website in the persistent map
+ * @param {string} url The website URL
+ * @param {number} secondsToAdd Number of seconds to add to this website's total time
+ * @returns {Promise<void>} A promise that resolves when the operation is complete
+ */
+export function websiteTimeMap_updateTime(url, secondsToAdd) {
+  const websiteName = getWebsiteName(url);
+  if (!websiteName || secondsToAdd <= 0) return Promise.resolve();
+
+  return new Promise(async (resolve) => {
+    const timeMap = await websiteTimeMap_load();
+    const currentTime = timeMap.get(websiteName) || 0;
+    timeMap.set(websiteName, currentTime + secondsToAdd);
+    
+    // Save immediately for critical updates, but the periodic save will handle most cases
+    await websiteTimeMap_save(timeMap);
+    resolve();
+  });
+}
+
+/**
+ * Gets the total time spent on a specific website
+ * @param {string} url The website URL
+ * @returns {Promise<number>} A promise that resolves with the total seconds spent on this website
+ */
+export function websiteTimeMap_getTime(url) {
+  const websiteName = getWebsiteName(url);
+  if (!websiteName) return Promise.resolve(0);
+
+  return new Promise(async (resolve) => {
+    const timeMap = await websiteTimeMap_load();
+    resolve(timeMap.get(websiteName) || 0);
+  });
+}
+
+/**
+ * Gets the entire website time map as a plain object for easy display
+ * @returns {Promise<Object>} A promise that resolves with {website: totalSeconds, ...}
+ */
+export function websiteTimeMap_getAll() {
+  return new Promise(async (resolve) => {
+    const timeMap = await websiteTimeMap_load();
+    resolve(Object.fromEntries(timeMap));
   });
 }

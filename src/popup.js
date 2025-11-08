@@ -86,7 +86,7 @@ function FocusTracker() {
           if (start && !stop) {
             setTabTime(Date.now() - start);
           }
-          chrome.storage.sync.set({ StopTime: stopTime });
+          //chrome.storage.sync.set({ StopTime: stopTime });
         });
       }, 10);
     }
@@ -133,7 +133,7 @@ function FocusTracker() {
       chrome.storage.session.get(["StartTime"], (res) => {
         const stopTime = (res.StartTime || 0) + time;
         chrome.storage.session.set({ StopTime: stopTime });
-        chrome.storage.sync.set({ StopTime: stopTime });
+        chrome.storage.sync.set({ StopTime:  stopTime });
       });
       
       // Stop current tab timer
