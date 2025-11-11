@@ -31,12 +31,7 @@ function extractDomain(url) {
   }
 }
 
-function getFaviconUrl(domain) {
-    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
-        return `chrome-extension://${chrome.runtime.id}/_favicon/?pageUrl=https://${domain}/&size=16`;
-    }
-    return `https://www.google.com/s2/favicons?domain=${domain}`;
-}
+// REMOVED getFaviconUrl function
 
 const TOP_SITES_LIMIT = 10;
 
@@ -69,8 +64,8 @@ function processHistoryResults(results, categoryMap) {
 
         allDomainsWithData.push({ 
             domain, 
-            visits,
-            faviconUrl: getFaviconUrl(domain)
+            visits
+            // REMOVED faviconUrl property
         });
     });
 
@@ -96,21 +91,11 @@ function processHistoryResults(results, categoryMap) {
 
 
 function SiteListItem({ site, mode, websiteStats }) {
-    const [imgSrc, setImgSrc] = useState(site.faviconUrl);
-    const fallbackIcon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDIQIDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWdsb2JlIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxwYXRoIGQ9Ik0xMiAyYy00LjcgMi41LTcgOC03IDh2MGMwIDQuNyAyLjUgNyA4IDd2MGM1LjUtMi4yIDgtOC41IDgtOHYwYzAtMi43LTIuNS03LTgtN3oiLz48cGF0aCBkPSJNOSAyMi42TDEyIDE5bDMtMy42Ii8+PC9zdmc+';
-    
-    const handleImageError = () => {
-        if (imgSrc !== fallbackIcon) setImgSrc(fallbackIcon);
-    };
+    // REMOVED imgSrc, fallbackIcon, and handleImageError logic
 
     return (
         <li className="site-list-item">
-            <img 
-                src={imgSrc} 
-                onError={handleImageError} 
-                alt="icon" 
-                style={{ width: '16px', height: '16px', marginRight: '8px', flexShrink: 0 }} 
-            />
+            {/* REMOVED <img> tag */}
             <a 
                 href={`https://${site.domain}`} 
                 target="_blank" 
@@ -465,7 +450,7 @@ const fetchWebsiteStats = () => {
                     <div className="metric-and-control-group">
                         <div className="metric-chip">Domains: <span>{uniqueCount}</span></div>
                         <div className="metric-chip">Visits: <span>{totalVisits.toLocaleString()}</span></div>
-                        <div className="metric-chip">Time: <span>{formatTime(time)}</span></div>
+                        
                         <div className="control-group">
                             <button onClick={() => exportData('csv')} className="control-btn">⬇️ Export</button>
                             <button onClick={() => window.location.reload()} className="control-btn">🔄 Refresh</button>
