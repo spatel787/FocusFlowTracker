@@ -39,7 +39,7 @@
   "declarative_net_request" : {
     "rule_resources" : [{
       "id": "adblocker",
-      "enabled": true,
+      "enabled": false,
       "path": "adblocker.json"
     }]
   }
