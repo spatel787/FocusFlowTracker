@@ -34,6 +34,14 @@
       "resources": ["blocker.html", "blocker.js","notes.html", "notes.js", "stats.html", "stats.js", "stats.css", "styles.css", "sites.json"],
       "matches": ["<all_urls>"]
     }
-  ]
+  ],
+
+  "declarative_net_request" : {
+    "rule_resources" : [{
+      "id": "adblocker",
+      "enabled": false,
+      "path": "adblocker.json"
+    }]
+  }
 }
 
