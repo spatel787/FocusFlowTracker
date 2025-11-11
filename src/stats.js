@@ -90,30 +90,10 @@ function processHistoryResults(results, categoryMap) {
     };
 }
 
-function formatTime(ms) {
-  const h = Math.floor(ms / 3600000);
-  const m = Math.floor((ms % 3600000) / 60000);
-  const s = Math.floor((ms % 60000) / 1000);
-  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
 
-function formatTimeFromSeconds(seconds) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
-}
 
 // --- REACT COMPONENTS ---
 
-function DisplayTime({ site, websiteStats }) {
-    if (!websiteStats || !websiteStats[site]) {
-        return "0s";
-    }
-    return formatTimeFromSeconds(websiteStats[site]);
-}
 
 function SiteListItem({ site, mode, websiteStats }) {
     const [imgSrc, setImgSrc] = useState(site.faviconUrl);
@@ -211,7 +191,6 @@ function StatsPage() {
     // --- State Management ---
     const [loading, setLoading] = useState(true);
     const [categoryMap, setCategoryMap] = useState(null);
-    const [websiteStats, setWebsiteStats] = useState({});
     const [uniqueCount, setUniqueCount] = useState(0);
     const [totalVisits, setTotalVisits] = useState(0);
     const [categoryCounts, setCategoryCounts] = useState({});
@@ -219,7 +198,7 @@ function StatsPage() {
     const [topSitesData, setTopSitesData] = useState([]);
 
     // NEW: Add website time tracking stats
-const [websiteStats, setWebsiteStats] = useState({});
+    const [websiteStats, setWebsiteStats] = useState({});
     // Removed: dailyVisitData
     
     // UI States
