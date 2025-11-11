@@ -224,6 +224,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sessionStart: sessionStart,
     tabSwitches: 0,
     distractionWarnings: 0
+
+    
   });
 
   // CLAUDE'S ADDITION - Start website time tracking
@@ -239,6 +241,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     startKeepAlive();
     console.log('Tracking started at', new Date(sessionStart).toLocaleTimeString());
     sendResponse({success: true});
+
+    //enable ad blocking
+    chrome.declarativeNetRequest.updateEnabledRulesets({
+      enableRulesetIds: ["adblocker"]
+    });
   }
   
   if (message.type === 'STOP_TRACKING') {
@@ -256,6 +263,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     stopKeepAlive();
     console.log('Tracking stopped at', new Date().toLocaleTimeString());
     sendResponse({success: true});
+
+    //disable ad blocking
+    chrome.declarativeNetRequest.updateEnabledRulesets({
+      disableRulesetIds: ["adblocker"]
+    });
   }
   
   if (message.type === 'GET_STATUS') {
@@ -518,7 +530,5 @@ async function restoreTrackingState() {
     }
   });
 }
-
-
 
 
