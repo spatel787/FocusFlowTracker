@@ -31,8 +31,6 @@ function extractDomain(url) {
   }
 }
 
-// REMOVED getFaviconUrl function
-
 const TOP_SITES_LIMIT = 10;
 
 function processHistoryResults(results, categoryMap) {
@@ -65,7 +63,6 @@ function processHistoryResults(results, categoryMap) {
         allDomainsWithData.push({ 
             domain, 
             visits
-            // REMOVED faviconUrl property
         });
     });
 
@@ -91,11 +88,8 @@ function processHistoryResults(results, categoryMap) {
 
 
 function SiteListItem({ site, mode, websiteStats }) {
-    // REMOVED imgSrc, fallbackIcon, and handleImageError logic
-
     return (
         <li className="site-list-item">
-            {/* REMOVED <img> tag */}
             <a 
                 href={`https://${site.domain}`} 
                 target="_blank" 
@@ -106,32 +100,11 @@ function SiteListItem({ site, mode, websiteStats }) {
             </a>
             <span style={{ fontWeight: 'bold', flexShrink: 0 }}>
                 ({site.visits} visits)
-               
+                
             </span>
         </li>
     );
 }
-
-/*
-function DisplayTime({site}) {
-  let now = 0;
-  chrome.storage.local.get(["tabStartTimes", "tabStopTimes"], (res) => {
-    if (res) {
-        const starts = res.tabStartTimes || {};
-        const stops = res.tabStopTimes || {};
-        if (stops[site]) {
-          now = stops[site] - starts[site];
-        }
-    }
-  });
-  if (now == 0) {
-    return ("Unknown")
-  }
-  else {
-    return (formatTime(now))
-  }
-}*/
-
 
 // NEW: Function to get and display website time from your tracking feature
 function DisplayTime({ site, websiteStats }) {
@@ -184,7 +157,6 @@ function StatsPage() {
 
     // NEW: Add website time tracking stats
     const [websiteStats, setWebsiteStats] = useState({});
-    // Removed: dailyVisitData
     
     // UI States
     const [sortBy, setSortBy] = useState('visits');
@@ -335,30 +307,6 @@ const fetchWebsiteStats = () => {
     }, [mode]);
 
     // --- Data Fetching and Refresh ---
-    /*
-    const fetchHistory = (maxResults = 5000) => {
-        setLoading(true);
-        const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
-
-        if (!chrome || !chrome.history) {
-            console.error('chrome.history not available.');
-            setLoading(false);
-            return;
-        }
-
-        chrome.history.search({ text: '', startTime, maxResults }, (results) => {
-            const data = processHistoryResults(results);
-
-            setUniqueCount(data.uniqueCount);
-            setCategoryCounts(data.categoryTotals);
-            setDomainCategoryList(data.domainCategoryList);
-            setTopSitesData(data.allDomainsWithData);
-            setTotalVisits(data.totalVisits);
-            // Removed: setDailyVisitData
-            setLoading(false);
-        });
-    };
-    */
     const fetchHistory = (maxResults = 5000) => {
     setLoading(true);
     const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
@@ -393,7 +341,6 @@ const fetchWebsiteStats = () => {
     
     useEffect(() => {
         fetchHistory();
-        //setTime(time_get());
          time_get().then(setTime);
     }, []); 
 
@@ -454,7 +401,28 @@ const fetchWebsiteStats = () => {
                         <div className="control-group">
                             <button onClick={() => exportData('csv')} className="control-btn">⬇️ Export</button>
                             <button onClick={() => window.location.reload()} className="control-btn">🔄 Refresh</button>
-                            <button onClick={toggleMode} className="mode-toggle">{mode === 'light' ? '🌙' : '☀️'}</button>
+                            {/* --- THIS IS THE UPDATED BUTTON --- */}
+                            <button onClick={toggleMode} className="mode-toggle">
+                                <svg 
+                                  xmlns="http://www.w3.org/2000/svg" 
+                                  viewBox="0 0 24 24" 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  strokeWidth="2.5" 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round"
+                                >
+                                  <circle cx="12" cy="12" r="5" />
+                                  <line x1="12" y1="1" x2="12" y2="3" />
+                                  <line x1="12" y1="21" x2="12" y2="23" />
+                                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                                  <line x1="1" y1="12" x2="3" y2="12" />
+                                  <line x1="21" y1="12" x2="23" y2="12" />
+                                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 )}
@@ -500,7 +468,6 @@ const fetchWebsiteStats = () => {
                                         <td>{row.domain}</td>
                                         <td>{row.category}</td>
                                         <td>{row.visits}</td>
-
                                     </tr>
                                 ))}
                             </tbody>
@@ -519,3 +486,4 @@ root.render(
     <StatsPage />
   </React.StrictMode>
 );
+
