@@ -106,7 +106,7 @@ function SiteListItem({ site, mode, websiteStats }) {
             </a>
             <span style={{ fontWeight: 'bold', flexShrink: 0 }}>
                 ({site.visits} visits)
-                (<DisplayTime site={site.domain} websiteStats={websiteStats} /> spent)
+               
             </span>
         </li>
     );
@@ -130,8 +130,8 @@ function DisplayTime({site}) {
   else {
     return (formatTime(now))
   }
-}
-*/
+}*/
+
 
 // NEW: Function to get and display website time from your tracking feature
 function DisplayTime({ site, websiteStats }) {
@@ -493,14 +493,14 @@ const fetchWebsiteStats = () => {
                             </select>
                         </div>
                         <table className="domain-table">
-                            <thead><tr><th>Domain</th><th>Category</th><th>Visits</th><th>Time Spent</th></tr></thead>
+                            <thead><tr><th>Domain</th><th>Category</th><th>Visits</th></tr></thead>
                             <tbody>
                                 {filteredDomainList.map(row => (
                                     <tr key={row.domain}>
                                         <td>{row.domain}</td>
                                         <td>{row.category}</td>
                                         <td>{row.visits}</td>
-                                        <td><DisplayTime site={row.domain} websiteStats={websiteStats} /></td>
+
                                     </tr>
                                 ))}
                             </tbody>
