@@ -51,7 +51,7 @@ body.dark-mode {
 .metric-and-control-group {
    display: flex;
    gap: 12px;
-   align-items: center;
+   align-items: center; /* This will now align all 5 items */
    flex-wrap: wrap;
 }
 
@@ -65,6 +65,8 @@ body.dark-mode {
    font-size: 0.9rem;
    font-weight: 500;
    color: #374151;
+   height: 18px; /* This is good, it keeps the height uniform */
+   /* REMOVED width, min-width, and justify-content */
 }
 
 .metric-chip span {
@@ -85,8 +87,10 @@ body.dark-mode {
    color: #374151;
    display: inline-flex;
    align-items: center;
-   gap: 6px;
+   gap: 8px;
    transition: background-color 0.2s ease;
+   height: 30px; /* This is good, it keeps the height uniform */
+   /* REMOVED width, min-width, and justify-content */
 }
 
 .control-btn:hover,
@@ -176,13 +180,13 @@ body.dark-mode .metric-chip {
 body.dark-mode .metric-chip span {
    color: #fff;
 }
-
+ 
 body.dark-mode .control-btn,
 body.dark-mode .mode-toggle {
    background: #374151;
    color: #e5e7eb;
 }
-
+ 
 body.dark-mode .control-btn:hover,
 body.dark-mode .mode-toggle:hover {
    background: #4b5563;
