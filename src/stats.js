@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import Chart from 'chart.js/auto';
 import './stats.css';
-import { time_get} from "./storage.js";
 
 // --- HELPERS (Defined at the top level) ---
 
@@ -34,6 +33,9 @@ function extractDomain(url) {
 const TOP_SITES_LIMIT = 10;
 
 function processHistoryResults(results, categoryMap) {
+    // Get your extension's own ID
+    const myId = (chrome && chrome.runtime) ? chrome.runtime.id : null;
+    
     const domainMap = new Map();
     let totalVisits = 0;
 
@@ -41,7 +43,12 @@ function processHistoryResults(results, categoryMap) {
         if (!item.url || !item.visitCount) return;
         
         const domain = extractDomain(item.url);
-        if (!domain) return;
+
+        // Skip this item if it's your own extension
+        if (!domain || domain === myId) {
+            return; 
+        }
+
         const visits = item.visitCount || 1;
         totalVisits += visits;
 
@@ -87,7 +94,7 @@ function processHistoryResults(results, categoryMap) {
 // --- REACT COMPONENTS ---
 
 
-function SiteListItem({ site, mode, websiteStats }) {
+function SiteListItem({ site, mode }) { 
     return (
         <li className="site-list-item">
             <a 
@@ -100,48 +107,10 @@ function SiteListItem({ site, mode, websiteStats }) {
             </a>
             <span style={{ fontWeight: 'bold', flexShrink: 0 }}>
                 ({site.visits} visits)
-                
             </span>
         </li>
     );
 }
-
-// NEW: Function to get and display website time from your tracking feature
-function DisplayTime({ site, websiteStats }) {
-  // FIX: Better handling of empty or missing stats
-  if (!websiteStats || Object.keys(websiteStats).length === 0) {
-    return "0s";
-  }
-  
-  if (!websiteStats[site]) {
-    return "0s";
-  }
-  
-  const totalSeconds = websiteStats[site];
-  return formatTimeFromSeconds(totalSeconds);
-}
-
-// NEW: Format seconds to readable time (different from the existing formatTime which uses milliseconds)
-function formatTimeFromSeconds(seconds) {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  
-  if (h > 0) {
-    return `${h}h ${m}m`;
-  } else if (m > 0) {
-    return `${m}m ${s}s`;
-  } else {
-    return `${s}s`;
-  }
-}
-
-const formatTime = (ms) => {
-  const h = Math.floor(ms / 3600000);
-  const m = Math.floor((ms % 3600000) / 60000);
-  const s = Math.floor((ms % 60000) / 1000);
-  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-};
 
 // --- Main App Component ---
 
@@ -154,16 +123,12 @@ function StatsPage() {
     const [categoryCounts, setCategoryCounts] = useState({});
     const [domainCategoryList, setDomainCategoryList] = useState([]);
     const [topSitesData, setTopSitesData] = useState([]);
-
-    // NEW: Add website time tracking stats
-    const [websiteStats, setWebsiteStats] = useState({});
     
     // UI States
     const [sortBy, setSortBy] = useState('visits');
     const [sortOrder, setSortOrder] = useState('desc');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [mode, setMode] = useState(() => localStorage.getItem('mode') || 'light');
-    const [time, setTime] = useState(0);
     
     const chartRef = useRef(null);
     const chartInstanceRef = useRef(null);
@@ -172,22 +137,6 @@ function StatsPage() {
     useEffect(() => {
         const initialize = async () => {
             setLoading(true);
-
-            // Promise to fetch website stats
-            const statsPromise = new Promise(resolve => {
-                if (!chrome || !chrome.runtime || !chrome.runtime.sendMessage) {
-                    resolve({});
-                    return;
-                }
-                chrome.runtime.sendMessage({ type: 'GET_WEBSITE_STATS' }, (response) => {
-                    if (chrome.runtime.lastError) {
-                        console.error('Error fetching website stats:', chrome.runtime.lastError.message);
-                        resolve({});
-                    } else {
-                        resolve(response?.websiteStats || {});
-                    }
-                });
-            });
 
             // Promise to fetch the category map
             const mapPromise = (async () => {
@@ -213,10 +162,8 @@ function StatsPage() {
                 return finalMap;
             })();
 
-            // Run all promises concurrently
             try {
-                const [stats, map] = await Promise.all([statsPromise, mapPromise]);
-                setWebsiteStats(stats);
+                const map = await mapPromise;
                 setCategoryMap(map); // This triggers the next useEffect
             } catch (error) {
                 console.error("Initialization failed:", error);
@@ -225,7 +172,6 @@ function StatsPage() {
         };
 
         initialize();
-        time_get().then(setTime);
     }, []);
 
     // This effect runs AFTER the categoryMap is successfully loaded
@@ -258,38 +204,6 @@ function StatsPage() {
         document.body.className = mode === 'dark' ? 'dark-mode' : '';
     }, [mode]);
 
-
-    // NEW: Function to get website time tracking stats
-const fetchWebsiteStats = () => {
-    return new Promise((resolve) => {
-        // FIX: Add chrome runtime check
-        if (!chrome || !chrome.runtime) {
-            console.log('❌ Chrome runtime not available');
-            resolve({});
-            return;
-        }
-
-        chrome.runtime.sendMessage({ type: 'GET_WEBSITE_STATS' }, (response) => {
-            // FIX: Check for runtime errors
-            if (chrome.runtime.lastError) {
-                console.error('❌ Error fetching website stats:', chrome.runtime.lastError);
-                resolve({});
-                return;
-            }
-
-            if (response && response.websiteStats) {
-                setWebsiteStats(response.websiteStats);
-                console.log('✅ Website stats loaded:', response.websiteStats);
-                resolve(response.websiteStats);
-            } else {
-                console.log('⚠️ No website stats available');
-                setWebsiteStats({});
-                resolve({});
-            }
-        });
-    });
-};
-
     const toggleMode = () => {
         setMode(prev => {
             const newMode = prev === 'light' ? 'dark' : 'light';
@@ -298,51 +212,37 @@ const fetchWebsiteStats = () => {
         });
     };
 
-    useEffect(() => {
-        if (mode === 'dark') {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
-    }, [mode]);
-
     // --- Data Fetching and Refresh ---
     const fetchHistory = (maxResults = 5000) => {
-    setLoading(true);
-    const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
+        setLoading(true);
+        const startTime = Date.now() - 90 * 24 * 60 * 60 * 1000;
 
-    if (!chrome || !chrome.history) {
-        console.error('chrome.history not available.');
-        setLoading(false);
-        return;
-    }
+        if (!chrome || !chrome.history) {
+            console.error('chrome.history not available.');
+            setLoading(false);
+            return;
+        }
 
-    // NEW: Load both history and website stats
-    Promise.all([
         new Promise(resolve => {
             chrome.history.search({ text: '', startTime, maxResults }, resolve);
-        }),
-        fetchWebsiteStats()
-    ]).then(([results, websiteStatsData]) => {
-        const data = processHistoryResults(results);
+        }).then((results) => {
+            if (!categoryMap) { // Guard against race condition
+                setLoading(false);
+                return; 
+            }
+            const data = processHistoryResults(results, categoryMap);
 
-        setUniqueCount(data.uniqueCount);
-        setCategoryCounts(data.categoryTotals);
-        setDomainCategoryList(data.domainCategoryList);
-        setTopSitesData(data.allDomainsWithData);
-        setTotalVisits(data.totalVisits);
-        setLoading(false);
-    }).catch(error => {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-    });
-};
-    
-    
-    useEffect(() => {
-        fetchHistory();
-         time_get().then(setTime);
-    }, []); 
+            setUniqueCount(data.uniqueCount);
+            setCategoryCounts(data.categoryTotals);
+            setDomainCategoryList(data.domainCategoryList);
+            setTopSitesData(data.allDomainsWithData);
+            setTotalVisits(data.totalVisits);
+            setLoading(false);
+        }).catch(error => {
+            console.error('Error fetching data:', error);
+            setLoading(false);
+        });
+    };
 
     // --- UI/Sort/Filter Logic ---
 
@@ -370,20 +270,112 @@ const fetchWebsiteStats = () => {
             .sort((a, b) => b.visits - a.visits);
     }, [domainCategoryList, selectedCategory]);
 
-    const exportData = (format) => { /* ... export logic ... */ };
+    
+    // --- THIS IS THE NEW "FULL PAGE" EXPORT FUNCTION ---
+    const exportData = (format) => {
+        if (format !== 'csv' || loading) {
+            console.warn("No data to export or still loading.");
+            return;
+        }
+
+        // Helper function to escape commas in CSV fields
+        const csvSafe = (str) => `"${String(str).replace(/"/g, '""')}"`;
+
+        let csvContent = "";
+
+        // --- Section 1: Summary Stats ---
+        csvContent += "Summary Stats\n";
+        csvContent += "Metric,Value\n";
+        csvContent += `Total Unique Domains,${uniqueCount}\n`;
+        csvContent += `Total Visits,${totalVisits.toLocaleString()}\n`;
+        csvContent += "\n"; // Add a blank line for spacing
+
+        // --- Section 2: Visits by Category (Pie Chart Data) ---
+        csvContent += "Visits by Category\n";
+        csvContent += "Category,Visits,Percentage\n";
+        const totalCategoryVisits = Object.values(categoryCounts).reduce((a, b) => a + b, 0);
+        
+        Object.entries(categoryCounts).forEach(([category, visits]) => {
+            const percentage = totalCategoryVisits > 0 ? ((visits / totalCategoryVisits) * 100).toFixed(1) : 0;
+            csvContent += `${csvSafe(category)},${visits},${percentage}%\n`;
+        });
+        csvContent += "\n";
+
+        // --- Section 3: Top 10 Most Visited Sites ---
+        csvContent += "Top 10 Most Visited Sites\n";
+        csvContent += "Rank,Domain,Visits\n";
+        sortedTopSites.forEach((site, index) => {
+            csvContent += `${index + 1},${csvSafe(site.domain)},${site.visits}\n`;
+        });
+        csvContent += "\n";
+
+        // --- Section 4: Full Domain List ---
+        csvContent += "Full Domain List\n";
+        csvContent += "Domain,Category,Visits\n";
+        // Sort the full list by visits for the export
+        const sortedFullList = [...domainCategoryList].sort((a, b) => b.visits - a.visits);
+        sortedFullList.forEach(row => {
+            csvContent += `${csvSafe(row.domain)},${csvSafe(row.category)},${row.visits}\n`;
+        });
+
+        // --- Create and trigger download link ---
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", "FocusFlow_Stats_Report.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        
+        link.click(); // Download the data
+        
+        document.body.removeChild(link); // Clean up
+    };
+
 
     useEffect(() => { // Chart drawing logic
         if (!chartRef.current || Object.keys(categoryCounts).length === 0) return;
         if (chartInstanceRef.current) chartInstanceRef.current.destroy();
 
-        const labels = Object.keys(categoryCounts);
-        const data = labels.map(l => categoryCounts[l]);
+        const labelNames = Object.keys(categoryCounts);
+        const data = labelNames.map(l => categoryCounts[l]);
+        const total = data.reduce((acc, val) => acc + val, 0);
+
+        const formattedLabels = labelNames.map((label, index) => {
+            const value = data[index];
+            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            return `${label} (${percentage}%)`;
+        });
+
         const backgroundColors = ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#c9cbcf'];
 
         chartInstanceRef.current = new Chart(chartRef.current, {
             type: 'pie',
-            data: { labels, datasets: [{ data, backgroundColor: backgroundColors, borderColor: mode === 'dark' ? '#374151' : '#fff' }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: mode === 'dark' ? '#f3f4f6' : '#111827' } } } }
+            data: { 
+                labels: formattedLabels, 
+                datasets: [{ data, backgroundColor: backgroundColors, borderColor: mode === 'dark' ? '#374151' : '#fff' }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { 
+                        position: 'right', 
+                        labels: { 
+                            color: mode === 'dark' ? '#f3f4f6' : '#111827' 
+                        } 
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw || 0;
+                                return `${context.label}: ${value} visits`;
+                            }
+                        }
+                    }
+                } 
+            }
         });
         return () => chartInstanceRef.current?.destroy();
     }, [categoryCounts, mode]);
@@ -398,7 +390,6 @@ const fetchWebsiteStats = () => {
                         <div className="metric-chip">Domains: <span>{uniqueCount}</span></div>
                         <div className="metric-chip">Visits: <span>{totalVisits.toLocaleString()}</span></div>
                         
-                        {/* --- THIS IS THE FIX: REMOVED EMOJIS --- */}
                         <button onClick={() => exportData('csv')} className="control-btn">Export</button>
                         <button onClick={() => window.location.reload()} className="control-btn">Refresh</button>
                         <button onClick={toggleMode} className="mode-toggle">
@@ -441,7 +432,7 @@ const fetchWebsiteStats = () => {
                                 </button>
                             </div>
                             <ol className="top-sites-list">
-                                {sortedTopSites.map(s => <SiteListItem key={s.domain} site={s} mode={mode} websiteStats={websiteStats} />)}
+                                {sortedTopSites.map(s => <SiteListItem key={s.domain} site={s} mode={mode} />)}
                             </ol>
                         </div>
                         <div className="chart-card card pie-chart-card">
@@ -484,4 +475,3 @@ root.render(
     <StatsPage />
   </React.StrictMode>
 );
-

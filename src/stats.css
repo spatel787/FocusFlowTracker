@@ -65,8 +65,7 @@ body.dark-mode {
    font-size: 0.9rem;
    font-weight: 500;
    color: #374151;
-   height: 18px; /* This is good, it keeps the height uniform */
-   /* REMOVED width, min-width, and justify-content */
+   height: 18px; 
 }
 
 .metric-chip span {
@@ -89,8 +88,7 @@ body.dark-mode {
    align-items: center;
    gap: 8px;
    transition: background-color 0.2s ease;
-   height: 30px; /* This is good, it keeps the height uniform */
-   /* REMOVED width, min-width, and justify-content */
+   height: 30px; 
 }
 
 .control-btn:hover,
@@ -108,7 +106,7 @@ body.dark-mode {
 /* --- Summary Layout --- */
 .summary {
    display: grid;
-   grid-template-columns: 40% 60%; 
+   grid-template-columns: 40% 50%; /* <-- CHANGED THIS LINE */
    gap: 40px;
    align-items: start;
 }
