@@ -12,6 +12,12 @@ Our main goal with this product is to help users develop healthy digital habits 
 
 ![Local Image](PopupGraphic.png)
 
+## Installation
+Instructions coming soon
+
+## Using the extension
+Once chrome is running the extension, you can begin using it. By clicking extensions and then Focus Flow Tracker, you can open the popup, which displays the distraction score, session timer, and links to the extension pages. Clicking the start button begins tracking. While tracking is active, the distraction score keeps track of your focus, the extension blocks ads, and the session timer counts up. (Switching out of chrome may disable tracking. This can lead to undefined behavior. For best results, keep chrome open while tracking is enabled.) There are three pages that come with focus flow tracker. The Blocked Sites page allows you to manage distraction websites. You can add a site as a distraction and set the extension to either send a warning when you open the site, or block it entirely. (This does not work with YouTube for some reason). The Notes page allows you to write whatever you want. Focus Flow Tracker will store your notes between sessions and even allow you to download your notes as a .txt file. The Stats page uses chrome analytics to show you which websites you have visited recently and how often you visited them. Every feature of the extension has a dark mode option.
+
 ## Group Members
 Davyn Mengeling [DMengeli04](https://github.com/DMengeli04)
 
