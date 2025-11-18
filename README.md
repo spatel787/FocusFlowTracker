@@ -22,3 +22,5 @@ Alex Rother [alexrother](https://github.com/alexrother)
 Manihams Suraparaju [manihams](https://github.com/manihams)
 
 Jeffrey Wiggs [UltraStarcastic](https://github.com/UltraStarcastic)
+
+[License information](https://github.com/utk-cs340-fall25/FocusFlowTracker/blob/main/LICENSE)
