@@ -1,6 +1,14 @@
 # FocusFlowTracker
-Focus Flow Tracker is a product aimed to help users track their time on their online activities, monitor how much time they spend on each tab they open, how often they get distracted by moving away from the tab they should be focusing on, minimize distraction, and also provide appropriate feedback and reminders like breaks to help them create a balance. Our main goal with this product is to help users develop healthy digital habits and make the most out of their time.
+Focus Flow Tracker is a chrome extension designed to help users stay focused and productive. This is accomplished through a variety of features.
+*Distraction score that goes down when the user changes tabs
+*Page warnings that warn the users when they visit problem pages
+*Page blocker that stops users from accessing a page at all
+*Time tracking so users know how long they've been working
+*Usage statistics for all the sites visited and frequency of visits
+*Notes page that allows downloadable txt files
+*Ad blocking while tracking is active
 
+Our main goal with this product is to help users develop healthy digital habits and make the most out of their time.
 
 ![Local Image](PopupGraphic.png)
 
