@@ -3,12 +3,12 @@ Focus Flow Tracker is a product aimed to help users track their time on their on
 
 
 ## Group Members
-Davyn Mengeling (DMengeli04)
+Davyn Mengeling [DMengeli04](https://github.com/DMengeli04)
 
-Siddh Patel (spatel787)
+Siddh Patel [spatel787](https://github.com/spatel787)
 
-Jeffrey Wiggs (UltraStarcastic)
+Alex Rother [alexrother](https://github.com/alexrother)
 
-Alex Rother (alexrother)
+Manihams Suraparaju [manihams](https://github.com/manihams)
 
-Manihams Suraparaju (manihams)
+Jeffrey Wiggs [UltraStarcastic](https://github.com/UltraStarcastic)
