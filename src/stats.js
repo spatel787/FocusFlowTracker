@@ -89,10 +89,7 @@ function processHistoryResults(results, categoryMap) {
     };
 }
 
-
-
 // --- REACT COMPONENTS ---
-
 
 function SiteListItem({ site, mode }) { 
     return (
@@ -271,26 +268,25 @@ function StatsPage() {
     }, [domainCategoryList, selectedCategory]);
 
     
-    // --- THIS IS THE NEW "FULL PAGE" EXPORT FUNCTION ---
+    // --- FULL PAGE EXPORT FUNCTION ---
     const exportData = (format) => {
         if (format !== 'csv' || loading) {
             console.warn("No data to export or still loading.");
             return;
         }
 
-        // Helper function to escape commas in CSV fields
         const csvSafe = (str) => `"${String(str).replace(/"/g, '""')}"`;
 
         let csvContent = "";
 
-        // --- Section 1: Summary Stats ---
+        // 1. Summary Stats
         csvContent += "Summary Stats\n";
         csvContent += "Metric,Value\n";
         csvContent += `Total Unique Domains,${uniqueCount}\n`;
         csvContent += `Total Visits,${totalVisits.toLocaleString()}\n`;
-        csvContent += "\n"; // Add a blank line for spacing
+        csvContent += "\n"; 
 
-        // --- Section 2: Visits by Category (Pie Chart Data) ---
+        // 2. Visits by Category
         csvContent += "Visits by Category\n";
         csvContent += "Category,Visits,Percentage\n";
         const totalCategoryVisits = Object.values(categoryCounts).reduce((a, b) => a + b, 0);
@@ -301,7 +297,7 @@ function StatsPage() {
         });
         csvContent += "\n";
 
-        // --- Section 3: Top 10 Most Visited Sites ---
+        // 3. Top 10 Most Visited Sites
         csvContent += "Top 10 Most Visited Sites\n";
         csvContent += "Rank,Domain,Visits\n";
         sortedTopSites.forEach((site, index) => {
@@ -309,16 +305,14 @@ function StatsPage() {
         });
         csvContent += "\n";
 
-        // --- Section 4: Full Domain List ---
+        // 4. Full Domain List
         csvContent += "Full Domain List\n";
         csvContent += "Domain,Category,Visits\n";
-        // Sort the full list by visits for the export
         const sortedFullList = [...domainCategoryList].sort((a, b) => b.visits - a.visits);
         sortedFullList.forEach(row => {
             csvContent += `${csvSafe(row.domain)},${csvSafe(row.category)},${row.visits}\n`;
         });
 
-        // --- Create and trigger download link ---
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
@@ -328,9 +322,9 @@ function StatsPage() {
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         
-        link.click(); // Download the data
+        link.click(); 
         
-        document.body.removeChild(link); // Clean up
+        document.body.removeChild(link); 
     };
 
 
@@ -348,7 +342,14 @@ function StatsPage() {
             return `${label} (${percentage}%)`;
         });
 
-        const backgroundColors = ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#c9cbcf'];
+        // --- EXPANDED COLOR PALETTE FOR DISTINCT COLORS ---
+        const backgroundColors = [
+            '#FF6384', '#36A2EB', '#FFCD56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF',
+            '#B2EBF2', '#A7FFEB', '#CCFF90', '#F4FF81', '#FFE082', '#FFCCBC', '#D7CCC8',
+            '#CFD8DC', '#7986CB', '#64B5F6', '#4DD0E1', '#4DB6AC', '#81C784', '#AED581',
+            '#DCE775', '#FFF176', '#FFD54F', '#FFB74D', '#FF8A65', '#EF5350', '#EC407A',
+            '#AB47BC', '#7E57C2', '#5C6BC0', '#42A5F5' // Added more colors
+        ];
 
         chartInstanceRef.current = new Chart(chartRef.current, {
             type: 'pie',
@@ -391,7 +392,7 @@ function StatsPage() {
                         <div className="metric-chip">Visits: <span>{totalVisits.toLocaleString()}</span></div>
                         
                         <button onClick={() => exportData('csv')} className="control-btn">Export</button>
-                        <button onClick={() => window.location.reload()} className="control-btn">Refresh</button>
+                        
                         <button onClick={toggleMode} className="mode-toggle">
                             <svg 
                               xmlns="http://www.w3.org/2000/svg" 

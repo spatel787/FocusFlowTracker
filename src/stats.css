@@ -51,7 +51,7 @@ body.dark-mode {
 .metric-and-control-group {
    display: flex;
    gap: 12px;
-   align-items: center; /* This will now align all 5 items */
+   align-items: center; /* This will now align all items */
    flex-wrap: wrap;
 }
 
@@ -106,8 +106,8 @@ body.dark-mode {
 /* --- Summary Layout --- */
 .summary {
    display: grid;
-   grid-template-columns: 40% 50%; /* <-- CHANGED THIS LINE */
-   gap: 40px;
+   grid-template-columns: 50% 50%; 
+   gap: 25px;
    align-items: start;
 }
 
@@ -185,8 +185,8 @@ body.dark-mode .mode-toggle {
    color: #e5e7eb;
 }
  
-body.dark-mode .control-btn:hover,
-body.dark-mode .mode-toggle:hover {
+body.dark-route .control-btn:hover,
+body.dark-route .mode-toggle:hover {
    background: #4b5563;
 }
 
